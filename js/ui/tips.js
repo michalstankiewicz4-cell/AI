@@ -15,6 +15,7 @@ export const TIPS = {
   'Pobierz': 'Pobierz dokument do biblioteki (z adresem źródła).',
   'Pobierz nową wersję': 'Pobierz aktualny tekst aktu; poprzednia wersja zostaje w bibliotece.',
   'Dodaj nową wersję': 'Dodaj aktualny tekst ze źródła jako nowy dokument; poprzedni zostaje.',
+  'Dodaj': 'Dodaj to źródło do listy.',
   'Dodaj jako źródło': 'Dodaj tę domenę do listy źródeł.',
   'Sprawdź zmiany u źródła': 'Pobierz ponownie dokumenty z adresem źródła i porównaj treść z tą w bibliotece.',
   'Research': 'Źródła dokumentów: sprawdzanie i pobieranie.',
@@ -61,6 +62,7 @@ export const TIPS = {
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Dodaj wszystkie \(/.test(label)) return 'Dodaj wszystkie znane źródła z katalogu do listy.';
   if (/^Pobierz wszystkie nowe/.test(label)) return 'Pobierz do biblioteki wszystkie dokumenty, których jeszcze nie masz.';
   if (/^Formatuj wszystkie ponownie/.test(label)) return 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.';
   if (/^Zatwierdź bez ostrzeżeń/.test(label)) return 'Zatwierdź tylko dokumenty, przy których formatowanie nie zgłosiło ostrzeżeń.';

@@ -23,9 +23,11 @@ Siedem kafelków-kroków ze stanem: źródła w Researchu (ile, ile dokumentów 
 ## Research
 Źródła dokumentów (przed Dokumentami, bez koloru):
 - **Czy dokument był już pobrany?** – adres → wynik „już pobrany” (po adresie albo po treści, z odnośnikiem do dokumentu) albo „nie ma” z przyciskiem *Pobierz do dokumentów*.
-- **Źródła** – strona www albo API aktów prawnych Sejmu (ELI). Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
+- **Źródła** – strona www, API aktów prawnych Sejmu (ELI) albo inne API zwracające JSON. Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
   - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;
   - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*.
+  - API (JSON): czy działa, liczba pozycji (i wszystkich), pierwsze pozycje, zmiana od poprzedniego sprawdzenia.
+- **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, druki Sejmu) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
 - **Domeny z dokumentów** bez źródła – *Dodaj jako źródło*.
 - **Dokumenty z adresem źródła** – *Sprawdź zmiany u źródła*, przy zmienionych *Dodaj nową wersję*.
 

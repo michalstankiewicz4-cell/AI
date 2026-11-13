@@ -44,3 +44,4 @@ input.srcurl { margin-top: .3em; font-size: .82rem; padding: .3em .55em; backgro
 table.srctable td { font-size: .86rem; vertical-align: top; } table.srctable code { font-size: .8rem; white-space: nowrap; }
 .okline { background: var(--ok-soft); border-left: 3px solid var(--ok); padding: .45em .7em; border-radius: 4px; font-size: .9rem; }
 .urlout { margin-top: .4em; }
+.catalog { margin-top: .8em; } .catrow { border-bottom: 1px solid var(--line); padding: .35em 0; } .catrow .note { flex: 1 1 280px; }

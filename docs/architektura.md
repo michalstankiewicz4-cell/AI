@@ -37,7 +37,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
-| `sources.js` | Research: źródła (www, API ELI), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
+| `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
 ### `js/reader/` – odczyt plików
 | Plik | Rola |

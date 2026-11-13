@@ -2,6 +2,12 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.6.3 – 2026-11-13
+
+- Research: katalog **znanych źródeł** do dodania jednym kliknięciem („Dodaj”, „Dodaj wszystkie”): Dziennik Ustaw i Monitor Polski (API ELI), UOKiK (decyzje), UODO (decyzje), KNF (rekomendacje dla banków, Dziennik Urzędowy KNF), ZUS (interpretacje, BIP), KIS (EUREKA), SAOS (orzeczenia, API) i druki Sejmu (API).
+- Nowy rodzaj źródła **API (JSON)**: sprawdzenie, czy działa, czas odpowiedzi, liczba pozycji, pierwsze pozycje i zmiana od poprzedniego sprawdzenia.
+- Poprawka: akty pobrane z API ELI liczą się tylko przy źródle ELI tego samego wydawnictwa (wcześniej także przy innych źródłach z domeny api.sejm.gov.pl).
+
 ## 0.6.2 – 2026-11-13
 
 - Kolory: Research bez koloru, Dokumenty fioletowe razem z Formatowaniem i Nauką; Rozmowy wzorcowe i Dostrajanie zielone bez zmian.

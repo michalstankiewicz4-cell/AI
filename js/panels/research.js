@@ -3,7 +3,7 @@
 
 import { h, help, toast, confirmBox, modal, num, date, clear, plural } from '../ui/dom.js';
 import { listSources, saveSource, deleteSource, newSource, hostOf, sourcesFromDocuments, docsOfSource, checkSource,
-  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS } from '../core/sources.js';
+  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog } from '../core/sources.js';
 import { listDocs, addDoc } from '../core/documents.js';
 import { go } from '../main.js';
 
@@ -61,10 +61,10 @@ export default {
       const eliBox = h('div.fields', h('div.field', h('label', 'Wydawnictwo'), pub), h('div.field', h('label', 'Lata', help('Z których lat sprawdzać akty (oddzielone przecinkami). Każdy rok to jedno zapytanie do API.', 'research-eli')), years),
         h('div.field', h('label', 'Tylko tytuły zawierające', help('Słowa oddzielone przecinkami: pokazywane są akty, których tytuł zawiera którekolwiek z nich. W Dzienniku Ustaw jest ok. 2000 aktów rocznie, więc filtr pomaga znaleźć te, które Cię interesują.', 'research-eli')), filter));
       const kind = h('select', { onchange: () => { eliBox.hidden = kind.value !== 'eli'; if (kind.value === 'eli' && !url.value) url.value = ELI_API; } },
-        h('option', { value: 'www', selected: s.kind === 'www' }, 'strona www z dokumentami'), h('option', { value: 'eli', selected: s.kind === 'eli' }, 'API aktów prawnych Sejmu (ELI)'));
+        h('option', { value: 'www', selected: s.kind === 'www' }, 'strona www z dokumentami'), h('option', { value: 'eli', selected: s.kind === 'eli' }, 'API aktów prawnych Sejmu (ELI)'), h('option', { value: 'api', selected: s.kind === 'api' }, 'API (JSON) – inne'));
       eliBox.hidden = s.kind !== 'eli';
       const close = modal(src ? `Źródło: ${s.name}` : 'Nowe źródło',
-        h('div.fields', h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Rodzaj', help('Strona www: panel szuka na niej linków do dokumentów (PDF, Word, HTML…). API ELI: lista aktów Dziennika Ustaw albo Monitora Polskiego z wybranych lat, z datą ostatniej zmiany każdego aktu.', 'research-zrodla')), kind)),
+        h('div.fields', h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Rodzaj', help('Strona www: panel szuka na niej linków do dokumentów (PDF, Word, HTML…). API ELI: lista aktów Dziennika Ustaw albo Monitora Polskiego z wybranych lat, z datą ostatniej zmiany każdego aktu. API (JSON): dowolne API zwracające JSON – sprawdzane jest, czy działa, ile ma pozycji i czy coś się zmieniło.', 'research-zrodla')), kind)),
         h('div.field', h('label', 'Adres'), url), h('div.field', h('label', 'Opis'), desc), eliBox,
         h('div.row.end', h('button', { type: 'button', onclick: async () => {
           if (!name.value.trim() || !/^https?:\/\//.test(url.value.trim())) return toast('Podaj nazwę i pełny adres (https://…).', 'error');
@@ -133,19 +133,30 @@ export default {
       return h('details', { open: true }, h('summary', 'Akty prawne'), box);
     }
 
+    function apiView(s) {
+      const L = s.last; if (!L || !L.ok) return null;
+      return h('details', h('summary', `Odpowiedź API: ${L.count != null ? num(L.count) + ' pozycji' : 'JSON'}${L.total != null ? ` (wszystkich: ${num(L.total)})` : ''}`),
+        L.sample && L.sample.length ? h('ul', L.sample.map(x => h('li', x.label, x.date ? h('span.note', ' · ' + x.date) : null))) : h('p.note', 'API działa, ale odpowiedź nie zawiera listy pozycji.'));
+    }
+
     async function draw() {
       const all = await listSources();
       clear(list); clear(extra);
+      const miss = catalogMissing(all);
+      if (miss.length) extra.append(h('details.catalog', { open: !all.length }, h('summary', h('b', `Znane źródła do dodania (${miss.length})`), ' ', help('Oficjalne źródła dokumentów prawnych: akty (ELI), decyzje i rekomendacje urzędów (UOKiK, UODO, KNF), interpretacje (ZUS, KIS) oraz API (SAOS, Sejm). Po dodaniu możesz zmienić ich ustawienia w „Edytuj”.', 'research-zrodla')),
+        h('div.row.end', h('button', { type: 'button', onclick: async () => { for (const c of miss) await addFromCatalog(c); toast(`Dodano ${miss.length} źródeł.`, 'ok'); draw(); } }, `Dodaj wszystkie (${miss.length})`)),
+        ...miss.map(c => h('div.row.wrap.catrow', h('b', c.name), h('span.badge', c.kind === 'eli' ? 'API ELI' : c.kind === 'api' ? 'API (JSON)' : 'strona www'), h('span.note', c.description), h('span.sp'),
+          h('button.ghost.small', { type: 'button', onclick: async () => { await addFromCatalog(c); draw(); } }, 'Dodaj')))));
       if (!all.length) list.append(h('p.note', 'Brak źródeł. Dodaj stronę www z dokumentami albo API aktów prawnych Sejmu (ELI).'));
       for (const s of all) {
         const n = (await docsOfSource(s)).length, st = h('span.status');
         list.append(h('article.source',
-          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : 'strona www'),
+          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : s.kind === 'api' ? 'API (JSON)' : 'strona www'),
             h('a.note', { href: s.url, target: '_blank', rel: 'noopener' }, hostOf(s.url) || s.url), h('span.note', `dokumentów z tego źródła: ${num(n)}`), h('span.sp'), st,
             h('button.small', { type: 'button', onclick: () => checkOne(s, st) }, 'Sprawdź'),
             h('button.ghost.small', { type: 'button', onclick: () => editSource(s) }, 'Edytuj'),
             h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć źródło?', `${s.name} — dokumenty pobrane z niego zostają w bibliotece.`, 'Usuń', true)) { await deleteSource(s.id); draw(); } } }, 'Usuń')),
-          s.description ? h('p.note', s.description) : null, lastLine(s), s.kind === 'eli' ? actsView(s) : linksView(s)));
+          s.description ? h('p.note', s.description) : null, lastLine(s), s.kind === 'eli' ? actsView(s) : s.kind === 'api' ? apiView(s) : linksView(s)));
       }
       const fromDocs = await sourcesFromDocuments(all);
       if (fromDocs.length) extra.append(h('h3', 'Domeny z dokumentów, których nie ma na liście', help('Adresy źródła wpisane przy dokumentach wskazują strony, których nie ma jeszcze wśród źródeł.', 'research-zrodla')),
