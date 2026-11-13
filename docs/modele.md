@@ -9,7 +9,7 @@
   "id": "c_…", "name": "Rozmowa 3", "kind": "base | chat", "parent": "b_… | null",
   "createdAt": 1763050000000,
   "versions": { "app": "0.1.0", "engine": "1.0.0", "cleaner": "1.0.0" },
-  "hp": { "layers": 4, "dim": 128, "heads": 4, "ctx": 128, "unit": "bpe1024", "steps": 4000, "lr": 0.003, "device": "gpu" },
+  "hp": { "layers": 4, "dim": 128, "heads": 4, "ctx": 128, "unit": "bpe1024", "steps": 4000, "lr": 0.003, "generalShare": 20, "device": "gpu" },
   "metrics": { "val": 1.23, "bpc": 1.9, "steps": 4000, "…": "…" },
   "data": { "docs": 12, "chars": 900000, "dialogs": 0, "tags": { "user": "Ty:", "bot": "AI:" } },
   "sample": "…",
@@ -41,7 +41,7 @@ Wszystko (dokumenty, rozmowy, historia, ustawienia, modele) jest zapisane lokaln
 | | `models/index.json` | lista opublikowanych modeli |
 | Oznacz jako aktualny | `models/index.json` → `active` | model brany domyślnie przez inne aplikacje |
 | Ustawienia i wersje | `data/ustawienia.json` | `{ publishedAt, versions, settings }`, bez tokenu |
-| Dokumenty | `data/dokumenty.json` | pełne rekordy: oryginał, opis, rodzaj, status, tekst po formatowaniu, raport |
+| Dokumenty | `data/dokumenty.json` | pełne rekordy: oryginał, opis, rodzaj, status, tekst po formatowaniu, raport, adres źródła (ELI, data zmiany), oznaczenie tekstu ogólnego (`general`) |
 | Rozmowy wzorcowe | `data/rozmowy-wzorcowe.json` + `.txt` | `.json` – pełne rekordy do wczytania z powrotem; `.txt` – format do czytania (`Ty: … / AI: …`) |
 | Historia rozmów | `data/historia-rozmow.json` | rozmowy z czatu z ocenami i poprawkami |
 

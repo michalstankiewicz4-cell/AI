@@ -25,14 +25,14 @@ export const SECTIONS = [
   { id: 'krok-po-kroku', group: 'Start', title: 'Krok po kroku', topics: ['start', 'pulpit'], body: [
     ['p', 'AI uczy się w dwóch etapach: najpierw <b>języka</b> (z dokumentów), potem <b>odpowiadania</b> (z rozmów wzorcowych). Dalej uczy się z rozmów w czacie, które poprawiasz.'],
     ['steps', [
-      ['Research', 'Dodaj źródła dokumentów (strony www, API aktów prawnych Sejmu) i sprawdzaj je: co nowe, co się zmieniło, czy dokument już masz. Nowe dokumenty pobierasz prosto do biblioteki. Ten krok jest opcjonalny – pliki możesz też wgrywać ręcznie.'],
-      ['Dokumenty', 'Wgraj ustawy, kodeksy, orzeczenia, artykuły (.txt, .md, .html) i dopisz do nich opis. Każdy plik trafia do bazy z ikonką, nazwą i datą.'],
+      ['Research', 'Dodaj źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API; gotowy katalog: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm oraz tekst ogólny – stenogramy Sejmu i Wikipedia) i sprawdzaj je: co nowe, co się zmieniło, czy dokument już masz. Nowe dokumenty pobierasz prosto do biblioteki. Ten krok jest opcjonalny – pliki możesz też wgrywać ręcznie.'],
+      ['Dokumenty', 'Wgraj ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) i dopisz do nich opis. Tekst ogólny (nie prawniczy) oznacz polem „tekst ogólny”. Każdy plik trafia do bazy z ikonką, nazwą i datą.'],
       ['Formatowanie', 'Każdy wgrany dokument jest od razu przerabiany na dane do nauki. Obejrzyj wynik i raport zmian, a potem zatwierdź albo odrzuć. Do nauki trafiają tylko zatwierdzone.'],
-      ['Nauka', 'Sieć czyta zatwierdzone dokumenty i uczy się przewidywać dalszy ciąg tekstu. Tak poznaje słownictwo i budowę przepisów. Wynik to <b>model bazowy</b>, który pisze „po prawniczemu”, ale nie umie jeszcze odpowiadać na pytania.'],
+      ['Nauka', 'Sieć czyta zatwierdzone dokumenty i uczy się przewidywać dalszy ciąg tekstu. Tak poznaje słownictwo i budowę przepisów. Wynik to <b>model bazowy</b>, który pisze „po prawniczemu”, ale nie umie jeszcze odpowiadać na pytania. Tekst ogólny dochodzi do ustalonego udziału (domyślnie 20%).'],
       ['Rozmowy wzorcowe', 'Dopisz albo wczytaj z pliku przykłady: pytanie i poprawna odpowiedź. Im więcej i bardziej różnorodnych, tym lepiej.'],
       ['Dostrajanie', 'Model bazowy uczy się na rozmowach wzorcowych odpowiadać. Wynik to <b>model dostrojony</b>. Ustaw go jako aktywny.'],
       ['Czat', 'Rozmawiaj przez ikonę w prawym dolnym rogu. Oceniaj odpowiedzi: ✓ dobra, ✎ popraw, ✗ błędna.'],
-      ['Historia rozmów', 'Rozmowy z dobrymi i poprawionymi odpowiedziami przenieś do rozmów wzorcowych. Potem wróć do kroku 5 i dostrój ponownie. Ta pętla to <b>uczenie z rozmów</b>.'],
+      ['Historia rozmów', 'Rozmowy z dobrymi i poprawionymi odpowiedziami przenieś do rozmów wzorcowych. Potem wróć do kroku 6 (Dostrajanie) i dostrój ponownie. Ta pętla to <b>uczenie z rozmów</b>.'],
       ['Modele', 'Każda nauka zapisuje nową wersję modelu. Porównaj je, wybierz aktywny, zobacz budowę, pobierz plik albo opublikuj na GitHub.'],
     ]],
     ['tip', 'Kroki 1–4 robisz rzadko (gdy przybywa dokumentów). Kroki 5–8 powtarzasz często: to codzienne douczanie. Kolory w menu: fioletowy – dokumenty, formatowanie i nauka; zielony – rozmowy wzorcowe i dostrajanie.'],
@@ -48,7 +48,7 @@ export const SECTIONS = [
   ] },
 
   { id: 'research', group: 'Dane', title: 'Research: źródła dokumentów', topics: ['research', 'research-zrodla', 'research-adres', 'research-zmiany', 'cors'], body: [
-    ['p', 'Zakładka „Research” (przed Dokumentami) zbiera <b>źródła</b> dokumentów i sprawdza je. Źródło to strona www z dokumentami (np. strona sądu, serwisu z przepisami) albo API aktów prawnych Sejmu (ELI).'],
+    ['p', 'Zakładka „Research” (przed Dokumentami) zbiera <b>źródła</b> dokumentów i sprawdza je. Źródło to strona www z dokumentami (np. strona sądu, serwisu z przepisami), API aktów prawnych Sejmu (ELI), inne API zwracające JSON (np. SAOS), stenogramy Sejmu albo Wikipedia. Źródło oznaczone jako <b>ogólny</b> daje tekst ogólny (zob. „Tekst ogólny”).'],
     ['table', ['Funkcja', 'Co robi'], [
       ['Czy dokument był już pobrany?', 'wklejasz adres; panel szuka go w bibliotece po adresie, a jeśli nie znajdzie – pobiera plik i porównuje treść (ten sam tekst pod innym adresem albo inną nazwą też zostanie rozpoznany)'],
       ['Sprawdź (strona www)', 'czy strona działa (czas odpowiedzi), czy zmieniła się od poprzedniego sprawdzenia, jakie dokumenty są na niej podlinkowane (PDF, Word, HTML…) i które z nich już masz'],
@@ -92,7 +92,7 @@ export const SECTIONS = [
     ['tip', 'Zmieniony akt pobierasz jako nową wersję – poprzednia zostaje w bibliotece, możesz ją odrzucić w Formatowaniu.'],
   ] },
   { id: 'dokumenty', group: 'Dane', title: 'Dokumenty', topics: ['dokumenty', 'opis-dokumentu', 'kodowanie', 'biblioteka'], body: [
-    ['p', 'Zakładka „Dokumenty” to biblioteka wgranych plików. Każdy ma ikonkę rodzaju (TXT, HTML, MD, wklejony tekst), nazwę, datę dodania i pole <b>opisu</b>, w którym możesz zapisać, co to jest i skąd pochodzi (np. „Kodeks cywilny, tekst jednolity pobrany z ISAP 13.11.2026”).'],
+    ['p', 'Zakładka „Dokumenty” to biblioteka wgranych plików. Każdy ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę dodania, pole <b>adresu źródła</b>, pole <b>tekst ogólny</b> (plakietka „ogólny”, zob. „Tekst ogólny”) i pole <b>opisu</b>, w którym możesz zapisać, co to jest i skąd pochodzi (np. „Kodeks cywilny, tekst jednolity pobrany z ISAP 13.11.2026”).'],
     ['list', [
       '<b>Word (.docx), OpenDocument (.odt), RTF</b> – tekst akapitami. Automatyczna numeracja punktów z Worda („1)”, „a)”) nie jest zapisana w treści pliku, więc jej nie ma; numery wpisane ręcznie zostają. Stary format <b>.doc</b> (Word 97–2003) – zapisz jako .docx albo PDF.',
       '<b>PDF</b> – tekst z warstwy tekstowej; strony bez tekstu (skany) przez OCR.',

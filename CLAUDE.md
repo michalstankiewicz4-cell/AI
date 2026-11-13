@@ -4,7 +4,7 @@
 - Interfejs i dokumentacja po polsku.
 - Panel administracyjny bez logowania.
 - Docelowo AI ma być zintegrowane z projektem Lexsalus/PiK. W tym repo jest tylko AI, bez serwisu PiK.
-- Struktura: `js/engine` (silnik, wątek), `js/reader` (odczyt plików, OCR), `js/core/sources.js` (Research), `js/cleaner` (formatowanie), `js/core` (logika bez UI), `js/ui` (+ `ui/modals`), `js/panels`, `js/chat`, `js/help`, `css` (+ `css/panels`), `vendor` (biblioteki zewnętrzne), `docs`, `tests` (+ `tests/e2e`). Opis każdego pliku w `docs/architektura.md`; nowy plik = wpis tam.
+- Struktura: `js/engine` (silnik, wątek), `js/reader` (odczyt plików, OCR), `js/core/sources.js` (Research), `js/cleaner` (formatowanie), `js/core` (logika bez UI), `js/ui` (+ `ui/modals`), `js/panels`, `js/chat`, `js/help`, `css` (+ `css/panels`, po pliku na zakładkę), `vendor` (biblioteki zewnętrzne), `docs`, `tests` (+ `tests/e2e`). Opis każdego pliku w `docs/architektura.md`; nowy plik = wpis tam.
 - Biblioteki zewnętrzne tylko w `vendor/` z licencją i wpisem w `vendor/README.md` (bez CDN).
 - **Wersjonowanie:** każda zmiana na `main` podbija wersję w `js/version.js` i dostaje wpis w `CHANGELOG.md`. Zasady w `docs/wersjonowanie.md`. Zmiana reguł formatowania podbija `cleaner`, zmiana budowy sieci podbija wersję główną `engine`.
 - **Dokumentacja:** zmiana zachowania aktualizuje odpowiedni plik w `docs/` i README.

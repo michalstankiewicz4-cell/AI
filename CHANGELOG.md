@@ -2,6 +2,13 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.7.1 – 2026-11-13
+
+- Porządek w plikach: style Researchu przeniesione z `css/panels/documents.css` do nowego `css/panels/research.css`; `.okline` do `base.css` (obok `.warnline`).
+- Dokumentacja uzupełniona: `docs/architektura.md` opisuje każdy plik (zakładki, CSS, pozostałe pliki), README z numeracją kroków jak na pulpicie i strukturą z Researchem, panel.md, testy.md, modele.md (`generalShare`, pola dokumentów w publikacji).
+- Research: opis zakładki i pustej listy obejmuje wszystkie rodzaje źródeł.
+- Pomoc: „Krok po kroku” z katalogiem źródeł, formatami plików i tekstem ogólnym; poprawiony numer kroku dostrajania; Dokumenty i Research z nowymi polami i rodzajami źródeł.
+
 ## 0.7.0 – 2026-11-13
 
 - **Tekst ogólny** (zwykła polszczyzna obok dokumentów prawniczych): dokument może mieć oznaczenie „ogólny” – plakietka i pole „tekst ogólny” w Dokumentach; źródło w Researchu też może być ogólne (dokumenty z niego dostają oznaczenie same).

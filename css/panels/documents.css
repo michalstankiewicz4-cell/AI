@@ -39,9 +39,3 @@ td.dneg { color: var(--ok); } td.dpos { color: var(--accent); }
 .diffline.del { background: var(--bad-soft); } .diffline.add { background: var(--ok-soft); }
 .diffpair { margin: .35em 0; } .diffline mark { background: color-mix(in srgb, var(--gold) 45%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
 input.srcurl { margin-top: .3em; font-size: .82rem; padding: .3em .55em; background: var(--panel-2); border-color: var(--line); color: var(--ink-2); }
-/* Research */
-.source { border: 1px solid var(--line); border-radius: var(--r-s); padding: .7em .9em; margin: .7em 0; background: var(--panel); }
-table.srctable td { font-size: .86rem; vertical-align: top; } table.srctable code { font-size: .8rem; white-space: nowrap; }
-.okline { background: var(--ok-soft); border-left: 3px solid var(--ok); padding: .45em .7em; border-radius: 4px; font-size: .9rem; }
-.urlout { margin-top: .4em; }
-.catalog { margin-top: .8em; } .catrow { border-bottom: 1px solid var(--line); padding: .35em 0; } .catrow .note { flex: 1 1 280px; }

@@ -16,7 +16,7 @@ export default {
     const urlIn = h('input', { type: 'text', placeholder: 'https://… adres dokumentu (PDF, Word, strona)', 'aria-label': 'Adres dokumentu', onkeydown: e => e.key === 'Enter' && checkAddress() });
     root.append(
       h('header.ph', h('h1', 'Research'),
-        h('p', 'Źródła dokumentów prawnych: strony www i API aktów prawnych Sejmu (ELI). Panel sprawdza, czy źródło działa, czy coś się zmieniło, które dokumenty już masz, a które są nowe, i pobiera je prosto do biblioteki. ',
+        h('p', 'Źródła dokumentów: strony www, API aktów prawnych Sejmu (ELI), inne API, a jako tekst ogólny stenogramy Sejmu i Wikipedia. Panel sprawdza, czy źródło działa, czy coś się zmieniło, które dokumenty już masz, a które są nowe, i pobiera je prosto do biblioteki. ',
           help('Przeglądarka może pobrać plik z innego serwisu tylko wtedy, gdy ten serwis na to pozwala (CORS). Jeśli nie pozwala, sprawdzenie pokaże „brak zgody CORS” — wtedy pobierz plik ręcznie i wgraj go w Dokumentach.', 'research'))),
       h('section.card', h('h2', 'Czy dokument był już pobrany?', help('Wklej adres dokumentu. Panel szuka go w bibliotece po adresie, a jeśli go nie ma — pobiera plik i porównuje treść (ten sam tekst pod innym adresem też zostanie rozpoznany).', 'research-adres')),
         h('div.row', urlIn, h('button', { type: 'button', onclick: checkAddress }, 'Sprawdź adres')), urlOut),
@@ -166,7 +166,7 @@ export default {
         h('div.row.end', h('button', { type: 'button', onclick: async () => { for (const c of miss) await addFromCatalog(c); toast(`Dodano ${miss.length} źródeł.`, 'ok'); draw(); } }, `Dodaj wszystkie (${miss.length})`)),
         ...miss.map(c => h('div.row.wrap.catrow', h('b', c.name), h('span.badge', KIND[c.kind] || 'strona www'), c.general ? h('span.badge.gen', 'ogólny') : null, h('span.note', c.description), h('span.sp'),
           h('button.ghost.small', { type: 'button', onclick: async () => { await addFromCatalog(c); draw(); } }, 'Dodaj')))));
-      if (!all.length) list.append(h('p.note', 'Brak źródeł. Dodaj stronę www z dokumentami albo API aktów prawnych Sejmu (ELI).'));
+      if (!all.length) list.append(h('p.note', 'Brak źródeł. Dodaj je z „Znanych źródeł” poniżej albo przyciskiem „Dodaj źródło”.'));
       for (const s of all) {
         const n = (await docsOfSource(s)).length, st = h('span.status');
         list.append(h('article.source',

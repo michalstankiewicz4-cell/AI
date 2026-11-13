@@ -66,26 +66,64 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `bpe.js` | tokenizer BPE (z GameLaboratory) |
 | `infer.js` | szybkie generowanie z pamięcią KV |
 
-### `js/panels/`, `js/chat/`, `js/ui/`, `js/help/`
+### `js/panels/` – zakładki
+Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, arg) }`; `render` może zwrócić funkcję sprzątającą. `stage` koloruje zakładkę w menu i kafelek na pulpicie: 2 – fioletowy (Dokumenty, Formatowanie, Nauka), 3 – zielony (Rozmowy wzorcowe, Dostrajanie); 1 – niebieski jest zdefiniowany w CSS, obecnie nieużywany.
+
+| Plik | Zakładka |
+|---|---|
+| `dashboard.js` | Pulpit: kafelki kroków 1–7 ze stanem, aktywny model, komputer |
+| `research.js` | Research: „czy już pobrany”, źródła (www, ELI, API JSON, stenogramy, Wikipedia), katalog znanych źródeł, domeny z dokumentów, zmiany u źródła |
+| `documents.js` | Dokumenty: biblioteka (ikonka, opis, adres źródła, tekst ogólny), wgrywanie i wklejanie |
+| `formatting.js` | Formatowanie: podgląd przed/po, raport, zatwierdzanie, formatowanie ponowne, ustawienia formatowania |
+| `pretrain.js` | Nauka: dane (z podziałem prawnicze/ogólne), rodzaj nauki, ustawienia, przebieg |
+| `dialogs.js` | Rozmowy wzorcowe: edytor, wczytywanie i zapis pliku |
+| `finetune.js` | Dostrajanie: model startowy, ustawienia, przebieg |
+| `conversations.js` | Historia rozmów: oceny, poprawki, przeniesienie do rozmów wzorcowych |
+| `models.js` | Modele: lista, aktywny, podgląd budowy, plik, publikacja i wczytywanie z GitHub |
+| `settings.js` | Ustawienia ogólne, GitHub i token, dane w przeglądarce, wersje |
+| `help.js` | Pomoc: spis działów, dział `#pomoc/<temat>` |
+
+### `js/chat/`, `js/ui/`, `js/help/`
 | Plik | Rola |
 |---|---|
-| `panels/*.js` | zakładki: `{ id, title, stage?, icon, render(root, rerender, arg) }`, `render` może zwrócić funkcję sprzątającą; `stage` koloruje zakładkę w menu i kafelek na pulpicie: 2 – fioletowy (Dokumenty, Formatowanie, Nauka), 3 – zielony (Rozmowy wzorcowe, Dostrajanie); 1 – niebieski jest zdefiniowany w CSS, obecnie nieużywany |
 | `chat/widget.js` | okno czatu, ustawienia rozmowy pod ⚙ |
 | `ui/dom.js` | `h()` (tworzenie elementów; przyciski dostają dymki z `tips.js`), `help(tekst, temat)`, powiadomienia, okna, pliki, formaty liczb |
 | `ui/form.js` | formularz z `SCHEMA` (pole + [?] z tematem `grupa.pole`) |
 | `ui/tips.js` | dymki przycisków według napisu |
-| `ui/chart.js`, `ui/trainview.js` | wykres błędu, widok przebiegu nauki |
+| `ui/chart.js` | wykres błędu |
+| `ui/trainview.js` | widok przebiegu nauki i dostrajania |
 | `ui/netview.js` | podgląd budowy modelu z prawdziwych wag |
 | `ui/fileicon.js` | ikonka rodzaju pliku |
-| `ui/dialog-editor.js` | edytor rozmowy wzorcowej |
+| `ui/dialog-editor.js` | edytor rozmowy wzorcowej (osadzany w zakładkach i oknach) |
 | `ui/modals/publish.js` | okno publikacji na GitHub (checkboxy) |
 | `ui/modals/github-import.js` | okno „Wczytaj z GitHub” (modele i dane) |
-| `ui/modals/format-stats.js` | statystyki formatowania |
+| `ui/modals/format-stats.js` | statystyki formatowania i porównanie „Czy to coś dało?” |
 | `help/content.js` | działy Pomocy: `id`, `topics`, bloki treści (akapit, kroki, tabela, przykład, przykład reguły na żywo, schemat) |
 | `help/diagram.js` | schemat przykładowego modelu z objaśnieniami |
 
 ### `css/`
-`base.css` (zmienne kolorów, motyw jasny i ciemny przez `data-theme`, przyciski, pola, dymki, okna, paski przewijania), `layout.css` (pasek, menu, karty, formularze, tabele, kolory etapów w menu), `chat.css`, `panels/*.css` (style poszczególnych zakładek).
+| Plik | Rola |
+|---|---|
+| `base.css` | zmienne kolorów, motyw jasny i ciemny (`data-theme`), przyciski, pola, plakietki, dymki, okna, paski przewijania |
+| `layout.css` | pasek, menu, karty, formularze, tabele, kolory etapów w menu i na kafelkach |
+| `chat.css` | okno czatu |
+| `panels/dashboard.css` | Pulpit |
+| `panels/research.css` | Research |
+| `panels/documents.css` | Dokumenty, Formatowanie, statystyki i porównania |
+| `panels/training.css` | Nauka, Dostrajanie, przebieg nauki |
+| `panels/dialogs.css` | Rozmowy wzorcowe, Historia rozmów |
+| `panels/models.css` | Modele |
+| `panels/help.css` | Pomoc |
+
+### Pozostałe
+| Plik / folder | Rola |
+|---|---|
+| `index.html` | jedyna strona: style, motyw ustawiany przed wczytaniem (bez mignięcia), `js/main.js` |
+| `favicon.svg` | ikonka karty |
+| `package.json` | moduły ES, skrót `npm test` |
+| `docs/` | dokumentacja techniczna (spis w [README.md](README.md)) |
+| `tests/` | testy Node (`*.test.js`, `run.js`) i w przeglądarce (`e2e/*.e2e.mjs`); opis w [testy.md](testy.md) |
+| `models/`, `data/` | nie ma ich w kodzie – tworzy je publikacja na GitHub (pliki modeli, `index.json`, dane) |
 
 ### `vendor/`
 Tesseract.js (OCR, model polski) i pdf.js, ładowane dopiero przy pierwszym PDF albo obrazie. Szczegóły w [vendor/README.md](../vendor/README.md).

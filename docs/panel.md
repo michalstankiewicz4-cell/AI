@@ -5,10 +5,10 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 | Zakładka | Plik | Ustawienia w zakładce |
 |---|---|---|
 | Pulpit | `js/panels/dashboard.js` | – |
-| Research | `js/panels/research.js` | ustawienia każdego źródła (rodzaj, adres, wydawnictwo, lata, filtr tytułów) |
+| Research | `js/panels/research.js` | ustawienia każdego źródła (rodzaj, adres, opis, tekst ogólny; przy ELI wydawnictwo, lata, filtr tytułów) |
 | Dokumenty | `js/panels/documents.js` | – |
 | Formatowanie | `js/panels/formatting.js` | Ustawienia formatowania (reguły, dodatkowe znaki, progi) |
-| Nauka | `js/panels/pretrain.js` | budowa sieci, kroki, tempo, urządzenie |
+| Nauka | `js/panels/pretrain.js` | budowa sieci, kroki, tempo, udział tekstu ogólnego, urządzenie |
 | Rozmowy wzorcowe | `js/panels/dialogs.js` | najdłuższa odpowiedź wzorcowa |
 | Dostrajanie | `js/panels/finetune.js` | kroki, tempo, maska, rozmowy do sprawdzania, urządzenie |
 | Historia rozmów | `js/panels/conversations.js` | – |
@@ -18,14 +18,14 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 | czat (okno) | `js/chat/widget.js` | ⚙: temperatura, długość odpowiedzi, pamięć rozmowy, zapisywanie |
 
 ## Pulpit
-Siedem kafelków-kroków ze stanem: źródła w Researchu (ile, ile dokumentów do pobrania po ostatnim sprawdzeniu, ile niedostępnych), ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
+Siedem ponumerowanych kafelków-kroków (1 Research, 2 Dokumenty, 3 Formatowanie, 4 Nauka, 5 Rozmowy wzorcowe, 6 Dostrajanie, 7 Rozmowa i poprawki) ze stanem: źródła w Researchu (ile, ile dokumentów do pobrania po ostatnim sprawdzeniu, ile niedostępnych), ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
 
 ## Research
 Źródła dokumentów (przed Dokumentami, bez koloru):
 - **Czy dokument był już pobrany?** – adres → wynik „już pobrany” (po adresie albo po treści, z odnośnikiem do dokumentu) albo „nie ma” z przyciskiem *Pobierz do dokumentów*.
-- **Źródła** – strona www, API aktów prawnych Sejmu (ELI) albo inne API zwracające JSON. Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
+- **Źródła** – strona www, API aktów prawnych Sejmu (ELI), inne API zwracające JSON, stenogramy Sejmu albo Wikipedia; źródło może mieć plakietkę **ogólny** (tekst ogólny, dokumenty z niego dostają to oznaczenie). Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
   - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;
-  - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*.
+  - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*;
   - stenogramy Sejmu: dni posiedzeń, które już się odbyły (najnowsze 20), PDF stenogramu z *Pobierz* / *Pobierz wszystkie nowe*;
   - Wikipedia: liczba artykułów, wybór ile losowych artykułów pobrać, *Pobierz losowe artykuły*;
   - API (JSON): czy działa, liczba pozycji (i wszystkich), pierwsze pozycje, zmiana od poprzedniego sprawdzenia.

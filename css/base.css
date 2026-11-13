@@ -97,3 +97,4 @@ dialog.modal h3 { margin: 0; font-size: 1.1rem; }
 ::-webkit-scrollbar-thumb:hover { background: var(--sb-hover); border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-corner { background: transparent; }
 .side::-webkit-scrollbar, .htoc::-webkit-scrollbar, .chat-log::-webkit-scrollbar { width: 8px; }
+.okline { background: var(--ok-soft); border-left: 3px solid var(--ok); padding: .45em .7em; border-radius: 4px; font-size: .9rem; }

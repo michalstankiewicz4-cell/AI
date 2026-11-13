@@ -1,0 +1,5 @@
+/* Zakładka Research: źródła, katalog znanych źródeł, tabele linków i aktów */
+.source { border: 1px solid var(--line); border-radius: var(--r-s); padding: .7em .9em; margin: .7em 0; background: var(--panel); }
+table.srctable td { font-size: .86rem; vertical-align: top; } table.srctable code { font-size: .8rem; white-space: nowrap; }
+.urlout { margin-top: .4em; }
+.catalog { margin-top: .8em; } .catrow { border-bottom: 1px solid var(--line); padding: .35em 0; } .catrow .note { flex: 1 1 280px; }

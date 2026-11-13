@@ -10,19 +10,19 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 
 | Etap | Krok | Zakładka | Co się dzieje |
 |---|---|---|---|
-| 1 – nauka języka | 0 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm…; tekst ogólny: stenogramy Sejmu, Wikipedia): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
-| | 1 | Dokumenty | biblioteka: wgrywasz ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) z opisem |
-| | 2 | Formatowanie | konwerter na dane do nauki: podgląd przed/po, statystyki zmian, ostrzeżenia; do nauki trafiają tylko zatwierdzone dokumenty |
-| | 3 | Nauka | sieć uczy się przewidywać dalszy ciąg tekstu, wynik to **model bazowy** |
-| 2 – nauka odpowiadania | 4 | Rozmowy wzorcowe | pytania i poprawne odpowiedzi (`Ty: … / AI: …`) |
-| | 5 | Dostrajanie | sieć uczy się odpowiadać, wynik to **model dostrojony** |
-| douczanie | 6 | Czat | rozmowa z aktywnym modelem, ocena odpowiedzi ✓ ✎ ✗ |
+| 1 – nauka języka | 1 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm…; tekst ogólny: stenogramy Sejmu, Wikipedia): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
+| | 2 | Dokumenty | biblioteka: wgrywasz ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) z opisem; tekst ogólny (nie prawniczy) oznaczony plakietką „ogólny” |
+| | 3 | Formatowanie | konwerter na dane do nauki: podgląd przed/po, statystyki zmian, ostrzeżenia; do nauki trafiają tylko zatwierdzone dokumenty |
+| | 4 | Nauka | sieć uczy się przewidywać dalszy ciąg tekstu (tekst ogólny do ustalonego udziału, domyślnie 20%), wynik to **model bazowy** |
+| 2 – nauka odpowiadania | 5 | Rozmowy wzorcowe | pytania i poprawne odpowiedzi (`Ty: … / AI: …`) |
+| | 6 | Dostrajanie | sieć uczy się odpowiadać, wynik to **model dostrojony** |
+| douczanie | 7 | Czat | rozmowa z aktywnym modelem, ocena odpowiedzi ✓ ✎ ✗ |
 | | 7 | Historia rozmów | poprawione rozmowy wracają do rozmów wzorcowych → ponowne dostrajanie |
 | | – | Modele | wersje, podgląd budowy, plik, publikacja na GitHub i wczytywanie z GitHub |
 
-W menu i na pulpicie są dwie grupy kolorów: fioletowy – Dokumenty, Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie.
+Numery kroków są takie jak na kafelkach pulpitu (krok 7 „Rozmowa i poprawki” to czat razem z historią rozmów). W menu i na pulpicie są dwie grupy kolorów: fioletowy – Dokumenty, Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie; Research i pozostałe zakładki są bez koloru.
 
-Szczegóły: [docs/panel.md](docs/panel.md), [docs/dane.md](docs/dane.md), [docs/nauka.md](docs/nauka.md), [docs/modele.md](docs/modele.md).
+Szczegóły: [docs/panel.md](docs/panel.md), [docs/dane.md](docs/dane.md), [docs/nauka.md](docs/nauka.md), [docs/modele.md](docs/modele.md). Ograniczenie: przeglądarka pobiera dane z innego serwisu tylko wtedy, gdy ten na to pozwala (CORS) – Research pokazuje to przy każdym źródle.
 
 ## Wymagania
 
@@ -36,12 +36,14 @@ Szczegóły: [docs/panel.md](docs/panel.md), [docs/dane.md](docs/dane.md), [docs
 
 ```
 index.html              panel administracyjny (jedyna strona)
+favicon.svg, package.json
 css/                    base (zmienne, motywy, przyciski), layout (pasek, menu, karty), chat, panels/ (style zakładek)
 js/
   main.js               układ panelu, adresy #zakładka/argument, przełącznik dzień/noc
   version.js            wersje: program, silnik, reguły formatowania, format modelu, schemat bazy
   core/                 logika bez interfejsu: baza, ustawienia, klient silnika, stan nauki, modele,
-                        dokumenty, rozmowy wzorcowe, historia rozmów, GitHub, przenoszenie danych (sync)
+                        dokumenty (z mieszaniem tekstu ogólnego), rozmowy wzorcowe, historia rozmów, GitHub,
+                        przenoszenie danych (sync), źródła Researchu (sources)
   reader/               odczyt plików: tekst/HTML/MD, Word/ODT/RTF (+ ZIP), PDF, OCR z wykrywaniem położenia
   cleaner/              formatowanie: reguły, raport, rozmowy wzorcowe
   engine/               silnik sieci w wątku w tle: transformer, BPE, GPU, szybkie generowanie
