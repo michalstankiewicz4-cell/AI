@@ -41,8 +41,8 @@ Wszystko (dokumenty, rozmowy, historia, ustawienia, modele) jest zapisane lokaln
 | | `models/index.json` | lista opublikowanych modeli |
 | Oznacz jako aktualny | `models/index.json` → `active` | model brany domyślnie przez inne aplikacje |
 | Ustawienia i wersje | `data/ustawienia.json` | `{ publishedAt, versions, settings }`, bez tokenu |
-| Dokumenty zatwierdzone | `data/dokumenty.json` | nazwa, opis, rodzaj, data, tekst po formatowaniu |
-| Rozmowy wzorcowe | `data/rozmowy-wzorcowe.txt` | format do wczytania (`Ty: … / AI: …`) |
+| Dokumenty | `data/dokumenty.json` | pełne rekordy: oryginał, opis, rodzaj, status, tekst po formatowaniu, raport |
+| Rozmowy wzorcowe | `data/rozmowy-wzorcowe.json` + `.txt` | `.json` – pełne rekordy do wczytania z powrotem; `.txt` – format do czytania (`Ty: … / AI: …`) |
 | Historia rozmów | `data/historia-rozmow.json` | rozmowy z czatu z ocenami i poprawkami |
 
 `<wersja>` w nazwie pliku to wersja programu, w której model powstał (np. `models/rozmowa-3-v0.4.0-c_ab12.json`). Plik pobrany przyciskiem „Pobierz plik” ma tę samą nazwę.
@@ -67,6 +67,17 @@ Fine-grained personal access token: https://github.com/settings/personal-access-
 - *Repository permissions → Contents*: Read and write.
 
 Wpisuje się go w *Ustawienia → GitHub*. Jest zapisany wyłącznie w `localStorage` tej przeglądarki i nie trafia do plików modeli ani do repo.
+
+## Wczytywanie z GitHub
+
+*Modele → Wczytaj z GitHub* albo *Ustawienia → GitHub → Wczytaj z GitHub* (`ui/modals/github-import.js`, `core/sync.js`). Działa bez tokenu: pliki pobierane są z GitHub Pages, a gdy się nie uda, z `raw.githubusercontent.com`.
+
+- **Modele** – lista z `models/index.json`, każdy wczytuje się osobno. Jeśli model o tym id już jest, panel pyta, czy go zastąpić.
+- **Dane** – checkboxy dla tego, co jest opublikowane (z datą i wersją programu):
+  - *Ustawienia i wersje* zastępują obecne ustawienia w całości (token zostaje; pola dodane w nowszej wersji panelu dostają wartości domyślne),
+  - *Dokumenty*, *Rozmowy wzorcowe*, *Historia rozmów* – rekordy, których tu nie ma, są dodawane; te, które już są (to samo id), są pomijane albo zastępowane, do wyboru.
+
+Po zamknięciu okna zakładka odświeża się z nowymi danymi. Tak przenosi się całą pracę na inny komputer: publikacja z zaznaczonymi danymi → „Wczytaj z GitHub” na drugim komputerze.
 
 ## Odczyt przez inną aplikację
 

@@ -5,7 +5,7 @@ import { h, help, toast, num, clear, plural } from '../ui/dom.js';
 import { fieldsForm } from '../ui/form.js';
 import { trainView } from '../ui/trainview.js';
 import { settings, saveSettings, tags } from '../core/settings.js';
-import { trainingDialogs } from '../core/corpus.js';
+import { trainingDialogs } from '../core/dialogs.js';
 import { listMeta, setActive, getActive } from '../core/models.js';
 import { ensureLoaded, gpuInfo } from '../core/ai.js';
 import { start, busy, onTraining } from '../core/training.js';

@@ -5,6 +5,7 @@ import { h, clear } from '../ui/dom.js';
 import { SECTIONS, TOPIC } from '../help/content.js';
 import { RULES } from '../cleaner/rules.js';
 import { go } from '../main.js';
+import { modelDiagram, LEGEND } from '../help/diagram.js';
 
 const RULE = Object.fromEntries(RULES.map(r => [r.id, r]));
 const html = s => { const e = h('span'); e.innerHTML = s; return e; };   // treść pomocy jest nasza (content.js), nie od użytkownika
@@ -20,6 +21,8 @@ function block(b) {
   if (t === 'link') return h('p', h('a', { href: '#pomoc/' + a }, c));
   if (t === 'table') return h('div.tablebox', h('table.htable', h('thead', h('tr', a.map(x => h('th', x)))), h('tbody', c.map(r => h('tr', r.map(x => h('td', html(x))))))));
   if (t === 'ex') return h('div.hex', h('div', h('span.hlab', 'przed'), h('pre', a)), h('span.harrow', '→'), h('div', h('span.hlab', 'po'), h('pre', c)), d ? h('p.note', d) : null);
+  if (t === 'diagram') return h('figure.hfig', h('div.hdiagbox', modelDiagram()),
+    h('figcaption', h('ol.hlegend', LEGEND.map(([ti, tx]) => h('li', h('b', ti), ' – ', tx)))));
   if (t === 'rule') {
     // przykład liczony na żywo przez prawdziwą regułę — zawsze zgodny z kodem
     const rep = { removed: {} }, r = RULE[a].apply(c, { repeatMin: 4, dedupeMin: 40 }, rep);

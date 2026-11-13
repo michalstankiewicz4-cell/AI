@@ -4,10 +4,11 @@
 import { h, help, toast, num, date, clear, plural } from '../ui/dom.js';
 import { fileIcon } from '../ui/fileicon.js';
 import { summary } from '../cleaner/cleaner.js';
-import { listDocs, saveDoc, recleanDoc, setStatus, STATUS } from '../core/corpus.js';
+import { listDocs, saveDoc, recleanDoc, setStatus, STATUS } from '../core/documents.js';
 import { VERSIONS } from '../version.js';
 import { go } from '../main.js';
 import { fieldsForm } from '../ui/form.js';
+import { formatStatsModal } from '../ui/modals/format-stats.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
 // wszystkie pola grupy „cleaner” poza długością odpowiedzi wzorcowej (ta jest w „Rozmowach wzorcowych”)
@@ -41,7 +42,8 @@ export default {
       clear(bulk);
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));
       bulk.append(h('button.ghost', { type: 'button', title: 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.', onclick: async () => {
-        let ch = 0; for (const d of all) { const b = d.text; await recleanDoc(d); if (d.text !== b) ch++; } toast(`Sformatowano ponownie ${all.length}, zmienione: ${ch}.`, 'ok'); draw();
+        const items = []; for (const d of all) { const prevText = d.text; await recleanDoc(d); items.push({ name: d.name, report: d.report, prevText, text: d.text }); }
+        draw(); formatStatsModal(`Formatowanie ponowne: ${all.length} ${plural(all.length, 'dokument', 'dokumenty', 'dokumentów')}`, items, { reformat: true });
       } }, stale.length ? `Formatuj wszystkie ponownie (${stale.length} starszymi regułami)` : 'Formatuj wszystkie ponownie'));
       clear(list);
       if (!docs.length) list.append(h('p.note', filter === 'do-sprawdzenia' ? 'Nic nie czeka na sprawdzenie. Wgraj dokumenty w zakładce „Dokumenty”.' : 'Brak dokumentów w tym widoku.'),
@@ -60,6 +62,7 @@ export default {
         h('div.row.wrap', fileIcon(d.type), h('div.docmain.grow', h('b', d.name), d.description ? h('div.note', d.description) : null),
           h('span.badge.st-' + d.status, STATUS[d.status]),
           h('span.note', `${num(r.before)} → ${num(r.after)} znaków · ${num(r.paragraphs)} ${plural(r.paragraphs, 'akapit', 'akapity', 'akapitów')}`)),
+        r.read ? h('p.note', 'Odczyt: ' + r.read, ' ', help('Jak odczytano plik: strony z warstwą tekstową PDF albo przez OCR, obroty (do góry nogami, bokiem), wyprostowanie przekrzywienia i pewność rozpoznania.', 'ocr')) : null,
         r.warnings.map(w => h('p.warnline', w)),
         h('p.note', 'Zmiany: ' + summary(r), ' ', help('Ile razy każda reguła formatowania coś zmieniła w tym dokumencie.', 'zmiany')),
         removed.length ? h('p.note', 'Usunięte znaki ', help('Znaki spoza listy dozwolonych, z liczbą wystąpień. Potrzebne dopisz w „Ustawienia formatowania” (u góry tej zakładki) i sformatuj ponownie.', 'usuniete-znaki'), ': ',
@@ -69,7 +72,8 @@ export default {
           d.status === 'zatwierdzony' ? h('label.check', h('input', { type: 'checkbox', checked: d.enabled, onchange: async e => { d.enabled = e.target.checked; await saveDoc(d); draw(); } }), ' używaj w nauce', help('Wyłączony dokument zostaje zatwierdzony, ale nie bierze udziału w następnej nauce.', 'do-sprawdzenia')) : null,
           h('span.note', `reguły v${d.cleanerVersion}${d.cleanerVersion !== VERSIONS.cleaner ? ' (starsze)' : ''} · ${date(d.formattedAt || d.addedAt)}`),
           h('span.sp'),
-          act('Formatuj ponownie', () => recleanDoc(d)),
+          act('Formatuj ponownie', async () => { const prevText = d.text; await recleanDoc(d); formatStatsModal(`Formatowanie: ${d.name}`, [{ name: d.name, report: d.report, prevText, text: d.text }], { reformat: true }); }),
+          h('button.ghost', { type: 'button', onclick: () => formatStatsModal(`Statystyki formatowania: ${d.name}`, [{ name: d.name, report: d.report, text: d.text }]) }, 'Statystyki'),
           d.status !== 'odrzucony' ? act('Odrzuć', () => setStatus(d, 'odrzucony')) : null,
           d.status === 'zatwierdzony' ? act('Cofnij zatwierdzenie', () => setStatus(d, 'do-sprawdzenia')) : act('Zatwierdź do nauki', async () => { if (!d.text.trim()) return toast('Po formatowaniu nic nie zostało.', 'error'); await setStatus(d, 'zatwierdzony'); }, '')));
     }

@@ -1,0 +1,5 @@
+/* Modele i okna GitHub. */
+.model.active { border-color: var(--ok); box-shadow: 0 0 0 1px var(--ok), var(--shadow); }
+.model h2 { margin: 0; }
+.pubrow { border-bottom: 1px solid var(--line); padding: .5em 0; }
+

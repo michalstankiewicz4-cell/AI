@@ -4,14 +4,16 @@
 
 import { h, help, toast, confirmBox, modal, pickFiles, num, date, clear, plural } from '../ui/dom.js';
 import { fileIcon } from '../ui/fileicon.js';
-import { readFile, ACCEPT } from '../cleaner/extract.js';
-import { listDocs, addDoc, saveDoc, deleteDoc, STATUS } from '../core/corpus.js';
+import { readFile, finishReading, ACCEPT, kindOf } from '../reader/index.js';
+import { listDocs, addDoc, saveDoc, deleteDoc, STATUS } from '../core/documents.js';
 import { go } from '../main.js';
+import { formatStatsModal } from '../ui/modals/format-stats.js';
 
 export default {
   id: 'dokumenty', title: 'Dokumenty', stage: 1, icon: '📄',
   render(root) {
     const list = h('div'), stats = h('p.note');
+    const prog = h('div.readprog', { hidden: true }, h('p.status'), h('div.progress', h('div.fill')));
     const search = h('input', { type: 'search', placeholder: 'Szukaj po nazwie i opisie…', oninput: () => draw() });
     root.append(
       h('header.ph', h('h1', 'Dokumenty'),
@@ -20,17 +22,28 @@ export default {
         h('div.row.wrap',
           h('button', { type: 'button', onclick: addFiles }, 'Wgraj pliki'),
           h('button.ghost', { type: 'button', onclick: pasteText }, 'Wklej tekst'),
-          h('span.note', 'Pliki .txt, .md, .html. Polskie kodowanie (UTF-8, Windows-1250, ISO-8859-2) rozpoznawane samo.'),
-          help('Każdy dokument ma ikonkę rodzaju, nazwę, datę i opis. Oryginał zostaje w bazie, więc formatowanie można zawsze powtórzyć.', 'dokumenty'))),
+          h('span.note', 'Word (.docx), OpenDocument (.odt), RTF, PDF, obrazy (OCR), .txt, .md, .html.'),
+          help('Każdy dokument ma ikonkę rodzaju, nazwę, datę i opis. Skany w PDF i zdjęcia przechodzą przez OCR, który sam obraca strony leżące bokiem lub do góry nogami i prostuje przekrzywione.', 'dokumenty')),
+        prog),
       h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), stats, list));
 
     async function addFiles() {
-      const files = await pickFiles(ACCEPT, true); let n = 0;
-      for (const f of files) {
-        try { await addDoc(await readFile(f)); n++; } catch (e) { toast(`${f.name}: ${e.message}`, 'error'); }
+      const files = await pickFiles(ACCEPT, true); let n = 0; const done = [];
+      const [st, bar] = [prog.firstChild, prog.querySelector('.fill')];
+      for (const [i, f] of files.entries()) {
+        prog.hidden = false; st.textContent = `${f.name} (${i + 1} z ${files.length}): wczytuję…`; bar.style.width = '0%';
+        if (kindOf(f) === 'pdf' || kindOf(f) === 'obraz') st.textContent += ' Pierwsze użycie OCR pobiera ok. 7 MB (model języka polskiego).';
+        try {
+          const d = await addDoc(await readFile(f, ({ page, pages, step, frac }) => {
+            st.textContent = `${f.name} (${i + 1} z ${files.length}): strona ${page} z ${pages} — ${step}`;
+            bar.style.width = (100 * (page - 1 + (frac || 0)) / pages).toFixed(1) + '%';
+          }));
+          n++; done.push({ name: d.name, report: d.report, text: d.text });
+        } catch (e) { toast(`${f.name}: ${e.message}`, 'error', 8000); }
       }
-      if (n) toast(`Wgrano ${n} ${plural(n, 'dokument', 'dokumenty', 'dokumentów')}. Sprawdź wynik w zakładce „Formatowanie”.`, 'ok', 6000);
+      prog.hidden = true; finishReading();
       draw();
+      if (n) formatStatsModal(`Wgrano i sformatowano: ${n} ${plural(n, 'dokument', 'dokumenty', 'dokumentów')}`, done);
     }
     function pasteText() {
       const name = h('input', { type: 'text', placeholder: 'np. Kodeks cywilny – przedawnienie' });
@@ -40,8 +53,8 @@ export default {
         h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Opis'), desc), h('div.field', h('label', 'Tekst'), ta),
         h('div.row.end', h('button', { type: 'button', onclick: async () => {
           if (!ta.value.trim()) return toast('Pusty tekst.', 'error');
-          await addDoc({ name: name.value.trim() || 'Wklejony tekst', type: 'wklejony', raw: ta.value, size: ta.value.length, description: desc.value.trim() });
-          close(); toast('Dodano. Sprawdź wynik w zakładce „Formatowanie”.', 'ok'); draw();
+          const d = await addDoc({ name: name.value.trim() || 'Wklejony tekst', type: 'wklejony', raw: ta.value, size: ta.value.length, description: desc.value.trim() });
+          close(); draw(); formatStatsModal(`Formatowanie: ${d.name}`, [{ name: d.name, report: d.report, text: d.text }]);
         } }, 'Formatuj')));
     }
 

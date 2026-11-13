@@ -44,7 +44,7 @@ export const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').repl
 export const modelFileName = m => `models/${slug(m.name)}-v${(m.versions && m.versions.app) || '0'}-${m.id}.json`;
 
 // Publikacja jednym commitem. what: { model, active, settings, documents, dialogs, conversations } — co wysłać;
-// data: { settings, versions, documents, dialogsText, conversations } — treść plików dodatkowych (przygotowuje panel).
+// data: { settings, versions, documents, dialogs, dialogsText, conversations } — treść plików (zbiera core/sync.js → collect()).
 export async function publish(model, { repo, branch }, what, data, onStep = () => {}) {
   onStep('Sprawdzam repozytorium…');
   const ref = await gh(`/repos/${repo}/git/ref/heads/${encodeURIComponent(branch)}`);
@@ -70,7 +70,7 @@ export async function publish(model, { repo, branch }, what, data, onStep = () =
   const meta = { publishedAt: at, versions: data.versions };
   if (what.settings) await blob('data/ustawienia.json', JSON.stringify({ ...meta, settings: data.settings }, null, 2) + '\n');
   if (what.documents) await blob('data/dokumenty.json', JSON.stringify({ ...meta, documents: data.documents }, null, 2) + '\n');
-  if (what.dialogs) await blob('data/rozmowy-wzorcowe.txt', data.dialogsText);
+  if (what.dialogs) { await blob('data/rozmowy-wzorcowe.json', JSON.stringify({ ...meta, dialogs: data.dialogs }, null, 2) + '\n'); await blob('data/rozmowy-wzorcowe.txt', data.dialogsText); }
   if (what.conversations) await blob('data/historia-rozmow.json', JSON.stringify({ ...meta, conversations: data.conversations }, null, 2) + '\n');
   if (!files.length) throw new Error('Nic nie zaznaczono do wysłania.');
   onStep('Tworzę commit…');
@@ -84,13 +84,20 @@ export async function publish(model, { repo, branch }, what, data, onStep = () =
 // Czy repo jest publiczne (do ostrzeżenia przy wysyłaniu danych)
 export async function repoInfo({ repo }) { const r = await gh(`/repos/${repo}`); return { private: r.private, name: r.full_name }; }
 
-// Odczyt opublikowanych modeli bez tokenu: najpierw z tej samej strony (GitHub Pages), potem z raw.githubusercontent.com.
-async function fetchPublished(path, { repo, branch }) {
+// Odczyt opublikowanych plików bez tokenu: najpierw z tej samej strony (GitHub Pages), potem z raw.githubusercontent.com.
+// optional: brak pliku (404) daje null zamiast błędu.
+export async function fetchPublished(path, { repo, branch }, { optional = false, text = false } = {}) {
   const urls = [new URL(path, location.href).href, `https://raw.githubusercontent.com/${repo}/${branch}/${path}`];
-  let last;
+  let last, missing = 0;
   for (const u of urls) {
-    try { const r = await fetch(u, { cache: 'no-store' }); if (r.ok) return await r.json(); last = new Error(`${u}: ${r.status}`); } catch (e) { last = e; }
+    try {
+      const r = await fetch(u, { cache: 'no-store' });
+      if (r.ok) return text ? await r.text() : await r.json();
+      if (r.status === 404) missing++;
+      last = new Error(`${u}: ${r.status}`);
+    } catch (e) { last = e; }
   }
+  if (optional && missing) return null;
   throw new Error('Nie udało się pobrać ' + path + (last ? ` (${last.message})` : ''));
 }
 export const publishedIndex = cfg => fetchPublished('models/index.json', cfg);

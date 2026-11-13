@@ -1,9 +1,8 @@
-// Formatowanie danych · odczyt plików: kodowanie znaków i wyciąganie tekstu z HTML i Markdown.
+// Odczyt plików tekstowych: kodowanie znaków i wyciąganie tekstu z HTML i Markdown.
 //
 // Polskie pliki .txt bywają zapisane w Windows-1250 albo ISO-8859-2. Najpierw próbujemy UTF-8;
 // jeśli wyjdą znaki zastępcze (�), próbujemy kodowań polskich i bierzemy to, które daje najwięcej polskich liter.
 
-export const ACCEPT = '.txt,.md,.markdown,.html,.htm,text/plain,text/markdown,text/html';
 
 const PL = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g;
 function decode(buf) {
@@ -50,7 +49,7 @@ export function markdownToText(md) {
     .replace(/^\s*([-*_]\s*){3,}$/gm, '');
 }
 
-export async function readFile(file) {
+export async function readTextFile(file) {
   const buf = await file.arrayBuffer();
   const { text, encoding } = decode(buf);
   const name = file.name, ext = (name.split('.').pop() || '').toLowerCase();

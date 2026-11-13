@@ -11,6 +11,9 @@ Tempo nauki przez pierwsze 70% kroków to wartość z ustawień, potem 1/5 tej w
 
 ### Ustawienia budowy
 
+Schemat modelu z objaśnieniem każdego elementu (neuron, połączenie, embedding, uwaga, MLP, połączenie omijające, warstwa) jest w Pomocy: *Jak zbudowany jest model (schemat)*. Budowę wytrenowanego modelu z prawdziwymi wagami pokazuje *Modele → Podgląd budowy* ([modele.md](modele.md#podgląd-budowy)).
+
+
 | | domyślnie | wpływ |
 |---|---|---|
 | Jednostka | BPE 1024 | tokeny BPE mieszczą ok. 3× więcej tekstu w tym samym oknie |

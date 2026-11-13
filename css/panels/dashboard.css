@@ -1,0 +1,12 @@
+/* Pulpit: kroki, kolory etapów na kafelkach. */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .8em; margin-bottom: 1em; }
+.step { display: flex; flex-direction: column; gap: .5em; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 1em; box-shadow: var(--shadow); }
+.step .num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: var(--gold); font: 700 1rem var(--serif); }
+.step.done .num { background: var(--ok-soft); color: var(--ok); }
+.step h3 { margin: 0; } .step p { color: var(--ink-3); font-size: .88rem; flex: 1; margin: 0; }
+.step button { align-self: flex-start; white-space: normal; text-align: left; }
+
+.step.stage1 { background: var(--stage1); border-color: var(--stage1-line); } .step.stage2 { background: var(--stage2); border-color: var(--stage2-line); }
+.stagelegend { display: flex; flex-wrap: wrap; gap: .5em; margin-bottom: .6em; font-size: .8rem; }
+.stagelegend span { padding: .15em .7em; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-2); }
+.stagelegend .stage1 { background: var(--stage1); border-color: var(--stage1-line); } .stagelegend .stage2 { background: var(--stage2); border-color: var(--stage2-line); }

@@ -10,7 +10,13 @@
 try { document.documentElement.dataset.theme = localStorage.getItem('ai-prawo.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (_) { document.documentElement.dataset.theme = 'light'; }</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/panels/dashboard.css">
+<link rel="stylesheet" href="css/panels/documents.css">
+<link rel="stylesheet" href="css/panels/training.css">
+<link rel="stylesheet" href="css/panels/dialogs.css">
+<link rel="stylesheet" href="css/panels/models.css">
+<link rel="stylesheet" href="css/panels/help.css">
 <link rel="stylesheet" href="css/chat.css">
 </head>
 <body>

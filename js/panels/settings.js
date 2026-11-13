@@ -4,6 +4,7 @@ import { h, help, toast, confirmBox, num } from '../ui/dom.js';
 import { fieldsForm } from '../ui/form.js';
 import { SCHEMA, settings, saveSettings, defaults } from '../core/settings.js';
 import { getToken, setToken, testAccess } from '../core/github.js';
+import { githubImportModal } from '../ui/modals/github-import.js';
 import { db } from '../core/db.js';
 import { VERSIONS } from '../version.js';
 
@@ -27,6 +28,7 @@ export default {
           h('div.row',
             h('button', { type: 'button', onclick: () => { if (!tokenIn.value.trim()) return toast('Wpisz token.', 'error'); setToken(tokenIn.value); tokenIn.value = ''; tokenIn.placeholder = '•••••••• (zapisany)'; toast('Zapisano token.', 'ok'); } }, 'Zapisz token'),
             h('button.ghost', { type: 'button', onclick: async () => { ghLog.textContent = 'Sprawdzam…'; try { ghLog.textContent = `Dostęp w porządku: ${await testAccess(s.github)} (zapis na gałęzi ${s.github.branch}).`; } catch (e) { ghLog.textContent = 'Błąd: ' + e.message; } } }, 'Sprawdź dostęp'),
+            h('button.ghost', { type: 'button', onclick: () => githubImportModal() }, 'Wczytaj z GitHub'),
             h('button.ghost.danger', { type: 'button', onclick: () => { setToken(''); tokenIn.placeholder = 'github_pat_…'; toast('Usunięto token z tej przeglądarki.', 'ok'); } }, 'Usuń token')),
           ghLog) : null)),
       h('section.card', h('h2', 'Dane w tej przeglądarce', help('Dokumenty, rozmowy i modele są zapisane w bazie IndexedDB tej przeglądarki na tym komputerze. Wyczyszczenie danych strony w przeglądarce usuwa je. Modele można zabezpieczyć plikiem albo publikacją na GitHub.', 'dane-w-przegladarce')), counts),

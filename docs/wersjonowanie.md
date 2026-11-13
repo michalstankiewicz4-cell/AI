@@ -10,6 +10,8 @@ Wszystkie wersje są w `js/version.js`. Historia zmian jest w [CHANGELOG.md](../
 | `modelFormat` (liczba) | zmiana zawartości pliku modelu; odczyt starszych formatów trzeba zachować |
 | `db` (liczba) | nowy magazyn lub indeks w IndexedDB (migracja w `core/db.js`, `onupgradeneeded`) |
 
+Biblioteki w `vendor/` mają swoje wersje, opisane w `vendor/README.md`. Aktualizacja biblioteki to zmiana programu (`app`) z wpisem w CHANGELOG.
+
 Zasady:
 - Każda zmiana wypychana na `main` ma wpis w `CHANGELOG.md` pod nową wersją `app`.
 - Wersja `app` jest widoczna obok nazwy w lewym górnym rogu panelu.

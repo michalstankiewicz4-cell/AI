@@ -3,33 +3,101 @@
 ## Warstwy
 
 ```
-panels/ + chat/  ──►  core/  ──►  engine/worker.js (wątek w tle)
-     │                  │
-     └──► ui/           └──► cleaner/   (formatowanie, czyste funkcje)
-                        └──► IndexedDB (core/db.js)
+panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w tle)
+        │                     │
+        │                     ├──► reader/   (odczyt plików: tekst, Word/ODT/RTF, PDF, OCR)
+        │                     ├──► cleaner/  (formatowanie: czyste funkcje)
+        │                     └──► IndexedDB (core/db.js), GitHub (core/github.js)
+        └──► help/ (treść Pomocy)
 ```
 
-- **`js/engine/`** – silnik sieci. Klasyczne skrypty ładowane w wątku przez `importScripts`. Nie zna panelu ani bazy: dostaje polecenia i odpowiada wiadomościami.
-- **`js/cleaner/`** – formatowanie danych. Czyste funkcje bez DOM (poza `extract.js`, który parsuje HTML). Testowane w Node.
-- **`js/core/`** – logika aplikacji bez interfejsu: baza (`db.js`), ustawienia (`settings.js`), klient wątku (`ai.js`), stan nauki (`training.js`), modele (`models.js`), korpus (`corpus.js`), rozmowy z czatu (`conversations.js`), GitHub (`github.js`).
-- **`js/ui/`** – elementy interfejsu wielokrotnego użytku. Dymki przycisków są w `ui/tips.js` (według napisu na przycisku); `h()` dodaje je sama.
-- **`js/panels/`** – zakładki. Każda eksportuje `{ id, title, icon, render(root, rerender) }`, a `render` może zwrócić funkcję sprzątającą.
-- **`js/chat/widget.js`** – okno czatu, niezależne od zakładek (ustawienia rozmowy pod ⚙).
-- **`js/help/content.js`** – treść Pomocy. Dział ma `id` i `topics`; `help(tekst, temat)` w panelu prowadzi do `#pomoc/<temat>`. Pola ustawień mają temat `grupa.pole`. Test `tests/help.test.js` pilnuje, żeby każdy temat miał dział.
+- Interfejs (`panels/`, `chat/`, `ui/`) korzysta z `core/` i nie rozmawia bezpośrednio z bazą ani z silnikiem.
+- `core/` nie tworzy elementów strony, więc integracja z innym serwisem (np. PiK) może używać `core/`, `reader/`, `cleaner/` i `engine/` bez panelu.
+- `engine/` to klasyczne skrypty ładowane w wątku przez `importScripts`. Nie znają panelu ani bazy: dostają polecenia i odpowiadają wiadomościami.
+- `cleaner/` i większość `reader/` to czyste funkcje bez DOM, testowane w Node. Wyjątki korzystają z API przeglądarki: `reader/text.js` (HTML przez DOMParser), `reader/ocr.js` i `reader/pdf.js` (płótno, Tesseract, pdf.js).
 
-Adresy: `#zakładka` albo `#zakładka/argument` (np. `#pomoc/formatowanie`, `#formatowanie/<id dokumentu>`). Zakładka dostaje argument jako trzeci parametr `render`. Pole `stage` (1 lub 2) koloruje zakładkę w menu.
+## Moduły
 
-Integracja z innym serwisem (np. PiK) powinna korzystać z `core/` i `engine/` bez `panels/`. Panel jest tylko jednym z klientów.
+### `js/`
+| Plik | Rola |
+|---|---|
+| `main.js` | układ panelu, menu, adresy `#zakładka/argument`, przełącznik dzień/noc, odświeżanie po zmianie danych (`datachange`) |
+| `version.js` | wersje: `app`, `engine`, `cleaner`, `modelFormat`, `db` |
+
+### `js/core/` – logika bez interfejsu
+| Plik | Rola |
+|---|---|
+| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `kv` |
+| `settings.js` | `SCHEMA` (pola, opisy, wartości domyślne), zapis, opcje formatowania, znaczniki |
+| `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
+| `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |
+| `models.js` | modele w bazie, aktywny model, plik modelu (eksport/import), bity na znak |
+| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki |
+| `dialogs.js` | rozmowy wzorcowe |
+| `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
+| `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
+| `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
+
+### `js/reader/` – odczyt plików
+| Plik | Rola |
+|---|---|
+| `index.js` | wybór sposobu odczytu według rodzaju pliku, `ACCEPT`, opis odczytu OCR do raportu |
+| `text.js` | .txt/.md/.html: rozpoznawanie kodowania (UTF-8, Windows-1250, ISO-8859-2), HTML → tekst, Markdown → tekst |
+| `office.js` | Word (.docx), OpenDocument (.odt), RTF; .doc → komunikat o zapisie jako .docx |
+| `zip.js` | minimalny odczyt ZIP (`DecompressionStream`) dla .docx/.odt |
+| `pdf.js` | pdf.js: warstwa tekstowa, a strony bez tekstu renderowane i czytane przez OCR |
+| `ocr.js` | Tesseract.js: wykrywanie położenia (kształt linii → bokiem; wybór obrotu po jakości odczytu), prostowanie przekrzywienia (`rotateAuto`) |
+
+### `js/cleaner/` – formatowanie
+| Plik | Rola |
+|---|---|
+| `rules.js` | reguły (id, nazwa, opis, zakres `doc`/`line`, funkcja) i lista dozwolonych znaków |
+| `cleaner.js` | przebieg reguł, raport (zmiany, usunięte znaki, ostrzeżenia) |
+| `dialogs.js` | format pliku rozmów wzorcowych: odczyt, sprawdzenie, zapis |
+
+### `js/engine/` – silnik sieci (wątek)
+| Plik | Rola |
+|---|---|
+| `worker.js` | polecenia: wczytanie modelu, nauka, dostrajanie, odpowiedź, karta graficzna |
+| `engine.js` | tensory z autogradem, Adam (z GameLaboratory) |
+| `wasm.js` | mnożenie macierzy w WASM SIMD (z GameLaboratory) |
+| `gpu.js` | nauka transformera na WebGPU (z GameLaboratory + maskowanie) |
+| `bpe.js` | tokenizer BPE (z GameLaboratory) |
+| `infer.js` | szybkie generowanie z pamięcią KV |
+
+### `js/panels/`, `js/chat/`, `js/ui/`, `js/help/`
+| Plik | Rola |
+|---|---|
+| `panels/*.js` | zakładki: `{ id, title, stage?, icon, render(root, rerender, arg) }`, `render` może zwrócić funkcję sprzątającą; `stage` (1 lub 2) koloruje zakładkę w menu |
+| `chat/widget.js` | okno czatu, ustawienia rozmowy pod ⚙ |
+| `ui/dom.js` | `h()` (tworzenie elementów; przyciski dostają dymki z `tips.js`), `help(tekst, temat)`, powiadomienia, okna, pliki, formaty liczb |
+| `ui/form.js` | formularz z `SCHEMA` (pole + [?] z tematem `grupa.pole`) |
+| `ui/tips.js` | dymki przycisków według napisu |
+| `ui/chart.js`, `ui/trainview.js` | wykres błędu, widok przebiegu nauki |
+| `ui/netview.js` | podgląd budowy modelu z prawdziwych wag |
+| `ui/fileicon.js` | ikonka rodzaju pliku |
+| `ui/dialog-editor.js` | edytor rozmowy wzorcowej |
+| `ui/modals/publish.js` | okno publikacji na GitHub (checkboxy) |
+| `ui/modals/github-import.js` | okno „Wczytaj z GitHub” (modele i dane) |
+| `ui/modals/format-stats.js` | statystyki formatowania |
+| `help/content.js` | działy Pomocy: `id`, `topics`, bloki treści (akapit, kroki, tabela, przykład, przykład reguły na żywo, schemat) |
+| `help/diagram.js` | schemat przykładowego modelu z objaśnieniami |
+
+### `css/`
+`base.css` (zmienne kolorów, motyw jasny i ciemny przez `data-theme`, przyciski, pola, dymki, okna), `layout.css` (pasek, menu, karty, formularze, tabele, kolory etapów w menu), `chat.css`, `panels/*.css` (style poszczególnych zakładek).
+
+### `vendor/`
+Tesseract.js (OCR, model polski) i pdf.js, ładowane dopiero przy pierwszym PDF albo obrazie. Szczegóły w [vendor/README.md](../vendor/README.md).
 
 ## Silnik
 
-Pochodzi z GameLaboratory `labs/lang` (pliki `engine.js`, `wasm.js`, `gpu.js` i `bpe.js` skopiowane). Zmiany:
+Pochodzi z GameLaboratory `labs/lang`, skąd pliki `engine.js`, `wasm.js`, `gpu.js` i `bpe.js` zostały skopiowane. Zmiany:
 
 | Plik | Zmiana |
 |---|---|
-| `gpu.js` | Maskowanie celów w błędzie (cel < 0 → bez błędu i gradientu), więc dostrajanie też może liczyć się na GPU. `lastLoss` uśrednia tylko oceniane pozycje. |
-| `worker.js` | Napisany od nowa: tylko transformer, nauka i dostrajanie na wspólnej pętli (GPU albo procesor), kilka modeli w pamięci według id, dalsza nauka istniejącego modelu, dostrajanie od dostrojonego, sprawdzanie znaczników, słownik poszerzony o znaki dopuszczane przez formatowanie. |
-| `infer.js` | Nowy: generowanie z pamięcią kluczy i wartości uwagi (KV cache). Jeden token to ok. 12·d²·L mnożeń zamiast przeliczania całego okna. Wynik zgodny z pełnym przejściem (test w `tests/engine.test.js`). |
+| `gpu.js` | maskowanie celów w błędzie (cel < 0 → bez błędu i gradientu), więc dostrajanie też może liczyć się na GPU; `lastLoss` uśrednia tylko oceniane pozycje |
+| `worker.js` | napisany od nowa: tylko transformer, wspólna pętla nauki (GPU albo procesor), kilka modeli w pamięci według id, dalsza nauka modelu, dostrajanie od dostrojonego, sprawdzanie znaczników, słownik poszerzony o znaki dopuszczane przez formatowanie |
+| `infer.js` | nowy: generowanie z pamięcią kluczy i wartości uwagi (KV cache), ok. 12·d²·L mnożeń na token zamiast przeliczania całego okna; wynik zgodny z pełnym przejściem (test) |
 
 ### Protokół wątku
 
@@ -41,22 +109,20 @@ Polecenia (`postMessage({cmd, …})`):
 | `unload` | `reqId, id` | `unloaded` |
 | `pretrain` | `jobId, newId, text, vocabChars, from?, hp` | `tokprogress`, `data`, `progress`…, `done` |
 | `finetune` | `jobId, newId, from, dialogs, tags, hp` | `data`, `progress`…, `done` |
-| `stop` | – | (nauka kończy się wiadomością `done` z `stopped: true`) |
+| `stop` | – | nauka kończy się wiadomością `done` z `stopped: true` |
 | `reply` | `reqId, id, history, tags, temp, maxTokens, turns` | `reply {text, ms}` |
 | `complete` | `reqId, id, prompt, temp, maxTokens` | `complete {text}` |
 | `gpuinfo` | `reqId` | `gpuinfo {ok, name | msg}` |
 
-Błędy wracają jako `error {msg, reqId?, jobId?}`.
+Błędy wracają jako `error {msg, reqId?, jobId?}`. `done.record` = `{ hp, chars, tok: {merges, nBase} | null, tensors: Float32Array[], params }`, czyli to samo, co później przyjmuje `load`.
 
-`done.record` = `{ hp, chars, tok: {merges, nBase} | null, tensors: Float32Array[], params }` – to samo, co później przyjmuje `load`.
+## Dane
 
-## Dane w przeglądarce
-
-IndexedDB `ai-prawo`, magazyny: `documents`, `dialogs`, `conversations`, `models` i `kv` (ustawienia, aktywny model). Schemat ma wersję `VERSIONS.db`. Token GitHub jest osobno w `localStorage` (`ai-prawo.githubToken`).
+IndexedDB `ai-prawo` (schemat w wersji `VERSIONS.db`), magazyny: `documents`, `dialogs`, `conversations`, `models` i `kv` (ustawienia, aktywny model). W `localStorage` są tylko token GitHub (`ai-prawo.githubToken`) i motyw (`ai-prawo.theme`). Dokumenty z wersji 0.1–0.2 (bez statusu) są przy odczycie traktowane jako zatwierdzone.
 
 ## Rozmowa
 
-Kontekst odpowiedzi to ostatnie `turns` wymian oraz bieżące pytanie, w formacie:
+Kontekst odpowiedzi to ostatnie `turns` wymian oraz bieżące pytanie:
 
 ```
 Ty: pytanie 1
@@ -65,4 +131,8 @@ Ty: bieżące pytanie
 AI:
 ```
 
-Sieć generuje do końca linii. Wiadomość użytkownika przechodzi przez to samo formatowanie co dane do nauki (`cleanLine`). Gdy kontekst nie mieści się w oknie, liczone jest ostatnie 3/4 okna.
+Sieć generuje do końca linii. Wiadomość użytkownika przechodzi przez to samo formatowanie co dane do nauki (`cleanLine`). Gdy kontekst nie mieści się w oknie, liczone jest ostatnie 3/4 okna. Model dostrojony pamięta swoje znaczniki (`data.tags`) i czat ich używa.
+
+## Pomoc
+
+Każdy dział w `help/content.js` ma `id` (adres `#pomoc/<id>`) i `topics`. `help(tekst, temat)` w panelu pokazuje krótki dymek, a kliknięcie prowadzi do działu. Pola ustawień mają temat `grupa.pole`. Test `tests/help.test.js` pilnuje, żeby każdy temat miał dział i żeby przykłady reguł pokazywały zmianę.

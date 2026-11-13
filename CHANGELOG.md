@@ -2,6 +2,17 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.5.0 – 2026-11-13
+
+- **Nowe formaty dokumentów:** Word (.docx), OpenDocument (.odt), RTF, PDF i obrazy (.png, .jpg, .webp, .bmp, .gif). Stary .doc dostaje komunikat o zapisie jako .docx albo PDF.
+- **OCR** (Tesseract.js, model polski, w `vendor/`) dla skanów i zdjęć oraz stron PDF bez warstwy tekstowej. Program rozpoznaje położenie strony: do góry nogami, bokiem (90°/270°) i pod kątem (mierzy kąt i prostuje). W raporcie jest linia „Odczyt”, przy mało pewnych stronach ostrzeżenie, a przy wgrywaniu pasek postępu strona po stronie.
+- **Statystyki formatowania** po wgraniu, wklejeniu i każdym formatowaniu: suma zmian, znaki przed i po, akapity, wykres zmian według reguł, usunięte znaki, a przy ponownym formatowaniu informacja, czy wynik się zmienił. Przycisk „Statystyki” przy dokumencie.
+- **Wczytaj z GitHub** (Modele i Ustawienia → GitHub): modele oraz dane (ustawienia, dokumenty, rozmowy wzorcowe, historia rozmów), z wyborem: pomiń albo zastąp istniejące. Publikacja wysyła teraz pełne rekordy (dokumenty z oryginałem, rozmowy wzorcowe także jako `.json`).
+- **Pomoc:** schemat przykładowego modelu z warstwami, połączeniami i ponumerowanymi objaśnieniami; dział „PDF, skany i OCR”.
+- **Porządek w strukturze:** `core/corpus.js` podzielony na `core/documents.js` i `core/dialogs.js`; odczyt plików w nowym folderze `js/reader/`; edytor rozmowy i okna (publikacja, wczytywanie, statystyki) w `js/ui/`; `css/admin.css` podzielony na `layout.css` i `css/panels/*`; nowy `core/sync.js`.
+- **Testy:** odczyt docx/odt/rtf/zip w Node; testy w przeglądarce w repo (`tests/e2e/panel.e2e.mjs`, `tests/e2e/ocr.e2e.mjs`).
+- **Dokumentacja:** nowe `docs/README.md`, `docs/panel.md`, `docs/testy.md`, `vendor/README.md`; uzupełnione README, architektura, dane, modele, wersjonowanie, CLAUDE.md.
+
 ## 0.4.0 – 2026-11-13
 
 - **Publikacja na GitHub z wyborem zawartości** (checkboxy, jeden commit): model, oznaczenie jako aktualny, ustawienia i wersje (`data/ustawienia.json`), dokumenty zatwierdzone (`data/dokumenty.json`), rozmowy wzorcowe (`data/rozmowy-wzorcowe.txt`), historia rozmów (`data/historia-rozmow.json`). Ostrzeżenie, że repo jest publiczne, przy danych.

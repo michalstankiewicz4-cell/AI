@@ -6,7 +6,7 @@ import { fieldsForm } from '../ui/form.js';
 import { trainView } from '../ui/trainview.js';
 import { settings, saveSettings, tags } from '../core/settings.js';
 import { BASE_CHARS } from '../cleaner/rules.js';
-import { corpusText } from '../core/corpus.js';
+import { corpusText } from '../core/documents.js';
 import { listMeta } from '../core/models.js';
 import { ensureLoaded, gpuInfo } from '../core/ai.js';
 import { start, busy, onTraining } from '../core/training.js';

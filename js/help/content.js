@@ -2,6 +2,7 @@
 // odsyłają do niego ikony [?] w panelu (help(tekst, temat)). Pola ustawień odsyłają tematem „grupa.pole”.
 //
 // Bloki treści:
+//   ['diagram']                  schemat przykładowego modelu z ponumerowanymi objaśnieniami (help/diagram.js)
 //   ['p', tekst]                 akapit (może zawierać <b>, <i>, <code>)
 //   ['steps', [[tytuł, opis], …]] ponumerowane kroki
 //   ['list', [tekst, …]]          lista
@@ -48,6 +49,9 @@ export const SECTIONS = [
   { id: 'dokumenty', group: 'Dane', title: 'Dokumenty', topics: ['dokumenty', 'opis-dokumentu', 'kodowanie', 'biblioteka'], body: [
     ['p', 'Zakładka „Dokumenty” to biblioteka wgranych plików. Każdy ma ikonkę rodzaju (TXT, HTML, MD, wklejony tekst), nazwę, datę dodania i pole <b>opisu</b>, w którym możesz zapisać, co to jest i skąd pochodzi (np. „Kodeks cywilny, tekst jednolity pobrany z ISAP 13.11.2026”).'],
     ['list', [
+      '<b>Word (.docx), OpenDocument (.odt), RTF</b> – tekst akapitami. Automatyczna numeracja punktów z Worda („1)”, „a)”) nie jest zapisana w treści pliku, więc jej nie ma; numery wpisane ręcznie zostają. Stary format <b>.doc</b> (Word 97–2003) – zapisz jako .docx albo PDF.',
+      '<b>PDF</b> – tekst z warstwy tekstowej; strony bez tekstu (skany) przez OCR.',
+      '<b>Obrazy</b> (.png, .jpg, .webp, .bmp, .gif) – zdjęcia i skany stron, przez OCR.',
       '<b>.txt</b> – zwykły tekst. Kodowanie polskie (UTF-8, Windows-1250, ISO-8859-2) rozpoznawane samo: program wybiera to, które daje najwięcej polskich liter bez „krzaczków”.',
       '<b>.html</b> – strona zapisana z przeglądarki. Usuwane są menu, nagłówki, stopki i skrypty; jeśli strona ma część główną (&lt;main&gt;/&lt;article&gt;), brana jest tylko ona.',
       '<b>.md</b> – Markdown: usuwane są znaczniki (#, **, linki zostają jako sam tekst).',
@@ -55,6 +59,22 @@ export const SECTIONS = [
     ]],
     ['p', 'Po wgraniu dokument od razu przechodzi przez formatowanie i czeka w zakładce „Formatowanie” na sprawdzenie. Oryginał zostaje w bazie, więc formatowanie można zawsze powtórzyć (np. po zmianie reguł).'],
     ['tip', 'Ile tekstu? Mała sieć zaczyna sensownie pisać od ok. 300–500 tys. znaków. Jedna ustawa to zwykle 50–500 tys., kodeks cywilny ok. 1 mln.'],
+  ] },
+  { id: 'ocr', group: 'Dane', title: 'PDF, skany i OCR', topics: ['ocr', 'pdf', 'obrazy', 'odczyt'], body: [
+    ['p', '<b>OCR</b> (optyczne rozpoznawanie znaków) zamienia obraz strony na tekst. Używa go panel dla zdjęć i skanów oraz dla stron PDF bez warstwy tekstowej. Działa w przeglądarce (Tesseract, model języka polskiego); pierwsze użycie pobiera ok. 7 MB.'],
+    ['table', ['Plik', 'Jak jest czytany', 'Szybkość'], [
+      ['PDF z tekstem (np. z ISAP, z Worda)', 'warstwa tekstowa, bez OCR', 'sekundy na cały plik'],
+      ['PDF-skan', 'każda strona renderowana i czytana przez OCR', 'ok. 1–5 s na stronę'],
+      ['zdjęcie, skan (.jpg, .png…)', 'OCR', 'ok. 1–5 s'],
+    ]],
+    ['p', '<b>Położenie strony</b> panel rozpoznaje sam, zanim odczyta tekst:'],
+    ['table', ['Strona', 'Jak to wykrywa', 'Co robi'], [
+      ['do góry nogami', 'odczyt prosto i odwrotnie – odwrócony daje same błędy', 'obraca o 180°'],
+      ['bokiem (w lewo lub w prawo)', 'linie tekstu są wysokie i wąskie zamiast szerokich', 'sprawdza oba obroty (90° i 270°) i wybiera ten, który daje poprawne słowa'],
+      ['pod kątem (przekrzywiony skan)', 'Tesseract mierzy nachylenie linii tekstu', 'prostuje stronę przed odczytem'],
+    ]],
+    ['p', 'W zakładce Formatowanie przy dokumencie jest linia <b>Odczyt</b>: ile stron miało tekst, ile poszło przez OCR, które obrócono, o ile wyprostowano i jaka była pewność. Strona z pewnością poniżej 60% dostaje ostrzeżenie.'],
+    ['tip', 'Lepszy skan = lepszy tekst: ok. 300 dpi, czarno-biały albo w odcieniach szarości, bez cieni i zagięć. Tekst po OCR przechodzi przez to samo formatowanie (sklejanie przeniesień, łączenie linii).'],
   ] },
   { id: 'formatowanie', group: 'Formatowanie', title: 'Formatowanie (konwerter na dane do nauki)', topics: ['formatowanie', 'raport', 'zmiany', 'ostrzezenia', 'do-sprawdzenia'], body: [
     ['p', 'Formatowanie zamienia dokument na czysty tekst do nauki: usuwa śmieci (numery stron, stopki, znaki niewidoczne), skleja to, co się rozpadło (wyrazy przeniesione, złamane linie) i ujednolica zapis (cudzysłowy, myślniki, „art. 5”, „§ 1”).'],
@@ -67,6 +87,7 @@ export const SECTIONS = [
       ['bardzo krótkie linie', 'tabela, spis treści, wykaz', 'jeśli to tabela – odrzuć albo wytnij ją z tekstu'],
       ['dużo cyfr', 'tabela liczb, załącznik', 'zwykle odrzuć: mało uczy języka'],
     ]],
+    ['p', '<b>Statystyki</b>: po wgraniu, wklejeniu i każdym formatowaniu pojawia się okno ze statystykami – suma zmian, znaki przed i po, liczba akapitów, wykres zmian według reguł i usunięte znaki. Przy ponownym formatowaniu widać też, czy wynik różni się od poprzedniego. Ten sam widok otwiera przycisk „Statystyki” przy dokumencie.'],
     ['p', 'Statusy: <b>do sprawdzenia</b> (po formatowaniu), <b>zatwierdzony</b> (bierze udział w nauce, można go chwilowo wyłączyć), <b>odrzucony</b> (zostaje w bibliotece, ale nie uczy).'],
     ['link', 'regula-unicode', 'Opis każdej reguły z przykładem →'],
   ] },
@@ -115,7 +136,14 @@ export const SECTIONS = [
       ['kiedy', 'mało tekstu', 'domyślnie', 'dużo dokumentów (miliony znaków)'],
     ]],
   ] },
+  { id: 'schemat-modelu', group: 'Nauka', title: 'Jak zbudowany jest model (schemat)', topics: ['schemat-modelu', 'jak-dziala'], body: [
+    ['p', 'Przykładowy, mały model. Tekst płynie od lewej do prawej: tokeny zamieniają się na liczby, przechodzą przez warstwy, a na końcu sieć wybiera następny token. Numery na rysunku odpowiadają objaśnieniom pod nim.'],
+    ['diagram'],
+    ['p', 'Wagi na rysunku są przykładowe. Prawdziwe wagi Twojego modelu pokazuje „Podgląd budowy” w zakładce Modele — wygląda tak samo, tylko kolumn jest więcej (po trzy na każdą warstwę).'],
+    ['link', 'budowa-sieci', 'Jak ustawić liczbę warstw, szerokość, głowy i okno →'],
+  ] },
   { id: 'budowa-sieci', group: 'Nauka', title: 'Budowa sieci: warstwy, szerokość, głowy, okno', topics: ['pretrain.layers', 'pretrain.dim', 'pretrain.heads', 'pretrain.ctx', 'budowa', 'parametry'], body: [
+    ['link', 'schemat-modelu', 'Najpierw zobacz schemat modelu z objaśnieniami →'],
     ['p', 'Transformer to stos jednakowych <b>warstw</b>. Każda ma <b>uwagę</b> (patrzy na wcześniejsze tokeny i wybiera, które są ważne) i małą sieć <b>MLP</b> (przetwarza to, co uwaga zebrała).'],
     ['table', ['Ustawienie', 'Co oznacza', 'Porównanie'], [
       ['Warstwy', 'ile razy tekst jest „przemyślany”', 'kolejne czytania tekstu – każde głębiej'],
@@ -197,19 +225,21 @@ export const SECTIONS = [
   { id: 'podglad-budowy', group: 'Modele', title: 'Podgląd budowy', topics: ['podglad-budowy'], body: [
     ['p', 'Kolumny to kolejne etapy przetwarzania tokenu: tokeny → embedding → (uwaga → MLP → wyjście) w każdej warstwie → następny token. Kółka to neurony – pokazane 12 najważniejszych w kolumnie. Linie to wagi: niebieskie dodatnie, złote ujemne, grubsze silniejsze.'],
     ['p', 'Najechanie na kółko podświetla jego połączenia. Linia przerywana u góry to połączenie omijające (residual): każda warstwa dopisuje swój wynik do wspólnego strumienia, zamiast go zastępować.'],
+    ['link', 'schemat-modelu', 'Schemat z objaśnieniem każdego elementu →'],
   ] },
   { id: 'github', group: 'Modele', title: 'GitHub: publikacja i wczytywanie', topics: ['github', 'github.repo', 'github.branch', 'token', 'publikacja', 'wczytaj-z-github', 'aktualny'], body: [
     ['steps', [
       ['Token', 'Utwórz go na github.com/settings/personal-access-tokens/new: dostęp tylko do repo AI, uprawnienie Contents: Read and write. Wpisz w Ustawienia → GitHub → Token i kliknij „Sprawdź dostęp”.'],
       ['Opublikuj', 'Modele → „Opublikuj na GitHub” i zaznacz, co wysłać. Wszystko trafia jednym commitem.'],
-      ['Gotowe', 'Po ok. minucie model jest pod adresem GitHub Pages, np. …/AI/models/index.json – stamtąd pobierze go inna aplikacja (np. PiK) albo ten panel na innym komputerze („Wczytaj z GitHub”).'],
+      ['Gotowe', 'Po ok. minucie model jest pod adresem GitHub Pages, np. …/AI/models/index.json – stamtąd pobierze go inna aplikacja (np. PiK) albo ten panel na innym komputerze.'],
+      ['Wczytaj z GitHub', 'Na innym komputerze: Modele albo Ustawienia → „Wczytaj z GitHub”. Modele wczytujesz pojedynczo, a dane (ustawienia, dokumenty, rozmowy wzorcowe, historia) zaznaczasz. Rekordy, których tu nie ma, są dodawane; te, które już są (to samo id), są pomijane albo zastępowane – do wyboru. Token nie jest potrzebny.'],
     ]],
     ['table', ['Checkbox', 'Plik w repo', 'Uwagi'], [
       ['Model', 'models/&lt;nazwa&gt;-v&lt;wersja&gt;-&lt;id&gt;.json + models/index.json', 'np. models/rozmowa-3-v0.4.0-c_ab12.json; w środku także ustawienia i wersje z chwili publikacji'],
       ['Oznacz jako aktualny', 'models/index.json → active', 'model, który inne aplikacje biorą domyślnie'],
       ['Ustawienia i wersje', 'data/ustawienia.json', 'bez tokenu'],
-      ['Dokumenty zatwierdzone', 'data/dokumenty.json', 'nazwa, opis, tekst po formatowaniu'],
-      ['Rozmowy wzorcowe', 'data/rozmowy-wzorcowe.txt', 'w formacie do wczytania'],
+      ['Dokumenty', 'data/dokumenty.json', 'oryginał, opis, status, tekst po formatowaniu'],
+      ['Rozmowy wzorcowe', 'data/rozmowy-wzorcowe.json + .txt', '.json do wczytania z powrotem, .txt do czytania'],
       ['Historia rozmów', 'data/historia-rozmow.json', 'rozmowy z czatu z ocenami'],
     ]],
     ['tip', 'Repozytorium AI jest publiczne (GitHub Pages w darmowym planie). Dokumenty i rozmowy po wysłaniu zobaczy każdy, także w historii repo. Nie wysyłaj danych osobowych ani poufnych.'],

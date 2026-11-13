@@ -1,0 +1,15 @@
+/* Nauka i Dostrajanie: postęp, wykres, próbka; podgląd budowy modelu. */
+.progress { height: 8px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden; margin: .4em 0 1em; }
+.progress .fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--gold)); transition: width .4s; }
+.learn { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 1.2em; align-items: start; }
+@media (max-width: 900px) { .learn { grid-template-columns: 1fr; } }
+canvas.chart { width: 100%; height: 230px; display: block; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r-s);
+}
+.legend { display: flex; gap: 1em; align-items: center; font-size: .8rem; color: var(--ink-3); margin-top: .3em; }
+.legend span::before { content: ''; display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: .4em; vertical-align: middle; }
+.legend .lt::before { background: var(--accent); } .legend .lv::before { background: var(--gold); }
+pre.sample { white-space: pre-wrap; word-break: break-word; background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: var(--r-s); padding: .7em .9em; font: .92rem/1.55 var(--serif); min-height: 3em; }
+
+.netscroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--panel-2); }
+canvas.netview { display: block; }
+

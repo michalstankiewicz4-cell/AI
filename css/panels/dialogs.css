@@ -1,0 +1,20 @@
+/* Rozmowy wzorcowe, edytor rozmowy, Historia rozmów. */
+.dialog, .conv { border: 1px solid var(--line); border-radius: var(--r-s); padding: .6em .9em; margin: .6em 0; background: var(--panel); }
+.dialog.off { opacity: .55; }
+.turnline { margin: .25em 0; font-size: .92rem; }
+.turnline b { color: var(--ink-3); font-weight: 600; margin-right: .2em; }
+.turnline.bot { padding-left: .8em; border-left: 2px solid var(--gold); }
+.turns { display: flex; flex-direction: column; gap: .5em; }
+.turn { display: grid; grid-template-columns: 3.5em 1fr auto; gap: .5em; align-items: start; }
+.turn .who { font-weight: 600; color: var(--ink-3); padding-top: .45em; }
+.turn.bot textarea { border-left: 3px solid var(--gold); }
+.errors { max-height: 45vh; overflow: auto; }
+.err { border-left: 3px solid var(--bad); padding: .3em .7em; margin: .5em 0; background: var(--bad-soft); border-radius: 4px; font-size: .88rem; }
+pre.small { margin: .3em 0 0; white-space: pre-wrap; font-size: .78rem; color: var(--ink-2); }
+.convview { max-height: 65vh; overflow: auto; }
+.turnbox { padding: .4em .6em; border-radius: var(--r-s); margin: .3em 0 .8em; border: 1px solid var(--line); }
+.turnbox.ok { background: var(--ok-soft); } .turnbox.wrong { background: var(--bad-soft); } .turnbox.corrected { background: var(--gold-soft); }
+s.orig { color: var(--ink-3); }
+details.inline { display: inline-block; } details.inline[open] { display: block; width: 100%; }
+details.inline textarea { margin: .3em 0; }
+

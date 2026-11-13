@@ -2,7 +2,8 @@
 
 import { h, help, num, dec, date, plural } from '../ui/dom.js';
 import { db } from '../core/db.js';
-import { corpusText, trainingDialogs, listDocs } from '../core/corpus.js';
+import { corpusText, listDocs } from '../core/documents.js';
+import { trainingDialogs } from '../core/dialogs.js';
 import { listMeta, getActive } from '../core/models.js';
 import { listConversations, unreviewed } from '../core/conversations.js';
 import { gpuInfo } from '../core/ai.js';

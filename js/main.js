@@ -68,6 +68,7 @@ async function init() {
     if (state.error && !state._errToast) { state._errToast = true; toast('Nauka przerwana: ' + state.error, 'error', 8000); }
   });
   window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+  window.addEventListener('datachange', () => show(location.hash.slice(1)));
   window.addEventListener('beforeunload', e => { if (state.job) { e.preventDefault(); e.returnValue = ''; } });
   await initChat();
   show(location.hash.slice(1) || 'pulpit');

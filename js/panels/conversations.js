@@ -5,8 +5,8 @@ import { h, help, toast, confirmBox, modal, num, date, clear, plural } from '../
 import { settings, cleanerOpts } from '../core/settings.js';
 import { cleanLine } from '../cleaner/cleaner.js';
 import { listConversations, saveConversation, deleteConversation, unreviewed, toTurns, botText, onConversations } from '../core/conversations.js';
-import { makeDialog, saveDialog } from '../core/corpus.js';
-import { dialogEditor } from './dialogs.js';
+import { makeDialog, saveDialog } from '../core/dialogs.js';
+import { dialogEditor } from '../ui/dialog-editor.js';
 
 export default {
   id: 'historia', title: 'Historia rozmów', icon: '🕘',
