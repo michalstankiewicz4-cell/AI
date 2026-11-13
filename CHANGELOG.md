@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.8.1 – 2026-11-13
+
+- Pomoc uzupełniona: nowy dział „Panel: menu, pulpit, kolory, czat, motyw”; Nauka i Dostrajanie – co wolno w trakcie (przechodzenie po menu, kropka, nie zamykać karty, jedno zadanie naraz, karta w tle, Zatrzymaj); Formatowanie – „Zatwierdź bez ostrzeżeń” i „Formatuj wszystkie ponownie”; Modele – tabela przycisków; „Dane w tej przeglądarce” – źródła, logi, token, bez powtórzeń; „Krok po kroku” – odesłanie do Logów.
+
 ## 0.8.0 – 2026-11-13 (db 3)
 
 - Nowa zakładka **Logi** (pod Ustawieniami): zdarzenia i błędy z dokładnym czasem, kolor według ważności – czerwony błąd, złoty ostrzeżenie, niebieski informacja, szary szczegóły (domyślnie ukryte). Filtry ważności z licznikami, obszar, wyszukiwanie, rozwijane szczegóły (adres, ustawienia, ślad błędu), „Pobierz logi” (.txt), „Wyczyść logi”; nowe wpisy pojawiają się na żywo.

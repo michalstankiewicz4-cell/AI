@@ -35,7 +35,19 @@ export const SECTIONS = [
       ['Historia rozmów', 'Rozmowy z dobrymi i poprawionymi odpowiedziami przenieś do rozmów wzorcowych. Potem wróć do kroku 6 (Dostrajanie) i dostrój ponownie. Ta pętla to <b>uczenie z rozmów</b>.'],
       ['Modele', 'Każda nauka zapisuje nową wersję modelu. Porównaj je, wybierz aktywny, zobacz budowę, pobierz plik albo opublikuj na GitHub.'],
     ]],
-    ['tip', 'Kroki 1–4 robisz rzadko (gdy przybywa dokumentów). Kroki 5–8 powtarzasz często: to codzienne douczanie. Kolory w menu: fioletowy – dokumenty, formatowanie i nauka; zielony – rozmowy wzorcowe i dostrajanie.'],
+    ['tip', 'Kroki 1–4 robisz rzadko (gdy przybywa dokumentów). Kroki 5–8 powtarzasz często: to codzienne douczanie. Kolory w menu: fioletowy – dokumenty, formatowanie i nauka; zielony – rozmowy wzorcowe i dostrajanie. Gdy coś nie działa, zajrzyj do Logów: tam widać, kiedy i przy czym pojawił się błąd.'],
+  ] },
+  { id: 'panel', group: 'Start', title: 'Panel: menu, pulpit, kolory, czat, motyw', topics: ['panel', 'menu', 'motyw', 'kolory'], body: [
+    ['table', ['Element', 'Co to'], [
+      ['Pulpit', 'kafelki kroków 1–7 ze stanem (ile źródeł, dokumentów, modeli, rozmów do oceny) i przyciskiem do danego kroku'],
+      ['Menu po lewej', 'zakładki w kolejności pracy; kropka przy „Nauce” albo „Dostrajaniu” oznacza, że trwa'],
+      ['Kolory', 'fioletowy – Dokumenty, Formatowanie, Nauka (nauka języka); zielony – Rozmowy wzorcowe, Dostrajanie (nauka odpowiadania); reszta bez koloru'],
+      ['Ikona czatu', 'prawy dolny róg, na każdej zakładce; odpowiada aktywny model'],
+      ['☾ / ☀', 'przełącznik dzień/noc w górnym pasku, zapamiętany w przeglądarce'],
+      ['[?]', 'krótki dymek; kliknięcie otwiera odpowiedni dział tej Pomocy'],
+      ['Logi', 'pod Ustawieniami: co i kiedy się działo, błędy na czerwono'],
+    ]],
+    ['p', 'Adres strony pokazuje zakładkę (np. <code>#nauka</code>, <code>#pomoc/logi</code>), więc można go zapisać w zakładkach przeglądarki albo komuś wysłać.'],
   ] },
   { id: 'porownanie-etapow', group: 'Start', title: 'Rozmowa wzorcowa a dostrajanie (i nauka)', topics: ['etapy'], body: [
     ['p', '<b>Rozmowa wzorcowa to dane, dostrajanie to proces.</b> Tak samo dokument to dane, a nauka to proces.'],
@@ -135,6 +147,7 @@ export const SECTIONS = [
     ['p', '<b>Statystyki</b>: po wgraniu, wklejeniu i każdym formatowaniu pojawia się okno ze statystykami – suma zmian, znaki przed i po, liczba akapitów, wykres zmian według reguł i usunięte znaki. Ten sam widok otwiera przycisk „Statystyki” przy dokumencie.'],
     ['p', '<b>Formatuj ponownie</b> pokazuje dodatkowo sekcję <b>„Czy to coś dało?”</b>: werdykt (np. „Dało efekt: 12 nowych linii, 12 usuniętych, ostrzeżeń mniej o 1” albo „Bez efektu: wynik identyczny”), tabelę poprzednio / teraz / różnica (znaki, akapity, zmiany reguł, usunięte znaki, ostrzeżenia), reguły, które zadziałały inaczej (także włączone lub wyłączone), oraz przykłady zmienionych linii z wyróżnionym fragmentem.'],
     ['ex', 'Nie stanowi inaczej . § 2.', 'Nie stanowi inaczej. § 2.', 'tak w przykładach zmian widać różnicę: wyróżniony jest tylko zmieniony fragment (spacja jako ·)'],
+    ['p', 'Na górze zakładki: <b>Zatwierdź bez ostrzeżeń</b> zatwierdza naraz wszystkie dokumenty do sprawdzenia, które nie mają ostrzeżeń (te z ostrzeżeniami obejrzyj sam); <b>Formatuj wszystkie ponownie</b> przepuszcza całą bibliotekę przez aktualne reguły i pokazuje sumę statystyk – przydaje się po zmianie ustawień formatowania.'],
     ['p', 'Statusy: <b>do sprawdzenia</b> (po formatowaniu), <b>zatwierdzony</b> (bierze udział w nauce, można go chwilowo wyłączyć), <b>odrzucony</b> (zostaje w bibliotece, ale nie uczy).'],
     ['link', 'regula-unicode', 'Opis każdej reguły z przykładem →'],
   ] },
@@ -172,7 +185,8 @@ export const SECTIONS = [
       ['tempo nauki', '0,003', 'lepiej mniejsze: 0,001'],
     ]],
     ['p', 'Na koniec, jeśli sieć zaczęła „uczyć się na pamięć” (błąd sprawdzający wzrósł), wagi wracają do najlepszego momentu.'],
-    ['tip', 'Nauka liczy się w otwartej karcie przeglądarki. Możesz przechodzić między zakładkami, ale nie zamykaj karty.'],
+    ['table', ['Podczas nauki i dostrajania', ''], [['przechodzenie po menu', 'można – nauka liczy się dalej, a po powrocie wykres i próbka są na miejscu; kropka przy zakładce w menu pokazuje, co trwa'], ['zamknięcie lub odświeżenie karty', 'przerywa pracę (panel ostrzega przed zamknięciem)'], ['nauka i dostrajanie naraz', 'nie – jedno zadanie naraz'], ['karta w tle', 'liczy się dalej, ale przeglądarka może ją spowalniać'], ['zakończenie', 'powiadomienie i wpis w Logach; model zapisuje się sam']]],
+    ['tip', 'Przycisk „Zatrzymaj” kończy naukę wcześniej – model z dotychczasowym wynikiem też się zapisze (w Logach jako ostrzeżenie „Zatrzymano”).'],
   ] },
   { id: 'tekst-ogolny', group: 'Nauka', title: 'Tekst ogólny: zwykła polszczyzna obok prawa', topics: ['tekst-ogolny', 'pretrain.generalShare'], body: [
     ['p', 'Dokumenty prawnicze uczą słownictwa i stylu przepisów, ale ludzie pytają potocznie („szef mi nie zapłacił, co robić?”). <b>Tekst ogólny</b> – zwykła, współczesna polszczyzna – uczy sieć gramatyki i codziennych zwrotów, więc lepiej rozumie takie pytania i odpowiada mniej urzędowo.'],
@@ -265,6 +279,7 @@ export const SECTIONS = [
     ['table', ['Błąd liczony na', 'Czego uczy się sieć'], [['tylko odpowiedziach AI (maska)', 'odpowiadać – zalecane'], ['całej rozmowie', 'odpowiadać, ale też pisać pytania za użytkownika']]],
     ['table', ['Dostrajasz od', 'Kiedy'], [['modelu bazowego', 'pierwszy raz albo po nowej nauce na dokumentach'], ['modelu dostrojonego', 'kolejna runda po dodaniu nowych rozmów (np. z historii czatu)']]],
     ['tip', 'Przy kolejnej rundzie ucz na całym zestawie (starych i nowych rozmowach), nie tylko na nowych – inaczej sieć zapomni wcześniejsze odpowiedzi.'],
+    ['p', 'Dostrajanie liczy się tak samo jak nauka: w tle, w otwartej karcie. Możesz w tym czasie przechodzić po menu (kropka przy „Dostrajaniu”), ale nie zamykaj karty. Na końcu przycisk „Ustaw jako aktywny i otwórz czat”.'],
   ] },
   { id: 'czat', group: 'Rozmowa', title: 'Czat i jego ustawienia', topics: ['czat', 'oceny', 'chat.temp', 'chat.maxTokens', 'chat.turns', 'chat.save'], body: [
     ['p', 'Ikona w prawym dolnym rogu. Odpowiada aktywny model. Ustawienia rozmowy (temperatura, długość odpowiedzi, pamięć) są pod ⚙ w nagłówku okna czatu. Pod każdą odpowiedzią: <b>✓</b> dobra, <b>✎</b> popraw (wpisujesz poprawną), <b>✗</b> błędna.'],
@@ -279,6 +294,7 @@ export const SECTIONS = [
 
   { id: 'modele', group: 'Modele', title: 'Modele', topics: ['modele', 'aktywny-model', 'wersje-modelu', 'nauka-modelu'], body: [
     ['p', 'Każda nauka i każde dostrajanie zapisuje nowy model z wynikami (bity na znak, błąd), budową, danymi, z których powstał, i wersjami programu. <b>Aktywny</b> model odpowiada w czacie.'],
+    ['table', ['Przycisk', 'Co robi'], [['Ustaw jako aktywny', 'ten model będzie odpowiadał w czacie'], ['Podgląd budowy', 'warstwy jako kolumny neuronów połączone prawdziwymi wagami'], ['Pobierz plik', 'model jako plik .json – kopia zapasowa albo przeniesienie na inny komputer'], ['Opublikuj na GitHub', 'model (i zaznaczone dane) jednym commitem do repozytorium'], ['Zmień nazwę, Usuń', 'porządek na liście (usunięcie jest w Logach)'], ['Wczytaj z pliku, Wczytaj z GitHub', 'na górze zakładki: dodanie modelu z pliku albo modeli i danych opublikowanych wcześniej']]],
     ['tip', 'Porównuj bity na znak tylko między modelami tego samego rodzaju (bazowy z bazowym, dostrojony z dostrojonym), bo sprawdza się je na innym tekście.'],
   ] },
   { id: 'podglad-budowy', group: 'Modele', title: 'Podgląd budowy', topics: ['podglad-budowy'], body: [
@@ -331,8 +347,8 @@ export const SECTIONS = [
     ['p', `Logi są tylko w tej przeglądarce (nie idą na GitHub). Zapisywanych jest najwyżej 5000 ostatnich wpisów; starsze usuwają się same.`],
   ] },
   { id: 'dane-w-przegladarce', group: 'Ustawienia', title: 'Dane w tej przeglądarce i wersje', topics: ['dane-w-przegladarce', 'wersje'], body: [
-    ['p', 'Wszystko – dokumenty, rozmowy wzorcowe, historia rozmów, ustawienia i modele – jest zapisane lokalnie, w bazie IndexedDB tej przeglądarki na tym komputerze. Na GitHub trafia tylko to, co sam wyślesz przy publikacji. Motyw dzień/noc też jest zapamiętany w tej przeglądarce.'],
-    ['p', 'Dokumenty, rozmowy i modele są zapisane w bazie IndexedDB tej przeglądarki na tym komputerze. Wyczyszczenie danych strony w przeglądarce je usuwa. Modele zabezpieczysz plikiem albo publikacją na GitHub.'],
+    ['p', 'Wszystko – dokumenty, źródła Researchu, rozmowy wzorcowe, historia rozmów, ustawienia, modele i logi – jest zapisane lokalnie, w bazie IndexedDB tej przeglądarki na tym komputerze. Na GitHub trafia tylko to, co sam wyślesz przy publikacji. Token GitHub i motyw dzień/noc są zapamiętane w tej przeglądarce (localStorage).'],
+    ['p', 'Ustawienia → „Dane w tej przeglądarce” pokazują, ile jest dokumentów, rozmów, modeli, źródeł i logów oraz ile miejsca zajmują. Wyczyszczenie danych strony w przeglądarce usuwa wszystko – modele zabezpieczysz plikiem albo publikacją na GitHub, a dane publikacją z zaznaczonymi checkboxami.'],
     ['p', 'Wersje: <b>program</b> (widoczna obok nazwy), <b>silnik</b> (budowa sieci – modele z innej wersji głównej się nie wczytają), <b>reguły formatowania</b> (zapisywana przy każdym dokumencie), <b>format pliku modelu</b>, <b>schemat bazy</b>.'],
   ] },
 ];
