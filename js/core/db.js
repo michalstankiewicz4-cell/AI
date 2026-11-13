@@ -5,12 +5,13 @@
 //   dialogs       — rozmowy wzorcowe do dostrajania
 //   conversations — rozmowy z czatu (do przeglądania, poprawiania i przenoszenia do rozmów wzorcowych)
 //   models        — wytrenowane modele: metadane + wagi (Float32Array)
+//   sources       — źródła dokumentów (strony www, API ELI Sejmu) i wyniki ich sprawdzania (Research)
 //   kv            — ustawienia i drobne wartości (aktywny model itp.)
 
 import { VERSIONS } from '../version.js';
 
 const NAME = 'ai-prawo';
-const STORES = ['documents', 'dialogs', 'conversations', 'models'];
+const STORES = ['documents', 'dialogs', 'conversations', 'models', 'sources'];   // sources: od wersji bazy 2 (Research)
 let dbp = null;
 
 function open() {

@@ -84,3 +84,14 @@ dialog.modal { border: 1px solid var(--line); border-radius: var(--r); backgroun
 dialog.modal.wide { width: min(860px, 96vw); max-height: 90vh; }
 dialog.modal::backdrop { background: rgba(15, 20, 32, .45); }
 dialog.modal h3 { margin: 0; font-size: 1.1rem; }
+
+/* paski przewijania w stylu panelu (Firefox: scrollbar-color; Chrome, Edge, Safari: ::-webkit-scrollbar) */
+:root { --sb-thumb: color-mix(in srgb, var(--ink-3) 45%, transparent); --sb-hover: var(--gold); }
+/* standardowe właściwości tylko tam, gdzie nie ma ::-webkit-scrollbar (Firefox); w Chrome wyłączyłyby styl poniżej */
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) transparent; } }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sb-thumb); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--sb-hover); border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+.side::-webkit-scrollbar, .htoc::-webkit-scrollbar, .chat-log::-webkit-scrollbar { width: 8px; }

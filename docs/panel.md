@@ -5,6 +5,7 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 | Zakładka | Plik | Ustawienia w zakładce |
 |---|---|---|
 | Pulpit | `js/panels/dashboard.js` | – |
+| Research | `js/panels/research.js` | ustawienia każdego źródła (rodzaj, adres, wydawnictwo, lata, filtr tytułów) |
 | Dokumenty | `js/panels/documents.js` | – |
 | Formatowanie | `js/panels/formatting.js` | Ustawienia formatowania (reguły, dodatkowe znaki, progi) |
 | Nauka | `js/panels/pretrain.js` | budowa sieci, kroki, tempo, urządzenie |
@@ -19,8 +20,19 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 ## Pulpit
 Sześć kafelków-kroków ze stanem: ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
 
+## Research
+Źródła dokumentów (etap 1, przed Dokumentami):
+- **Czy dokument był już pobrany?** – adres → wynik „już pobrany” (po adresie albo po treści, z odnośnikiem do dokumentu) albo „nie ma” z przyciskiem *Pobierz do dokumentów*.
+- **Źródła** – strona www albo API aktów prawnych Sejmu (ELI). Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
+  - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;
+  - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*.
+- **Domeny z dokumentów** bez źródła – *Dodaj jako źródło*.
+- **Dokumenty z adresem źródła** – *Sprawdź zmiany u źródła*, przy zmienionych *Dodaj nową wersję*.
+
+Pobrany dokument przechodzi zwykłą drogą: Formatowanie → zatwierdzenie → nauka.
+
 ## Dokumenty
-Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie.
+Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie. Pod opisem jest pole **Adres źródła** (skąd pobrano dokument; Research wypełnia je sam). Przy wgraniu dokumentu o treści identycznej z już istniejącym panel pyta, czy dodać go mimo to.
 
 ## Formatowanie
 Wynik konwertera. Widoki: do sprawdzenia, zatwierdzone, odrzucone, wszystkie. Każdy dokument ma:

@@ -5,7 +5,7 @@
 import { h, help, toast, confirmBox, modal, pickFiles, num, date, clear, plural } from '../ui/dom.js';
 import { fileIcon } from '../ui/fileicon.js';
 import { readFile, finishReading, ACCEPT, kindOf } from '../reader/index.js';
-import { listDocs, addDoc, saveDoc, deleteDoc, STATUS } from '../core/documents.js';
+import { listDocs, addDoc, saveDoc, deleteDoc, findDuplicate, STATUS } from '../core/documents.js';
 import { go } from '../main.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
 
@@ -34,10 +34,14 @@ export default {
         prog.hidden = false; st.textContent = `${f.name} (${i + 1} z ${files.length}): wczytuję…`; bar.style.width = '0%';
         if (kindOf(f) === 'pdf' || kindOf(f) === 'obraz') st.textContent += ' Pierwsze użycie OCR pobiera ok. 7 MB (model języka polskiego).';
         try {
-          const d = await addDoc(await readFile(f, ({ page, pages, step, frac }) => {
+          const read = await readFile(f, ({ page, pages, step, frac }) => {
             st.textContent = `${f.name} (${i + 1} z ${files.length}): strona ${page} z ${pages} — ${step}`;
             bar.style.width = (100 * (page - 1 + (frac || 0)) / pages).toFixed(1) + '%';
-          }));
+          });
+          // ten sam tekst już jest w bibliotece? (także pod inną nazwą)
+          const dup = await findDuplicate({ raw: read.raw });
+          if (dup && !await confirmBox('Ten dokument już jest', `„${f.name}” ma taką samą treść jak „${dup.doc.name}” (dodany ${date(dup.doc.addedAt)}). Dodać mimo to?`, 'Dodaj mimo to')) continue;
+          const d = await addDoc(read);
           n++; done.push({ name: d.name, report: d.report, text: d.text });
         } catch (e) { toast(`${f.name}: ${e.message}`, 'error', 8000); }
       }
@@ -73,7 +77,9 @@ export default {
           fileIcon(d.type),
           h('div.docmain',
             h('div.row.wrap', h('b.docname', d.name), h('span.note', date(d.addedAt)), h('span.note', `${num((d.raw || '').length)} znaków`), d.encoding && d.type !== 'wklejony' ? h('span.note', d.encoding) : null),
-            descIn),
+            descIn,
+            h('input.srcurl', { type: 'url', value: d.sourceUrl, placeholder: 'Adres źródła (skąd pobrano): https://…', 'aria-label': 'Adres źródła',
+              onchange: async e => { d.sourceUrl = e.target.value.trim(); await saveDoc(d); toast('Zapisano adres źródła.', 'ok', 1200); } })),
           h('div.docside',
             h('button.badge.st-' + d.status, { type: 'button', title: 'Pokaż w zakładce „Formatowanie”', onclick: () => go('formatowanie/' + d.id) }, STATUS[d.status]),
             h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć dokument?', `${d.name} — zniknie z biblioteki i z danych do nauki.`, 'Usuń', true)) { await deleteDoc(d.id); draw(); } } }, 'Usuń')));

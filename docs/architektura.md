@@ -27,16 +27,17 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 ### `js/core/` – logika bez interfejsu
 | Plik | Rola |
 |---|---|
-| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `kv` |
+| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `sources`, `kv` |
 | `settings.js` | `SCHEMA` (pola, opisy, wartości domyślne), zapis, opcje formatowania, znaczniki |
 | `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
 | `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |
 | `models.js` | modele w bazie, aktywny model, plik modelu (eksport/import), bity na znak |
-| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki |
+| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki, skrót treści (`textHash`), wyszukiwanie duplikatów (adres, ELI, treść) |
 | `dialogs.js` | rozmowy wzorcowe |
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
+| `sources.js` | Research: źródła (www, API ELI), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
 ### `js/reader/` – odczyt plików
 | Plik | Rola |
@@ -84,7 +85,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `help/diagram.js` | schemat przykładowego modelu z objaśnieniami |
 
 ### `css/`
-`base.css` (zmienne kolorów, motyw jasny i ciemny przez `data-theme`, przyciski, pola, dymki, okna), `layout.css` (pasek, menu, karty, formularze, tabele, kolory etapów w menu), `chat.css`, `panels/*.css` (style poszczególnych zakładek).
+`base.css` (zmienne kolorów, motyw jasny i ciemny przez `data-theme`, przyciski, pola, dymki, okna, paski przewijania), `layout.css` (pasek, menu, karty, formularze, tabele, kolory etapów w menu), `chat.css`, `panels/*.css` (style poszczególnych zakładek).
 
 ### `vendor/`
 Tesseract.js (OCR, model polski) i pdf.js, ładowane dopiero przy pierwszym PDF albo obrazie. Szczegóły w [vendor/README.md](../vendor/README.md).
@@ -118,7 +119,7 @@ Błędy wracają jako `error {msg, reqId?, jobId?}`. `done.record` = `{ hp, char
 
 ## Dane
 
-IndexedDB `ai-prawo` (schemat w wersji `VERSIONS.db`), magazyny: `documents`, `dialogs`, `conversations`, `models` i `kv` (ustawienia, aktywny model). W `localStorage` są tylko token GitHub (`ai-prawo.githubToken`) i motyw (`ai-prawo.theme`). Dokumenty z wersji 0.1–0.2 (bez statusu) są przy odczycie traktowane jako zatwierdzone.
+IndexedDB `ai-prawo` (schemat w wersji `VERSIONS.db`, od 0.6.0 – 2), magazyny: `documents`, `dialogs`, `conversations`, `models`, `sources` (od schematu 2) i `kv` (ustawienia, aktywny model). Nowy magazyn tworzy `onupgradeneeded` w `db.js`; istniejące dane zostają. W `localStorage` są tylko token GitHub (`ai-prawo.githubToken`) i motyw (`ai-prawo.theme`). Dokumenty z wersji 0.1–0.2 (bez statusu) są przy odczycie traktowane jako zatwierdzone.
 
 ## Rozmowa
 

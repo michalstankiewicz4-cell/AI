@@ -4,7 +4,7 @@ Formatowanie (`js/cleaner/`) pilnuje, żeby do nauki i dostrajania nie przedosta
 
 ## Dokumenty
 
-Zakładka *Dokumenty* to biblioteka: każdy plik ma ikonkę rodzaju, nazwę, datę, opis i oryginalny tekst, więc formatowanie można powtórzyć. Statusy w zakładce *Formatowanie*:
+Zakładka *Dokumenty* to biblioteka: każdy plik ma ikonkę rodzaju, nazwę, datę, opis, **adres źródła** i oryginalny tekst, więc formatowanie można powtórzyć. Przy wgraniu liczony jest skrót treści (SHA-256): ten sam tekst wgrany drugi raz, także pod inną nazwą, zostaje rozpoznany. Dokumenty pobrane w zakładce *Research* mają adres źródła, a akty z API Sejmu także identyfikator ELI i datę zmiany w API (`changeDate`), po której Research rozpoznaje zmienione akty. Statusy w zakładce *Formatowanie*:
 - **do sprawdzenia** – po wgraniu albo gdy ponowne formatowanie zmieniło wynik zatwierdzonego dokumentu,
 - **zatwierdzony** – bierze udział w nauce i można go chwilowo wyłączyć,
 - **odrzucony**.

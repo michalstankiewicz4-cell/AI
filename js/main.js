@@ -16,8 +16,9 @@ import models from './panels/models.js';
 import settingsPanel from './panels/settings.js';
 import formatting from './panels/formatting.js';
 import helpPanel from './panels/help.js';
+import research from './panels/research.js';
 
-const PANELS = [dashboard, documents, formatting, pretrain, dialogs, finetune, conversations, models, settingsPanel, helpPanel];
+const PANELS = [dashboard, research, documents, formatting, pretrain, dialogs, finetune, conversations, models, settingsPanel, helpPanel];
 let main, nav, cleanup = null, current = null;
 
 // Adres: #zakładka albo #zakładka/argument (np. #pomoc/formatowanie, #formatowanie/<id dokumentu>)

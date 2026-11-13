@@ -2,6 +2,21 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.6.0 – 2026-11-13
+
+Schemat bazy 2 (nowy magazyn `sources`; dotychczasowe dane bez zmian).
+
+- **Nowa zakładka „Research”** (między Pulpitem a Dokumentami, etap 1): lista źródeł dokumentów – strony www i API aktów prawnych Sejmu (ELI: Dziennik Ustaw, Monitor Polski, wybrane lata, filtr tytułów).
+  - *Sprawdź*: czy źródło działa (czas odpowiedzi; błąd HTTP albo brak zgody CORS), czy zmieniło się od poprzedniego sprawdzenia, linki do dokumentów na stronie albo akty z API – nowe, już pobrane, zmienione od pobrania (`changeDate`).
+  - *Pobierz* (pojedynczo albo „wszystkie nowe”): dokument trafia do biblioteki z adresem źródła (oraz ELI i datą zmiany); zmieniony akt jako nowa wersja.
+  - *Czy dokument był już pobrany?* – po adresie, a jeśli go nie ma, po identycznej treści.
+  - *Dokumenty z adresem źródła* – sprawdzenie zmian u źródła i dodanie nowej wersji.
+  - Domeny z adresów dokumentów, których nie ma na liście źródeł, z przyciskiem „Dodaj jako źródło”.
+- **Dokumenty:** pole „Adres źródła” przy każdym dokumencie; skrót treści (SHA-256) – przy wgraniu tego samego tekstu drugi raz (także pod inną nazwą) panel pyta, czy dodać mimo to.
+- **Paski przewijania** w stylu panelu (jasne i ciemne, złoty po najechaniu).
+- Pomoc: działy „Research: źródła dokumentów” (z wyjaśnieniem CORS) i „API aktów prawnych Sejmu (ELI)”.
+- Test w przeglądarce `tests/e2e/research.e2e.mjs` (podstawione serwisy).
+
 ## 0.5.1 – 2026-11-13
 
 - „Formatuj ponownie” (jeden dokument i wszystkie) pokazuje sekcję **„Czy to coś dało?”**: werdykt, tabelę poprzednio / teraz / różnica (znaki, akapity, zmiany reguł, usunięte znaki, ostrzeżenia), reguły, które zadziałały inaczej (także włączone i wyłączone), informację o starszej wersji reguł oraz przykłady zmienionych linii jako pary było/jest z wyróżnionym fragmentem.

@@ -46,6 +46,34 @@ export const SECTIONS = [
     ['ex', 'Rozmowa wzorcowa (dane):\nTy: Ile wynosi podstawowy termin przedawnienia?\nAI: Sześć lat.', 'Dostrajanie (proces):\nsieć setki razy próbuje przewidzieć słowa odpowiedzi „Sześć lat.” i poprawia swoje wagi, aż zacznie tak odpowiadać.'],
   ] },
 
+  { id: 'research', group: 'Dane', title: 'Research: źródła dokumentów', topics: ['research', 'research-zrodla', 'research-adres', 'research-zmiany', 'cors'], body: [
+    ['p', 'Zakładka „Research” (przed Dokumentami) zbiera <b>źródła</b> dokumentów i sprawdza je. Źródło to strona www z dokumentami (np. strona sądu, serwisu z przepisami) albo API aktów prawnych Sejmu (ELI).'],
+    ['table', ['Funkcja', 'Co robi'], [
+      ['Czy dokument był już pobrany?', 'wklejasz adres; panel szuka go w bibliotece po adresie, a jeśli nie znajdzie – pobiera plik i porównuje treść (ten sam tekst pod innym adresem albo inną nazwą też zostanie rozpoznany)'],
+      ['Sprawdź (strona www)', 'czy strona działa (czas odpowiedzi), czy zmieniła się od poprzedniego sprawdzenia, jakie dokumenty są na niej podlinkowane (PDF, Word, HTML…) i które z nich już masz'],
+      ['Sprawdź (API ELI)', 'czy API działa, ile aktów jest w wybranych latach, które są nowe (nie ma ich w bibliotece), a które zmieniły się od pobrania'],
+      ['Pobierz', 'pobiera dokument, odczytuje go (także PDF/OCR) i dodaje do biblioteki z adresem źródła; dalej jak zwykle: Formatowanie → zatwierdzenie'],
+      ['Dokumenty z adresem źródła', '„Sprawdź zmiany u źródła” pobiera je jeszcze raz i porównuje treść; zmieniony możesz dodać jako nową wersję'],
+      ['Domeny z dokumentów', 'adresy źródła wpisane przy dokumentach, których nie ma na liście źródeł – jednym kliknięciem dodasz je jako źródło'],
+    ]],
+    ['p', 'Ten sam dokument wgrany drugi raz w <b>Dokumentach</b> też zostanie rozpoznany (po identycznej treści) – panel zapyta, czy dodać go mimo to.'],
+    ['p', '<b>Ograniczenie przeglądarki (CORS).</b> Panel działa w przeglądarce, a przeglądarka może pobrać plik z innego serwisu tylko wtedy, gdy ten serwis na to pozwala. Wiele stron urzędowych nie pozwala – wtedy sprawdzenie pokaże „niedostępne / CORS”.'],
+    ['table', ['Wynik sprawdzenia', 'Znaczenie', 'Co zrobić'], [
+      ['działa', 'serwis odpowiedział i pozwala na pobieranie', 'można sprawdzać i pobierać z panelu'],
+      ['błąd (kod)', 'serwis odpowiedział błędem, np. 404 – zły adres, 500 – awaria', 'sprawdź adres albo spróbuj później'],
+      ['niedostępne / CORS', 'serwis nie pozwala pobierać danych z innej strony albo nie ma połączenia', 'pobierz plik ręcznie (w przeglądarce) i wgraj w Dokumentach, wpisując adres źródła'],
+    ]],
+  ] },
+  { id: 'research-eli', group: 'Dane', title: 'API aktów prawnych Sejmu (ELI)', topics: ['research-eli', 'eli'], body: [
+    ['p', 'Kancelaria Sejmu udostępnia publiczne API z aktami prawnymi Dziennika Ustaw i Monitora Polskiego (api.sejm.gov.pl/eli). Każdy akt ma identyfikator ELI (np. <code>DU/2024/1061</code>), tytuł i datę ostatniej zmiany w API; tekst jest dostępny jako PDF, a dla wielu aktów także jako HTML.'],
+    ['steps', [
+      ['Dodaj źródło', 'Research → Dodaj źródło → rodzaj „API aktów prawnych Sejmu (ELI)”. Wybierz wydawnictwo (Dziennik Ustaw albo Monitor Polski) i lata.'],
+      ['Ustaw filtr', 'W roku jest ok. 2000 aktów. Wpisz słowa z tytułów, które Cię interesują, np. „kodeks, cywilny, najm”.'],
+      ['Sprawdź', 'Zobaczysz akty nowe (nie ma ich w bibliotece) i zmienione od pobrania.'],
+      ['Pobierz', 'Akt trafia do biblioteki z identyfikatorem ELI i datą zmiany (HTML, a gdy go nie ma – PDF).'],
+    ]],
+    ['tip', 'Zmieniony akt pobierasz jako nową wersję – poprzednia zostaje w bibliotece, możesz ją odrzucić w Formatowaniu.'],
+  ] },
   { id: 'dokumenty', group: 'Dane', title: 'Dokumenty', topics: ['dokumenty', 'opis-dokumentu', 'kodowanie', 'biblioteka'], body: [
     ['p', 'Zakładka „Dokumenty” to biblioteka wgranych plików. Każdy ma ikonkę rodzaju (TXT, HTML, MD, wklejony tekst), nazwę, datę dodania i pole <b>opisu</b>, w którym możesz zapisać, co to jest i skąd pochodzi (np. „Kodeks cywilny, tekst jednolity pobrany z ISAP 13.11.2026”).'],
     ['list', [
