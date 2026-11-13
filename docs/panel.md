@@ -27,7 +27,7 @@ Wynik konwertera. Widoki: do sprawdzenia, zatwierdzone, odrzucone, wszystkie. Ka
 - podgląd po formatowaniu i przed nim,
 - linię **Odczyt** (PDF i OCR: strony z warstwą tekstową, przez OCR, obrócone, wyprostowane, pewność),
 - ostrzeżenia, zmiany według reguł i usunięte znaki,
-- przyciski: Zatwierdź do nauki, Odrzuć, Cofnij zatwierdzenie, Formatuj ponownie (pokazuje statystyki i to, czy wynik się zmienił), Statystyki,
+- przyciski: Zatwierdź do nauki, Odrzuć, Cofnij zatwierdzenie, Formatuj ponownie (statystyki oraz sekcja „Czy to coś dało?” z porównaniem z poprzednim wynikiem), Statystyki,
 - pole „używaj w nauce” dla zatwierdzonych.
 
 Na górze są przyciski „Zatwierdź bez ostrzeżeń” i „Formatuj wszystkie ponownie” (z sumą statystyk) oraz zwijane Ustawienia formatowania.

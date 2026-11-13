@@ -42,7 +42,7 @@ export default {
       clear(bulk);
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));
       bulk.append(h('button.ghost', { type: 'button', title: 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.', onclick: async () => {
-        const items = []; for (const d of all) { const prevText = d.text; await recleanDoc(d); items.push({ name: d.name, report: d.report, prevText, text: d.text }); }
+        const items = []; for (const d of all) { const prev = snapshot(d); await recleanDoc(d); items.push({ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }); }
         draw(); formatStatsModal(`Formatowanie ponowne: ${all.length} ${plural(all.length, 'dokument', 'dokumenty', 'dokumentów')}`, items, { reformat: true });
       } }, stale.length ? `Formatuj wszystkie ponownie (${stale.length} starszymi regułami)` : 'Formatuj wszystkie ponownie'));
       clear(list);
@@ -72,7 +72,7 @@ export default {
           d.status === 'zatwierdzony' ? h('label.check', h('input', { type: 'checkbox', checked: d.enabled, onchange: async e => { d.enabled = e.target.checked; await saveDoc(d); draw(); } }), ' używaj w nauce', help('Wyłączony dokument zostaje zatwierdzony, ale nie bierze udziału w następnej nauce.', 'do-sprawdzenia')) : null,
           h('span.note', `reguły v${d.cleanerVersion}${d.cleanerVersion !== VERSIONS.cleaner ? ' (starsze)' : ''} · ${date(d.formattedAt || d.addedAt)}`),
           h('span.sp'),
-          act('Formatuj ponownie', async () => { const prevText = d.text; await recleanDoc(d); formatStatsModal(`Formatowanie: ${d.name}`, [{ name: d.name, report: d.report, prevText, text: d.text }], { reformat: true }); }),
+          act('Formatuj ponownie', async () => { const prev = snapshot(d); await recleanDoc(d); formatStatsModal(`Formatowanie ponowne: ${d.name}`, [{ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }], { reformat: true }); }),
           h('button.ghost', { type: 'button', onclick: () => formatStatsModal(`Statystyki formatowania: ${d.name}`, [{ name: d.name, report: d.report, text: d.text }]) }, 'Statystyki'),
           d.status !== 'odrzucony' ? act('Odrzuć', () => setStatus(d, 'odrzucony')) : null,
           d.status === 'zatwierdzony' ? act('Cofnij zatwierdzenie', () => setStatus(d, 'do-sprawdzenia')) : act('Zatwierdź do nauki', async () => { if (!d.text.trim()) return toast('Po formatowaniu nic nie zostało.', 'error'); await setStatus(d, 'zatwierdzony'); }, '')));
@@ -80,4 +80,6 @@ export default {
     draw();
   },
 };
+// stan dokumentu przed ponownym formatowaniem (do porównania w statystykach)
+const snapshot = d => ({ prevText: d.text, prevReport: JSON.parse(JSON.stringify(d.report)), prevStatus: d.status, prevVersion: d.cleanerVersion });
 const cut = t => t.slice(0, 6000) + (t.length > 6000 ? `\n… (jeszcze ${t.length - 6000} znaków)` : '');

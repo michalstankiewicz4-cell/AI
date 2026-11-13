@@ -29,3 +29,12 @@ button.badge { cursor: pointer; font: inherit; font-size: .75rem; font-weight: 6
 table.stats td { padding: .3em .5em; } table.stats tr.zero { color: var(--ink-3); }
 td.barcell { width: 40%; } .bar { display: block; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--gold)); min-width: 2px; }
 tr.zero .bar { background: var(--line); }
+/* porównanie z poprzednim formatowaniem */
+section.cmp { border: 1px solid var(--line); border-left: 4px solid var(--ink-3); border-radius: var(--r-s); padding: .6em .9em; margin: .4em 0 .8em; background: var(--panel-2); }
+section.cmp.yes { border-left-color: var(--ok); } section.cmp.no { border-left-color: var(--gold); }
+section.cmp h3 { margin-top: .1em; } section.cmp h4 { margin: .8em 0 .3em; font-size: .9rem; }
+p.verdict { font-weight: 550; }
+td.dneg { color: var(--ok); } td.dpos { color: var(--accent); }
+.diffbox { margin: .4em 0; } .diffline { font: .8rem/1.45 var(--mono); white-space: pre-wrap; word-break: break-word; padding: .1em .4em; border-radius: 3px; margin: 1px 0; }
+.diffline.del { background: var(--bad-soft); } .diffline.add { background: var(--ok-soft); }
+.diffpair { margin: .35em 0; } .diffline mark { background: color-mix(in srgb, var(--gold) 45%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }

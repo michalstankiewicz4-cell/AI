@@ -70,6 +70,9 @@ await p.click('article.docrow button.badge'); await p.waitForSelector('.panel-fo
 const prev = await p.textContent('.panel-formatowanie pre.preview');
 ok(!prev.includes('Kancelaria') && prev.includes('przewidzianych') === false && prev.includes('szczególny nie stanowi inaczej.'), 'formatowanie: stopki usunięte, przeniesienia sklejone');
 await p.click('.panel-formatowanie >> text=Zatwierdź do nauki'); await p.waitForTimeout(300);
+await p.click('.seg >> text=Wszystkie'); await p.click('.panel-formatowanie article.doc >> text=Formatuj ponownie'); await p.waitForSelector('dialog.modal section.cmp');
+ok((await p.textContent('dialog.modal p.verdict')).startsWith('Bez efektu'), 'formatowanie ponowne bez zmian ustawień: werdykt „Bez efektu”');
+await p.keyboard.press('Escape'); await p.waitForTimeout(200);
 await p.click('.panel-formatowanie header .help'); await p.waitForTimeout(400);
 ok((await p.evaluate(() => location.hash)) === '#pomoc/formatowanie', 'kliknięcie [?] prowadzi do działu Pomocy'); await shot('04-pomoc');
 
@@ -107,6 +110,8 @@ console.log('Modele, publikacja, GitHub');
 await p.click('a[href="#modele"]'); await p.waitForTimeout(400);
 await p.click('text=Podgląd budowy'); await p.waitForTimeout(400); await shot('08-podglad-budowy'); await p.keyboard.press('Escape');
 await p.evaluate(() => localStorage.setItem('ai-prawo.githubToken', 'atrapa'));
+// GitHub API podstawione (bez sieci i limitów zapytań): okno publikacji pyta tylko, czy repo jest publiczne
+await p.route(/api\.github\.com/, r => r.fulfill({ json: { private: false, full_name: 'michalstankiewicz4-cell/AI', permissions: { push: true } } }));
 await p.click('.model >> nth=0 >> text=Opublikuj na GitHub'); await p.waitForTimeout(400);
 ok(/models\/rozmowa-1-v[\d.]+-c_/.test(await p.textContent('dialog.modal')), 'okno publikacji: wersja w nazwie pliku modelu');
 await p.check('#pub-documents'); ok(await p.isVisible('dialog.modal .warnline'), 'ostrzeżenie o publicznym repo przy danych');

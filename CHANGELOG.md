@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.5.1 – 2026-11-13
+
+- „Formatuj ponownie” (jeden dokument i wszystkie) pokazuje sekcję **„Czy to coś dało?”**: werdykt, tabelę poprzednio / teraz / różnica (znaki, akapity, zmiany reguł, usunięte znaki, ostrzeżenia), reguły, które zadziałały inaczej (także włączone i wyłączone), informację o starszej wersji reguł oraz przykłady zmienionych linii jako pary było/jest z wyróżnionym fragmentem.
+
 ## 0.5.0 – 2026-11-13
 
 - **Nowe formaty dokumentów:** Word (.docx), OpenDocument (.odt), RTF, PDF i obrazy (.png, .jpg, .webp, .bmp, .gif). Stary .doc dostaje komunikat o zapisie jako .docx albo PDF.

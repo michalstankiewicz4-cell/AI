@@ -61,7 +61,14 @@ Raport: zmiany według reguł, usunięte znaki (z kodem Unicode w dymku), ostrze
 - dużo cyfr (tabela, wykaz),
 - mało pewny OCR.
 
-Po wgraniu, wklejeniu i każdym formatowaniu pojawia się okno **statystyk** (`ui/modals/format-stats.js`): suma zmian, znaki przed i po (z procentem skrócenia), akapity, wykres zmian według reguł, usunięte znaki, ostrzeżenia. Przy ponownym formatowaniu widać też, ile dokumentów ma inny wynik niż przedtem. Przy wielu dokumentach jest suma i lista dokumentów.
+Po wgraniu, wklejeniu i każdym formatowaniu pojawia się okno **statystyk** (`ui/modals/format-stats.js`): suma zmian, znaki przed i po (z procentem skrócenia), akapity, wykres zmian według reguł, usunięte znaki, ostrzeżenia. Przy wielu dokumentach jest suma i lista dokumentów.
+
+**Formatuj ponownie** (jeden dokument albo wszystkie) dodaje sekcję **„Czy to coś dało?”**, czyli porównanie z poprzednim wynikiem:
+- werdykt: „Dało efekt” (ile linii nowych i usuniętych, zmiana liczby ostrzeżeń, czy zatwierdzony dokument wrócił do sprawdzenia) albo „Bez efektu: wynik identyczny jak poprzednio”,
+- tabela *poprzednio / teraz / różnica*: znaki po formatowaniu, akapity, zmiany reguł, usunięte znaki, ostrzeżenia,
+- reguły, które zadziałały inaczej (z oznaczeniem *włączona*/*wyłączona*),
+- informacja, jeśli poprzednio użyto starszej wersji reguł,
+- przykłady zmienionych linii jako pary *było/jest* z wyróżnionym zmienionym fragmentem; pary dobierane są po najdłuższym wspólnym początku.
 
 ### Wersja reguł
 

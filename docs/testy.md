@@ -32,7 +32,7 @@ Zrzuty ekranu trafiają do `tests/e2e/out/`, który git pomija.
 
 | Plik | Co sprawdza |
 |---|---|
-| `panel.e2e.mjs` | wgranie pliku w Windows-1250 → statystyki → formatowanie → zatwierdzenie → [?] do Pomocy → nauka → wczytanie rozmów wzorcowych (z błędną) → dostrajanie → czat → ocena → rozmowa do zestawu → podgląd budowy → okno publikacji (wersja w nazwie, ostrzeżenie) → „Wczytaj z GitHub” na podstawionych plikach → dymki [?] na ekranie → motyw noc; brak błędów w konsoli |
+| `panel.e2e.mjs` | wgranie pliku w Windows-1250 → statystyki → formatowanie → zatwierdzenie → formatowanie ponowne („Bez efektu”) → [?] do Pomocy → nauka → wczytanie rozmów wzorcowych (z błędną) → dostrajanie → czat → ocena → rozmowa do zestawu → podgląd budowy → okno publikacji (wersja w nazwie, ostrzeżenie) → „Wczytaj z GitHub” na podstawionych plikach → dymki [?] na ekranie → motyw noc; brak błędów w konsoli |
 | `ocr.e2e.mjs` | OCR strony prostej, do góry nogami, bokiem (90° i 270°), przekrzywionej o 4° (zmierzony kąt); PDF z warstwą tekstową (bez OCR) i PDF-skan do góry nogami (OCR + obrót) |
 
 Przed wypchnięciem na `main` musi przechodzić `node tests/run.js`. Testy w przeglądarce uruchamia się po zmianach w panelu, odczycie plików albo silniku.
