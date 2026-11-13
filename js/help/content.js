@@ -70,7 +70,8 @@ export const SECTIONS = [
       ['Sejm – druki', 'API (JSON)', 'projekty ustaw i druki Sejmu X kadencji, najnowsze najpierw'],
       ['Sejm – procesy legislacyjne', 'API (JSON)', 'przebieg prac nad projektami ustaw'],
       ['Sejm – interpelacje', 'API (JSON)', 'pytania posłów i odpowiedzi ministrów (często z wykładnią przepisów)'],
-      ['Sejm – posiedzenia', 'API (JSON)', 'posiedzenia Sejmu, odnośniki do stenogramów'],
+      ['Sejm – stenogramy (ogólny)', 'stenogramy Sejmu', 'PDF stenogramu każdego dnia posiedzenia, najnowsze najpierw; pobierane jako tekst ogólny'],
+      ['Wikipedia (ogólny)', 'Wikipedia', 'losowe dłuższe artykuły (bez zalążków), pobierane jako tekst ogólny; licencja CC BY-SA 4.0'],
     ]],
     ['p', 'Ten sam dokument wgrany drugi raz w <b>Dokumentach</b> też zostanie rozpoznany (po identycznej treści) – panel zapyta, czy dodać go mimo to.'],
     ['p', '<b>Ograniczenie przeglądarki (CORS).</b> Panel działa w przeglądarce, a przeglądarka może pobrać plik z innego serwisu tylko wtedy, gdy ten serwis na to pozwala. Wiele stron urzędowych nie pozwala – wtedy sprawdzenie pokaże „niedostępne / CORS”.'],
@@ -172,6 +173,18 @@ export const SECTIONS = [
     ]],
     ['p', 'Na koniec, jeśli sieć zaczęła „uczyć się na pamięć” (błąd sprawdzający wzrósł), wagi wracają do najlepszego momentu.'],
     ['tip', 'Nauka liczy się w otwartej karcie przeglądarki. Możesz przechodzić między zakładkami, ale nie zamykaj karty.'],
+  ] },
+  { id: 'tekst-ogolny', group: 'Nauka', title: 'Tekst ogólny: zwykła polszczyzna obok prawa', topics: ['tekst-ogolny', 'pretrain.generalShare'], body: [
+    ['p', 'Dokumenty prawnicze uczą słownictwa i stylu przepisów, ale ludzie pytają potocznie („szef mi nie zapłacił, co robić?”). <b>Tekst ogólny</b> – zwykła, współczesna polszczyzna – uczy sieć gramatyki i codziennych zwrotów, więc lepiej rozumie takie pytania i odpowiada mniej urzędowo.'],
+    ['p', 'Dokument oznaczony jako <b>ogólny</b> ma w bibliotece plakietkę „ogólny”. Oznaczenie dostaje sam, gdy pochodzi ze źródła ogólnego w Researchu (stenogramy Sejmu, Wikipedia); każdy inny dokument możesz oznaczyć ręcznie polem „tekst ogólny” w Dokumentach.'],
+    ['table', ['Ustawienie „Udział tekstu ogólnego”', 'Co się dzieje'], [
+      ['0%', 'tekst ogólny nie trafia do nauki (dokumenty zostają w bibliotece)'],
+      ['10–30%', 'zalecane: dokumenty prawnicze w całości, ogólne do takiej części całego tekstu'],
+      ['40–50%', 'więcej zwykłego języka, ale mała sieć ma mniej miejsca na wiedzę prawną'],
+    ]],
+    ['ex', 'Przykład', 'Prawniczych jest 800 000 znaków, ogólnych 1 000 000, udział 20%. Do nauki idzie całe 800 000 znaków prawniczych i 200 000 ogólnych (20% z miliona), od najstarszych dokumentów ogólnych. Nauka pokazuje ten podział nad ustawieniami.'],
+    ['tip', 'Bez żadnych dokumentów prawniczych do nauki idą wszystkie ogólne – tak można najpierw nauczyć sieć samej polszczyzny, a potem „Dalszą nauką” douczyć ją na prawie.'],
+    ['p', '<b>Licencje.</b> Stenogramy Sejmu to dokumenty urzędowe – nie podlegają prawu autorskiemu. Wikipedia jest na licencji CC BY-SA 4.0: przy publikacji danych na GitHub zostaje adres artykułu i licencja w opisie dokumentu (podanie źródła).'],
   ] },
   { id: 'jednostka', group: 'Nauka', title: 'Jednostka tekstu: litery czy tokeny BPE', topics: ['pretrain.unit'], body: [
     ['p', 'Sieć nie widzi słów, tylko numery jednostek. Jednostką może być pojedyncza litera albo token BPE – częsty kawałek słowa zbudowany z dokumentów.'],

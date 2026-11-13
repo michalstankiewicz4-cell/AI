@@ -37,8 +37,10 @@ export default {
       tv.el);
 
     async function draw() {
-      const c = await corpusText();
-      corpusInfo.textContent = c.docs ? `${num(c.docs)} ${plural(c.docs, 'włączony dokument', 'włączone dokumenty', 'włączonych dokumentów')}, ${num(c.chars)} znaków.` : 'Brak zatwierdzonych dokumentów. Wgraj je w zakładce „Dokumenty” i zatwierdź w „Formatowaniu”.';
+      const c = await corpusText(hp.generalShare);
+      corpusInfo.textContent = !c.docs ? 'Brak zatwierdzonych dokumentów. Wgraj je w zakładce „Dokumenty” i zatwierdź w „Formatowaniu”.'
+        : `${num(c.docs)} ${plural(c.docs, 'włączony dokument', 'włączone dokumenty', 'włączonych dokumentów')}, ${num(c.chars)} znaków.`
+          + (c.generalDocs ? ` Prawnicze: ${num(c.legalDocs)} (${num(c.legalChars)} znaków). Ogólne: w nauce ${num(c.generalChars)} z ${num(c.generalAll)} znaków (${c.chars ? Math.round(100 * c.generalChars / c.chars) : 0}% tekstu, limit ${c.share}%${c.generalUsedDocs < c.generalDocs ? `; użyto ${num(c.generalUsedDocs)} z ${num(c.generalDocs)} dokumentów` : ''}).` : '');
       const g = await gpuInfo();
       gpuLine.textContent = g.ok ? `Karta graficzna dostępna: ${g.name}.` : `Karta graficzna niedostępna (${g.msg}) — nauka na procesorze.`;
       clear(fromBox); clear(formBox);
@@ -52,7 +54,7 @@ export default {
         disabled = ARCH;
       }
       startBtn.disabled = busy();
-      formBox.append(fieldsForm('pretrain', hp, { disabled, onChange: () => { saveSettings(s); estimateParams(); } }));
+      formBox.append(fieldsForm('pretrain', hp, { disabled, onChange: k => { saveSettings(s); estimateParams(); if (k === 'generalShare') draw(); } }));
       estimateParams();
     }
     function estimateParams() {
@@ -64,7 +66,7 @@ export default {
     }
     async function run() {
       try {
-        const c = await corpusText();
+        const c = await corpusText(hp.generalShare);
         if (!c.docs) return toast('Najpierw wgraj dokumenty i zatwierdź je w zakładce „Formatowanie”.', 'error');
         const g = await gpuInfo(), device = hp.device === 'gpu' && !g.ok ? 'wasm' : hp.device;
         if (mode === 'continue') await ensureLoaded(fromId);

@@ -1,6 +1,6 @@
 // Research: źródła dokumentów (strony www i API ELI Sejmu), sprawdzanie ich i pobieranie dokumentów do biblioteki.
 //
-// rekord źródła: { id, name, url, kind: 'www' | 'eli' | 'api', description, addedAt,
+// rekord źródła: { id, name, url, kind: 'www' | 'eli' | 'api' | 'steno' | 'wiki', general (tekst ogólny), description, addedAt,
 //                  eli?: { publisher: 'DU'|'MP', years: '2024, 2025', filter: 'kodeks, ustawa' },
 //                  last?: { at, ok, status, ms, cors, error, hash, changed, links?, acts? } }
 //
@@ -100,21 +100,21 @@ export async function checkEli(src) {
   return last;
 }
 
-export const checkSource = src => src.kind === 'eli' ? checkEli(src) : src.kind === 'api' ? checkApi(src) : checkWeb(src);
+export const checkSource = src => ({ eli: checkEli, api: checkApi, steno: checkSteno, wiki: checkWiki }[src.kind] || checkWeb)(src);
 
 // ---------- pobieranie do biblioteki ----------
 const nameFromUrl = (u, type) => { const n = decodeURIComponent((u.split('?')[0].split('/').pop() || 'dokument')); return /\.\w{2,5}$/.test(n) ? n : n + (type.includes('pdf') ? '.pdf' : type.includes('html') ? '.html' : '.txt'); };
 
 // Pobiera plik spod adresu, odczytuje (PDF/OCR/Word/HTML…) i dodaje do biblioteki z adresem źródła.
 // Zwraca { doc } albo { duplicate } (gdy taki dokument już jest i nie wymuszono pobrania).
-export async function downloadToLibrary(url, { name, description = '', eli = null, sourceChangeDate = null, force = false, onProgress } = {}) {
+export async function downloadToLibrary(url, { name, description = '', eli = null, sourceChangeDate = null, general = false, force = false, onProgress } = {}) {
   if (!force) { const dup = await findDuplicate({ url, eli }); if (dup) return { duplicate: dup }; }
   const r = await probe(url, { as: 'blob', timeout: 60000 });
   if (!r.ok) throw new Error(r.error || `Serwis odpowiedział kodem ${r.status}.`);
   const file = new File([r.body], name || nameFromUrl(url, r.type), { type: r.type.split(';')[0] });
   const read = await readFile(file, onProgress);
   if (!force) { const dup = await findDuplicate({ raw: read.raw }); if (dup) return { duplicate: dup }; }
-  const doc = await addDoc({ ...read, name: name || read.name, description, sourceUrl: url, eli, sourceChangeDate });
+  const doc = await addDoc({ ...read, name: name || read.name, description, sourceUrl: url, eli, sourceChangeDate, general });
   return { doc };
 }
 export const eliTextUrl = (act, kind = act.html ? 'html' : 'pdf') => `${ELI_API}/acts/${act.eli}/text.${kind}`;
@@ -153,14 +153,15 @@ export const CATALOG = [
   { name: 'Sejm – druki sejmowe (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/prints?sort_by=-deliveryDate', description: 'Projekty ustaw, sprawozdania komisji i inne druki Sejmu X kadencji, najnowsze najpierw (JSON).' },
   { name: 'Sejm – procesy legislacyjne (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/processes', description: 'Przebieg prac nad projektami ustaw w Sejmie X kadencji: etapy, druki, uchwalenie (JSON).' },
   { name: 'Sejm – interpelacje (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/interpellations?limit=50', description: 'Interpelacje poselskie i odpowiedzi ministrów – często z wykładnią przepisów (JSON).' },
-  { name: 'Sejm – posiedzenia (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/proceedings', description: 'Posiedzenia Sejmu X kadencji; stąd prowadzą odnośniki do stenogramów (JSON).' },
+  { name: 'Sejm – stenogramy posiedzeń', kind: 'steno', general: true, url: 'https://api.sejm.gov.pl/sejm/term10/proceedings', description: 'Stenogramy dni posiedzeń Sejmu X kadencji (PDF z API Sejmu): mówiona polszczyzna blisko tematów prawnych. Dokumenty urzędowe – bez ograniczeń prawa autorskiego.' },
+  { name: 'Wikipedia (pl) – losowe artykuły', kind: 'wiki', general: true, url: 'https://pl.wikipedia.org/w/api.php', description: 'Współczesna, poprawna polszczyzna z różnych dziedzin. Licencja CC BY-SA 4.0: przy publikacji danych zostaje adres artykułu jako podanie źródła.' },
 ];
 export function catalogMissing(sources) {
   const key = s => s.kind + '|' + s.url + '|' + (s.eli ? s.eli.publisher : '');
   const have = new Set(sources.map(key));
   return CATALOG.filter(c => !have.has(key(c)));
 }
-export const addFromCatalog = c => saveSource({ ...newSource(c), eli: c.eli ? { ...c.eli } : null });
+export const addFromCatalog = c => saveSource({ ...newSource(c), general: !!c.general, eli: c.eli ? { ...c.eli } : null });
 
 // ---------- API (JSON) ----------
 // Czy API odpowiada poprawnym JSON, ile ma pozycji (tablica albo pole items / results / data) i czy coś się zmieniło.
@@ -178,4 +179,52 @@ export async function checkApi(src) {
   }
   src.last = last; await saveSource(src);
   return last;
+}
+
+// ---------- stenogramy Sejmu ----------
+// Lista posiedzeń → dni, które już się odbyły (najnowsze najpierw); każdy dzień to PDF stenogramu.
+// Wynik w tym samym kształcie co linki ze strony www, więc pobieranie działa tak samo.
+export async function checkSteno(src, { days = 20 } = {}) {
+  const r = await probe(src.url, { as: 'json' });
+  const last = { at: Date.now(), ok: r.ok, status: r.status, ms: r.ms, cors: r.cors, error: r.error || (r.ok ? null : `API odpowiedziało kodem ${r.status}.`) };
+  if (r.ok) {
+    const today = new Date().toISOString().slice(0, 10), base = src.url.replace(/\/$/, '');
+    const all = (Array.isArray(r.body) ? r.body : []).flatMap(p => (p.dates || []).filter(d => d <= today).map(d => ({ num: p.number, date: d, title: p.title || `Posiedzenie nr ${p.number}` })))
+      .filter(x => x.num > 0).sort((a, b) => b.date.localeCompare(a.date));
+    const have = new Set((await listDocs()).map(d => d.sourceUrl));
+    last.total = all.length;
+    last.links = all.slice(0, days).map(x => { const url = `${base}/${x.num}/${x.date}/transcripts/pdf`;
+      return { url, title: `${x.date} · ${x.title}`, name: `Stenogram Sejmu ${x.date} (posiedzenie nr ${x.num})`, have: have.has(url) }; });
+    last.hash = await textHash(JSON.stringify(all));
+    last.changed = src.last && src.last.hash ? src.last.hash !== last.hash : null;
+  }
+  src.last = last; await saveSource(src);
+  return last;
+}
+
+// ---------- Wikipedia ----------
+// API MediaWiki pozwala na pobieranie z innych stron po dodaniu origin=*.
+const wikiUrl = (src, q) => src.url + '?' + new URLSearchParams({ format: 'json', origin: '*', ...q });
+export async function checkWiki(src) {
+  const r = await probe(wikiUrl(src, { action: 'query', meta: 'siteinfo', siprop: 'statistics' }), { as: 'json' });
+  const last = { at: Date.now(), ok: r.ok, status: r.status, ms: r.ms, cors: r.cors, error: r.error || (r.ok ? null : `API odpowiedziało kodem ${r.status}.`), changed: null };
+  if (r.ok) { const st = r.body.query && r.body.query.statistics; last.articles = st ? st.articles : null; }
+  src.last = last; await saveSource(src);
+  return last;
+}
+// Losowe artykuły (pełny tekst bez znaczników); krótkie (zalążki, ujednoznacznienia) i już pobrane są pomijane.
+export async function downloadWiki(src, n = 10, { minChars = 3000, onStep } = {}) {
+  const added = [];
+  for (let tries = 0; added.length < n && tries < n * 4; tries++) {
+    const r = await probe(wikiUrl(src, { action: 'query', generator: 'random', grnnamespace: 0, grnlimit: 1, prop: 'extracts|info', explaintext: 1, inprop: 'url' }), { as: 'json' });
+    if (!r.ok) throw new Error(r.error || `API odpowiedziało kodem ${r.status}.`);
+    const page = Object.values((r.body.query || {}).pages || {})[0];
+    if (!page || !page.extract || page.extract.length < minChars || /ujednoznacznienie/i.test(page.title)) continue;
+    if (await findDuplicate({ url: page.fullurl })) continue;
+    const raw = page.extract.replace(/^(=+)\s*(.+?)\s*\1$/gm, '$2');
+    added.push(await addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true,
+      description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.` }));
+    if (onStep) onStep(added.length, n, page.title);
+  }
+  return added;
 }

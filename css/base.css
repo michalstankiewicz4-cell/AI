@@ -61,6 +61,8 @@ input[type=checkbox], input[type=radio] { accent-color: var(--accent); width: 1.
 .badge.warn, .badge.wrong { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
 .badge.wrong { background: var(--bad-soft); color: var(--bad); }
 .badge.corrected { background: var(--gold-soft); color: var(--gold); border-color: transparent; }
+.badge.gen { background: var(--stage1); border-color: var(--stage1-line); border-style: dashed; }
+.gencheck { font-size: .85em; white-space: nowrap; display: inline-flex; align-items: center; gap: .25em; }
 code.ch { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 .35em; margin: 0 .2em .2em 0; display: inline-block; }
 
 /* podpowiedź [?] */

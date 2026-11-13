@@ -7,6 +7,8 @@ Sieć dostaje tekst dokumentów i uczy się przewidywać następny token. 90% te
 - **Od zera** – nowy słownik (BPE albo litery) i nowa sieć.
 - **Dalsza nauka modelu** – ten sam słownik i budowa, nauka na aktualnym zbiorze dokumentów. Znaki spoza słownika są pomijane i wypisywane w przebiegu.
 
+**Tekst ogólny.** Dokumenty oznaczone jako ogólne (np. Wikipedia, stenogramy Sejmu) uczą zwykłej polszczyzny. Ustawienie *Udział tekstu ogólnego* (domyślnie 20%) mówi, jaką część całego tekstu mogą stanowić: dokumenty prawnicze idą w całości, ogólne – od najstarszych – aż do limitu (ostatni przycięty na końcu linii). Bez dokumentów prawniczych idą wszystkie ogólne; 0% wyłącza tekst ogólny. Funkcja `mixCorpus` w `js/core/documents.js`.
+
 Tempo nauki przez pierwsze 70% kroków to wartość z ustawień, potem 1/5 tej wartości.
 
 ### Ustawienia budowy

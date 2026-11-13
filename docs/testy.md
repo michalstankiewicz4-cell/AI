@@ -13,6 +13,7 @@ Wymaga Node 18+. Uruchamia wszystkie pliki `tests/*.test.js`:
 | `cleaner.test.js` | reguły formatowania na typowym tekście z PDF (stopki, numery stron, przeniesienia, łączenie linii z zachowaniem struktury, zapis „art.”/„§”, cudzysłowy, ligatury, twarde spacje), ostrzeżenie o kodowaniu, formatowanie kwestii, odczyt rozmów wzorcowych z błędami |
 | `engine.test.js` | silnik w izolowanym kontekście (jak wątek): nauka, zgodność szybkiego generowania (pamięć KV) z pełnym przejściem sieci, dostrajanie z maskowaniem, odpowiedź po dostrojeniu, błąd dla znacznika ze znakiem spoza słownika |
 | `github.test.js` | publikacja na atrapie GitHub API: tylko zaznaczone pliki w commicie, nazwa pliku z wersją, ustawienia i wersje w pliku modelu, `index.json`, token nie trafia do plików |
+| `corpus.test.js` | mieszanie korpusu: dokumenty prawnicze w całości, ogólne do ustalonego udziału, 0% bez ogólnych, same ogólne gdy brak prawniczych |
 | `help.test.js` | każda ikona [?] w kodzie i każde pole ustawień ma dział w Pomocy, przykłady reguł pokazują zmianę, odnośniki w Pomocy prowadzą do istniejących działów |
 | `reader.test.js` | Word (.docx), OpenDocument (.odt), RTF (strona kodowa 1250, Unicode), rozpakowywanie ZIP |
 

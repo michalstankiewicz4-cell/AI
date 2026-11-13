@@ -9,6 +9,8 @@ Zakładka *Dokumenty* to biblioteka: każdy plik ma ikonkę rodzaju, nazwę, dat
 - **zatwierdzony** – bierze udział w nauce i można go chwilowo wyłączyć,
 - **odrzucony**.
 
+Oznaczenie **ogólny** (`general`) mają dokumenty z tekstem ogólnym – zwykłą polszczyzną zamiast prawa (Wikipedia, stenogramy Sejmu albo oznaczone ręcznie). W nauce idą tylko do ustalonego udziału (zob. [nauka.md](nauka.md)). Artykuły z Wikipedii mają w opisie licencję CC BY-SA 4.0 i adres artykułu jako podanie źródła.
+
 ### Odczyt plików (`js/reader/`)
 
 | Rodzaj | Rozszerzenia | Jak |

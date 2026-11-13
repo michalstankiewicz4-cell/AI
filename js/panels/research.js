@@ -3,9 +3,11 @@
 
 import { h, help, toast, confirmBox, modal, num, date, clear, plural } from '../ui/dom.js';
 import { listSources, saveSource, deleteSource, newSource, hostOf, sourcesFromDocuments, docsOfSource, checkSource,
-  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog } from '../core/sources.js';
+  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog, downloadWiki } from '../core/sources.js';
 import { listDocs, addDoc } from '../core/documents.js';
 import { go } from '../main.js';
+
+const KIND = { eli: 'API ELI', api: 'API (JSON)', steno: 'stenogramy Sejmu', wiki: 'Wikipedia', www: 'strona www' };
 
 export default {
   id: 'research', title: 'Research', icon: '🔎',
@@ -60,15 +62,18 @@ export default {
       const filter = h('input', { type: 'text', value: s.eli ? s.eli.filter : '', placeholder: 'np. kodeks, cywilny, najm (puste = wszystkie akty)' });
       const eliBox = h('div.fields', h('div.field', h('label', 'Wydawnictwo'), pub), h('div.field', h('label', 'Lata', help('Z których lat sprawdzać akty (oddzielone przecinkami). Każdy rok to jedno zapytanie do API.', 'research-eli')), years),
         h('div.field', h('label', 'Tylko tytuły zawierające', help('Słowa oddzielone przecinkami: pokazywane są akty, których tytuł zawiera którekolwiek z nich. W Dzienniku Ustaw jest ok. 2000 aktów rocznie, więc filtr pomaga znaleźć te, które Cię interesują.', 'research-eli')), filter));
+      const gen = h('input', { type: 'checkbox', checked: !!s.general });
       const kind = h('select', { onchange: () => { eliBox.hidden = kind.value !== 'eli'; if (kind.value === 'eli' && !url.value) url.value = ELI_API; } },
-        h('option', { value: 'www', selected: s.kind === 'www' }, 'strona www z dokumentami'), h('option', { value: 'eli', selected: s.kind === 'eli' }, 'API aktów prawnych Sejmu (ELI)'), h('option', { value: 'api', selected: s.kind === 'api' }, 'API (JSON) – inne'));
+        h('option', { value: 'www', selected: s.kind === 'www' }, 'strona www z dokumentami'), h('option', { value: 'eli', selected: s.kind === 'eli' }, 'API aktów prawnych Sejmu (ELI)'), h('option', { value: 'api', selected: s.kind === 'api' }, 'API (JSON) – inne'),
+        h('option', { value: 'steno', selected: s.kind === 'steno' }, 'stenogramy Sejmu (API Sejmu)'), h('option', { value: 'wiki', selected: s.kind === 'wiki' }, 'Wikipedia (API MediaWiki)'));
       eliBox.hidden = s.kind !== 'eli';
       const close = modal(src ? `Źródło: ${s.name}` : 'Nowe źródło',
         h('div.fields', h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Rodzaj', help('Strona www: panel szuka na niej linków do dokumentów (PDF, Word, HTML…). API ELI: lista aktów Dziennika Ustaw albo Monitora Polskiego z wybranych lat, z datą ostatniej zmiany każdego aktu. API (JSON): dowolne API zwracające JSON – sprawdzane jest, czy działa, ile ma pozycji i czy coś się zmieniło.', 'research-zrodla')), kind)),
         h('div.field', h('label', 'Adres'), url), h('div.field', h('label', 'Opis'), desc), eliBox,
+        h('div.field.check', gen, h('label', ' Tekst ogólny (nie prawniczy) ', help('Dokumenty pobrane z tego źródła dostaną oznaczenie „ogólny”. W nauce idą tylko do ustalonego udziału (Nauka → „Udział tekstu ogólnego”).', 'tekst-ogolny'))),
         h('div.row.end', h('button', { type: 'button', onclick: async () => {
           if (!name.value.trim() || !/^https?:\/\//.test(url.value.trim())) return toast('Podaj nazwę i pełny adres (https://…).', 'error');
-          Object.assign(s, { name: name.value.trim(), url: url.value.trim(), kind: kind.value, description: desc.value.trim(),
+          Object.assign(s, { name: name.value.trim(), url: url.value.trim(), kind: kind.value, description: desc.value.trim(), general: gen.checked,
             eli: kind.value === 'eli' ? { publisher: pub.value, years: years.value.trim(), filter: filter.value.trim() } : null });
           if (src && (src.url !== s.url || src.kind !== s.kind)) delete s.last;
           await saveSource(s); close(); draw();
@@ -99,12 +104,12 @@ export default {
       const L = s.last; if (!L || !L.ok || !L.links) return null;
       const fresh = L.links.filter(l => !l.have), box = h('div');
       box.append(h('p.note', `Linki do dokumentów na stronie: ${num(L.links.length)} — nowe: ${num(fresh.length)}, już pobrane: ${num(L.links.length - fresh.length)}.`));
-      if (fresh.length > 1) box.append(h('button.ghost.small', { type: 'button', onclick: async e => { e.currentTarget.disabled = true; for (const l of fresh) await download(l.url, { description: `Źródło: ${s.name}` }, box); await checkSource(s); draw(); } }, `Pobierz wszystkie nowe (${fresh.length})`));
+      if (fresh.length > 1) box.append(h('button.ghost.small', { type: 'button', onclick: async e => { e.currentTarget.disabled = true; for (const l of fresh) await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general }, box); await checkSource(s); draw(); } }, `Pobierz wszystkie nowe (${fresh.length})`));
       if (L.links.length) box.append(h('div.tablebox', h('table.srctable', h('tbody', L.links.slice(0, 150).map(l => h('tr',
         h('td', h('a', { href: l.url, target: '_blank', rel: 'noopener', title: l.url }, l.title)),
         h('td', l.have ? h('span.badge.ok', 'już pobrany') : h('span.badge.corrected', 'nowy')),
-        h('td.actions', l.have ? null : h('button.small', { type: 'button', onclick: async e => { const cell = e.currentTarget.parentNode; e.currentTarget.remove(); if (await download(l.url, { description: `Źródło: ${s.name}` }, cell)) l.have = true; } }, 'Pobierz'))))))));
-      return h('details', { open: fresh.length > 0 }, h('summary', 'Dokumenty na stronie'), box);
+        h('td.actions', l.have ? null : h('button.small', { type: 'button', onclick: async e => { const cell = e.currentTarget.parentNode; e.currentTarget.remove(); if (await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general }, cell)) l.have = true; } }, 'Pobierz'))))))));
+      return h('details', { open: fresh.length > 0 }, h('summary', s.kind === 'steno' ? `Stenogramy (najnowsze ${L.links.length} z ${num(L.total || L.links.length)} dni posiedzeń)` : 'Dokumenty na stronie'), box);
     }
 
     function actsView(s) {
@@ -120,7 +125,7 @@ export default {
           h('td', a.changed ? h('span.badge.corrected', 'zmieniony') : a.have ? h('span.badge.ok', 'już pobrany') : h('span.badge', 'nowy')),
           h('td.actions', !a.have || a.changed ? h('button.small', { type: 'button', onclick: async e => {
             const cell = e.currentTarget.parentNode; e.currentTarget.remove();
-            const ok = await download(eliTextUrl(a), { name: `${a.eli.replace(/\//g, ' ')} – ${a.title}`.slice(0, 180), description: `ELI ${a.eli} (${PUBLISHERS[a.eli.split('/')[0]] || ''})`, eli: a.eli, sourceChangeDate: a.changeDate, force: a.changed }, cell);
+            const ok = await download(eliTextUrl(a), { general: !!s.general, name: `${a.eli.replace(/\//g, ' ')} – ${a.title}`.slice(0, 180), description: `ELI ${a.eli} (${PUBLISHERS[a.eli.split('/')[0]] || ''})`, eli: a.eli, sourceChangeDate: a.changeDate, force: a.changed }, cell);
             if (ok) { a.have = true; a.changed = false; }
           } }, a.changed ? 'Pobierz nową wersję' : 'Pobierz') : null))));
         if (sel.length > 150) rows.append(h('tr', h('td', { colSpan: 4 }, h('span.note', `Pokazano 150 z ${num(sel.length)}. Zawęź filtr tytułów w ustawieniach źródła.`))));
@@ -139,24 +144,38 @@ export default {
         L.sample && L.sample.length ? h('ul', L.sample.map(x => h('li', x.label, x.date ? h('span.note', ' · ' + x.date) : null))) : h('p.note', 'API działa, ale odpowiedź nie zawiera listy pozycji.'));
     }
 
+    function wikiView(s) {
+      const L = s.last; if (!L || !L.ok) return null;
+      const n = h('select', [5, 10, 20, 50].map(v => h('option', { value: v, selected: v === 10 }, String(v)))), out = h('div');
+      return h('div', L.articles ? h('p.note', `Artykułów w Wikipedii: ${num(L.articles)}. Pobierane są losowe artykuły dłuższe niż 3000 znaków (bez zalążków i stron ujednoznaczniających), z adresem jako podaniem źródła.`) : null,
+        h('div.row.wrap', h('label', 'Ile artykułów: '), n, h('button.small', { type: 'button', onclick: async e => {
+          const btn = e.currentTarget; btn.disabled = true; clear(out); const st = h('p.status', 'Pobieram…'); out.append(st);
+          try {
+            const got = await downloadWiki(s, +n.value, { onStep: (i, k, t) => { st.textContent = `${i} z ${k}: ${t}`; } });
+            st.textContent = `Dodano ${got.length} ${plural(got.length, 'artykuł', 'artykuły', 'artykułów')} jako tekst ogólny — sprawdź w Formatowaniu.`; toast(`Pobrano ${got.length} z Wikipedii.`, 'ok');
+          } catch (err) { st.textContent = 'Błąd: ' + err.message; st.classList.add('warnline'); }
+          btn.disabled = false;
+        } }, 'Pobierz losowe artykuły')), out);
+    }
+
     async function draw() {
       const all = await listSources();
       clear(list); clear(extra);
       const miss = catalogMissing(all);
-      if (miss.length) extra.append(h('details.catalog', { open: !all.length }, h('summary', h('b', `Znane źródła do dodania (${miss.length})`), ' ', help('Oficjalne źródła dokumentów prawnych: akty (ELI), decyzje i rekomendacje urzędów (UOKiK, UODO, KNF), interpretacje (ZUS, KIS) oraz API (SAOS, Sejm). Po dodaniu możesz zmienić ich ustawienia w „Edytuj”.', 'research-zrodla')),
+      if (miss.length) extra.append(h('details.catalog', { open: !all.length }, h('summary', h('b', `Znane źródła do dodania (${miss.length})`), ' ', help('Oficjalne źródła dokumentów prawnych: akty (ELI), decyzje i rekomendacje urzędów (UOKiK, UODO, KNF), interpretacje (ZUS, KIS) oraz API (SAOS, Sejm). Oznaczone „ogólny” to tekst ogólny do nauki zwykłej polszczyzny (stenogramy Sejmu, Wikipedia). Po dodaniu możesz zmienić ich ustawienia w „Edytuj”.', 'research-zrodla')),
         h('div.row.end', h('button', { type: 'button', onclick: async () => { for (const c of miss) await addFromCatalog(c); toast(`Dodano ${miss.length} źródeł.`, 'ok'); draw(); } }, `Dodaj wszystkie (${miss.length})`)),
-        ...miss.map(c => h('div.row.wrap.catrow', h('b', c.name), h('span.badge', c.kind === 'eli' ? 'API ELI' : c.kind === 'api' ? 'API (JSON)' : 'strona www'), h('span.note', c.description), h('span.sp'),
+        ...miss.map(c => h('div.row.wrap.catrow', h('b', c.name), h('span.badge', KIND[c.kind] || 'strona www'), c.general ? h('span.badge.gen', 'ogólny') : null, h('span.note', c.description), h('span.sp'),
           h('button.ghost.small', { type: 'button', onclick: async () => { await addFromCatalog(c); draw(); } }, 'Dodaj')))));
       if (!all.length) list.append(h('p.note', 'Brak źródeł. Dodaj stronę www z dokumentami albo API aktów prawnych Sejmu (ELI).'));
       for (const s of all) {
         const n = (await docsOfSource(s)).length, st = h('span.status');
         list.append(h('article.source',
-          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : s.kind === 'api' ? 'API (JSON)' : 'strona www'),
+          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : KIND[s.kind] || 'strona www'), s.general ? h('span.badge.gen', { title: 'Tekst ogólny (nie prawniczy)' }, 'ogólny') : null,
             h('a.note', { href: s.url, target: '_blank', rel: 'noopener' }, hostOf(s.url) || s.url), h('span.note', `dokumentów z tego źródła: ${num(n)}`), h('span.sp'), st,
             h('button.small', { type: 'button', onclick: () => checkOne(s, st) }, 'Sprawdź'),
             h('button.ghost.small', { type: 'button', onclick: () => editSource(s) }, 'Edytuj'),
             h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć źródło?', `${s.name} — dokumenty pobrane z niego zostają w bibliotece.`, 'Usuń', true)) { await deleteSource(s.id); draw(); } } }, 'Usuń')),
-          s.description ? h('p.note', s.description) : null, lastLine(s), s.kind === 'eli' ? actsView(s) : s.kind === 'api' ? apiView(s) : linksView(s)));
+          s.description ? h('p.note', s.description) : null, lastLine(s), s.kind === 'eli' ? actsView(s) : s.kind === 'api' ? apiView(s) : s.kind === 'wiki' ? wikiView(s) : linksView(s)));
       }
       const fromDocs = await sourcesFromDocuments(all);
       if (fromDocs.length) extra.append(h('h3', 'Domeny z dokumentów, których nie ma na liście', help('Adresy źródła wpisane przy dokumentach wskazują strony, których nie ma jeszcze wśród źródeł.', 'research-zrodla')),

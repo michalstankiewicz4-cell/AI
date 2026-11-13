@@ -26,15 +26,17 @@ Siedem kafelków-kroków ze stanem: źródła w Researchu (ile, ile dokumentów 
 - **Źródła** – strona www, API aktów prawnych Sejmu (ELI) albo inne API zwracające JSON. Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
   - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;
   - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*.
+  - stenogramy Sejmu: dni posiedzeń, które już się odbyły (najnowsze 20), PDF stenogramu z *Pobierz* / *Pobierz wszystkie nowe*;
+  - Wikipedia: liczba artykułów, wybór ile losowych artykułów pobrać, *Pobierz losowe artykuły*;
   - API (JSON): czy działa, liczba pozycji (i wszystkich), pierwsze pozycje, zmiana od poprzedniego sprawdzenia.
-- **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, API Sejmu: druki, procesy legislacyjne, interpelacje, posiedzenia) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
+- **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, API Sejmu: druki, procesy legislacyjne, interpelacje; ogólne: stenogramy Sejmu, Wikipedia) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
 - **Domeny z dokumentów** bez źródła – *Dodaj jako źródło*.
 - **Dokumenty z adresem źródła** – *Sprawdź zmiany u źródła*, przy zmienionych *Dodaj nową wersję*.
 
 Pobrany dokument przechodzi zwykłą drogą: Formatowanie → zatwierdzenie → nauka.
 
 ## Dokumenty
-Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie. Pod opisem jest pole **Adres źródła** (skąd pobrano dokument; Research wypełnia je sam). Przy wgraniu dokumentu o treści identycznej z już istniejącym panel pyta, czy dodać go mimo to.
+Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie. Pod opisem jest pole **Adres źródła** (skąd pobrano dokument; Research wypełnia je sam). Przy wgraniu dokumentu o treści identycznej z już istniejącym panel pyta, czy dodać go mimo to. Pole **tekst ogólny** oznacza dokument jako ogólny (nie prawniczy) – ma wtedy plakietkę „ogólny” i w nauce idzie tylko do ustalonego udziału.
 
 ## Formatowanie
 Wynik konwertera. Widoki: do sprawdzenia, zatwierdzone, odrzucone, wszystkie. Każdy dokument ma:
@@ -47,7 +49,7 @@ Wynik konwertera. Widoki: do sprawdzenia, zatwierdzone, odrzucone, wszystkie. Ka
 Na górze są przyciski „Zatwierdź bez ostrzeżeń” i „Formatuj wszystkie ponownie” (z sumą statystyk) oraz zwijane Ustawienia formatowania.
 
 ## Nauka
-Dane (zatwierdzone i włączone dokumenty), dostępność karty graficznej, rodzaj nauki (od zera albo dalsza nauka modelu bazowego), ustawienia z szacunkiem liczby parametrów i rozmiaru pliku. W czasie nauki widać przebieg: pasek postępu, wykres błędu, liczby (błąd, najlepszy moment, bity na znak, czas kroku), próbkę tekstu i pominięte znaki. Po zakończeniu model zapisuje się sam.
+Dane (zatwierdzone i włączone dokumenty; przy dokumentach ogólnych podział: prawnicze w całości, ogólne użyte do limitu udziału), dostępność karty graficznej, rodzaj nauki (od zera albo dalsza nauka modelu bazowego), ustawienia z szacunkiem liczby parametrów i rozmiaru pliku. W czasie nauki widać przebieg: pasek postępu, wykres błędu, liczby (błąd, najlepszy moment, bity na znak, czas kroku), próbkę tekstu i pominięte znaki. Po zakończeniu model zapisuje się sam.
 
 ## Rozmowy wzorcowe
 Zestaw do dostrajania: dodawanie ręczne (edytor wymian), wczytywanie z pliku `.txt` (z raportem błędnych rozmów), pobieranie jako plik, wyszukiwanie, edycja, włączanie i wyłączanie.

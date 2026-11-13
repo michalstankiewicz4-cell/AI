@@ -81,6 +81,8 @@ export default {
             h('input.srcurl', { type: 'url', value: d.sourceUrl, placeholder: 'Adres źródła (skąd pobrano): https://…', 'aria-label': 'Adres źródła',
               onchange: async e => { d.sourceUrl = e.target.value.trim(); await saveDoc(d); toast('Zapisano adres źródła.', 'ok', 1200); } })),
           h('div.docside',
+            d.general ? h('span.badge.gen', { title: 'Tekst ogólny (nie prawniczy): w nauce do ustalonego udziału' }, 'ogólny') : null,
+            h('label.gencheck', h('input', { type: 'checkbox', checked: d.general, onchange: async e => { d.general = e.target.checked; await saveDoc(d); draw(); } }), ' tekst ogólny ', help('Tekst ogólny (nie prawniczy), np. Wikipedia albo stenogramy Sejmu. W nauce idzie tylko do ustalonego udziału (Nauka → „Udział tekstu ogólnego”).', 'tekst-ogolny')),
             h('button.badge.st-' + d.status, { type: 'button', title: 'Pokaż w zakładce „Formatowanie”', onclick: () => go('formatowanie/' + d.id) }, STATUS[d.status]),
             h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć dokument?', `${d.name} — zniknie z biblioteki i z danych do nauki.`, 'Usuń', true)) { await deleteDoc(d.id); draw(); } } }, 'Usuń')));
       }));

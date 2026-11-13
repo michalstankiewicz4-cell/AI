@@ -2,6 +2,12 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.7.0 – 2026-11-13
+
+- **Tekst ogólny** (zwykła polszczyzna obok dokumentów prawniczych): dokument może mieć oznaczenie „ogólny” – plakietka i pole „tekst ogólny” w Dokumentach; źródło w Researchu też może być ogólne (dokumenty z niego dostają oznaczenie same).
+- Nauka: nowe ustawienie **Udział tekstu ogólnego** (0–50%, domyślnie 20%). Dokumenty prawnicze idą w całości, ogólne do tego udziału; bez prawniczych – wszystkie ogólne. W „Danych” podział: ile prawniczych, ile ogólnych użyto.
+- Research, znane źródła ogólne: **stenogramy posiedzeń Sejmu** (nowy rodzaj źródła: dni posiedzeń, które już się odbyły, PDF stenogramu każdego dnia) i **Wikipedia (pl)** (nowy rodzaj: pobieranie losowych dłuższych artykułów, bez zalążków i stron ujednoznaczniających, z licencją CC BY-SA 4.0 w opisie). Zastępują pozycję „Sejm – posiedzenia (API)”.
+
 ## 0.6.4 – 2026-11-13
 
 - Research, znane źródła: więcej API Sejmu – procesy legislacyjne, interpelacje (z odpowiedziami ministrów), posiedzenia; druki sejmowe sortowane od najnowszych.

@@ -32,12 +32,12 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
 | `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |
 | `models.js` | modele w bazie, aktywny model, plik modelu (eksport/import), bity na znak |
-| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki, skrót treści (`textHash`), wyszukiwanie duplikatów (adres, ELI, treść) |
+| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki (mieszanie z tekstem ogólnym: `mixCorpus`), skrót treści (`textHash`), wyszukiwanie duplikatów (adres, ELI, treść) |
 | `dialogs.js` | rozmowy wzorcowe |
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
-| `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
+| `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
 ### `js/reader/` – odczyt plików
 | Plik | Rola |

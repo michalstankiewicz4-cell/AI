@@ -13,6 +13,7 @@ export const TIPS = {
   'Sprawdź wszystkie': 'Sprawdź po kolei wszystkie źródła: czy działają, czy są zmiany i nowe dokumenty.',
   'Sprawdź': 'Sprawdź źródło: czy działa, czy coś się zmieniło, które dokumenty są nowe.',
   'Pobierz': 'Pobierz dokument do biblioteki (z adresem źródła).',
+  'Pobierz losowe artykuły': 'Pobierz wybraną liczbę losowych, dłuższych artykułów Wikipedii jako tekst ogólny.',
   'Pobierz nową wersję': 'Pobierz aktualny tekst aktu; poprzednia wersja zostaje w bibliotece.',
   'Dodaj nową wersję': 'Dodaj aktualny tekst ze źródła jako nowy dokument; poprzedni zostaje.',
   'Dodaj': 'Dodaj to źródło do listy.',
