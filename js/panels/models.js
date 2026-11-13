@@ -4,7 +4,12 @@ import { h, help, toast, confirmBox, modal, pickFiles, download, num, dec, date,
 import { listModels, deleteModel, renameModel, setActive, getActive, saveModel, toFile, fromFile, onModels } from '../core/models.js';
 import { unload } from '../core/ai.js';
 import { settings } from '../core/settings.js';
-import { getToken, publishModel, publishedIndex, downloadPublished } from '../core/github.js';
+import { getToken, publish as publishGH, publishedIndex, downloadPublished, modelFileName, repoInfo } from '../core/github.js';
+import { listDocs, listDialogs } from '../core/corpus.js';
+import { listConversations } from '../core/conversations.js';
+import { dialogToText } from '../cleaner/dialogs.js';
+import { tags } from '../core/settings.js';
+import { VERSIONS } from '../version.js';
 import { db } from '../core/db.js';
 import { go } from '../main.js';
 import { netView } from '../ui/netview.js';
@@ -45,7 +50,7 @@ export default {
           h('div.row.wrap',
             m.id !== active ? h('button', { type: 'button', onclick: async () => { await setActive(m.id); toast(`Aktywny: ${m.name}`, 'ok'); } }, 'Ustaw jako aktywny') : null,
             h('button.ghost', { type: 'button', onclick: async () => modal(`Budowa modelu: ${m.name}`, netView(await db.get('models', m.id))) }, 'Podgląd budowy'),
-            h('button.ghost', { type: 'button', onclick: async () => { const full = await db.get('models', m.id); download(`model-${m.name.replace(/\s+/g, '-').toLowerCase()}.json`, JSON.stringify(toFile(full))); } }, 'Pobierz plik'),
+            h('button.ghost', { type: 'button', onclick: async () => { const full = await db.get('models', m.id); download(modelFileName(full).replace('models/', ''), JSON.stringify(toFile(full))); } }, 'Pobierz plik'),
             h('button.ghost', { type: 'button', onclick: () => publish(m) }, 'Opublikuj na GitHub'),
             h('button.ghost', { type: 'button', onclick: async () => { const n = prompt('Nowa nazwa', m.name); if (n && n.trim()) await renameModel(m.id, n.trim()); } }, 'Zmień nazwę'),
             h('span.sp'),
@@ -62,23 +67,47 @@ export default {
       await unload(m.id); await saveModel(m); toast(`Wczytano „${m.name}” (${from}).`, 'ok');
     }
 
-    function publish(m) {
+    // Publikacja: checkboxy z tym, co ma trafić do repo (jednym commitem). Plik modelu zawiera ustawienia i wersje.
+    async function publish(m) {
       const gh = settings().github;
       if (!getToken()) return toast('Brak tokenu GitHub. Wpisz go w Ustawienia → GitHub.', 'error');
-      const active = h('input', { type: 'checkbox', checked: true, id: 'pub-active' }), log = h('p.status');
+      const [docs, dialogs, convs] = await Promise.all([listDocs(), listDialogs(), listConversations()]);
+      const approved = docs.filter(d => d.status === 'zatwierdzony');
+      const pub = h('p.warnline', { hidden: true }, 'Repozytorium jest publiczne: dokumenty i rozmowy będą widoczne dla każdego, także w historii repo (nie da się ich potem łatwo usunąć). Nie wysyłaj danych osobowych ani poufnych.');
+      const box = (id, label, checked, note, sensitive) => {
+        const i = h('input', { type: 'checkbox', id: 'pub-' + id, checked, onchange: upd });
+        i.dataset.sensitive = sensitive ? '1' : ''; return { id, i, el: h('div.field.check', i, h('label', { htmlFor: 'pub-' + id }, label, note ? h('span.note', ' — ' + note) : null)) };
+      };
+      const items = [
+        box('model', `Model „${m.name}”`, true, `plik ${modelFileName(m)}, razem z ustawieniami i wersjami`),
+        box('active', 'Oznacz jako aktualny model (index.json → active)', true, 'inne aplikacje (np. PiK) biorą domyślnie aktualny'),
+        box('settings', 'Ustawienia i wersje', true, 'data/ustawienia.json (bez tokenu)'),
+        box('documents', `Dokumenty zatwierdzone (${num(approved.length)})`, false, 'data/dokumenty.json: nazwa, opis, tekst po formatowaniu', true),
+        box('dialogs', `Rozmowy wzorcowe (${num(dialogs.length)})`, false, 'data/rozmowy-wzorcowe.txt, format do wczytania', true),
+        box('conversations', `Historia rozmów z czatu (${num(convs.length)})`, false, 'data/historia-rozmow.json', true),
+      ];
+      const log = h('p.status');
+      function upd() { pub.hidden = !items.some(x => x.i.dataset.sensitive && x.i.checked); items[1].i.disabled = !items[0].i.checked; }
       const btn = h('button', { type: 'button', onclick: async () => {
+        const what = Object.fromEntries(items.map(x => [x.id, x.i.checked && !x.i.disabled]));
         btn.disabled = true;
         try {
           const full = await db.get('models', m.id);
-          const r = await publishModel(full, gh, { makeActive: active.checked, onStep: s => { log.textContent = s; } });
-          full.published = { at: Date.now(), commit: r.commit, file: r.file }; await saveModel(full);
-          log.textContent = ''; log.append('Opublikowano. ', h('a', { href: r.url, target: '_blank', rel: 'noopener' }, 'Zobacz commit'), ` · plik ${r.file}. GitHub Pages zaktualizuje się za około minutę.`);
+          const r = await publishGH(full, gh, what, {
+            settings: settings(), versions: { ...VERSIONS },
+            documents: approved.map(d => ({ name: d.name, description: d.description, type: d.type, addedAt: d.addedAt, enabled: d.enabled, chars: d.chars, cleanerVersion: d.cleanerVersion, text: d.text })),
+            dialogsText: dialogs.slice().reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n',
+            conversations: convs,
+          }, st => { log.textContent = st; });
+          if (r.file) { full.published = { at: Date.now(), commit: r.commit, file: r.file }; await saveModel(full); }
+          log.textContent = ''; log.append('Opublikowano: ', r.files.join(', '), '. ', h('a', { href: r.url, target: '_blank', rel: 'noopener' }, 'Zobacz commit'), '. GitHub Pages zaktualizuje się za około minutę.');
         } catch (e) { log.textContent = 'Błąd: ' + e.message; btn.disabled = false; }
       } }, 'Opublikuj');
-      modal(`Publikacja: ${m.name}`,
-        h('p', `Repo: ${gh.repo}, gałąź ${gh.branch}. Model trafi do pliku models/${m.id}.json, a lista modeli do models/index.json — jednym commitem.`),
-        h('div.field.check', active, h('label', { htmlFor: 'pub-active' }, 'Oznacz jako aktualny model (index.json → active)'), help('Inne aplikacje (np. PiK) mogą brać zawsze model oznaczony jako aktualny.', 'aktualny')),
-        log, h('div.row.end', btn));
+      modal(`Publikacja na GitHub: ${m.name}`,
+        h('p', `Repo ${gh.repo}, gałąź ${gh.branch}. Zaznacz, co wysłać — wszystko trafi jednym commitem.`, help('Plik modelu ma w nazwie wersję programu, w której powstał. Ustawienia i wersje są zawsze zapisane w pliku modelu; zaznaczenie „Ustawienia i wersje” dodaje je też jako osobny plik.', 'publikacja')),
+        items.map(x => x.el), pub, log, h('div.row.end', btn));
+      repoInfo(gh).then(r => { if (r.private) pub.textContent = 'Repozytorium jest prywatne — dane zobaczą tylko osoby z dostępem (uwaga: GitHub Pages dla prywatnego repo wymaga płatnego planu).'; }).catch(() => {});
+      upd();
     }
 
     async function fromGitHub() {

@@ -2,6 +2,13 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.4.0 – 2026-11-13
+
+- **Publikacja na GitHub z wyborem zawartości** (checkboxy, jeden commit): model, oznaczenie jako aktualny, ustawienia i wersje (`data/ustawienia.json`), dokumenty zatwierdzone (`data/dokumenty.json`), rozmowy wzorcowe (`data/rozmowy-wzorcowe.txt`), historia rozmów (`data/historia-rozmow.json`). Ostrzeżenie, że repo jest publiczne, przy danych.
+- Plik modelu zawiera ustawienia i wersje z chwili publikacji (`published`), a jego nazwa zawiera wersję programu, w której model powstał: `models/<nazwa>-v<wersja>-<id>.json` (tak samo przy pobieraniu pliku).
+- **Przełącznik dzień/noc** w górnym pasku, zapamiętany w przeglądarce; domyślnie motyw systemu.
+- Test publikacji na atrapie GitHub API.
+
 ## 0.3.0 – 2026-11-13
 
 - **Konwerter dokumentów na dane do nauki.** Zakładka „Dokumenty” to biblioteka: każdy plik trafia do bazy z ikonką rodzaju (TXT, HTML, MD, wklejony tekst), nazwą, datą i polem opisu. Wgranie od razu formatuje dokument.

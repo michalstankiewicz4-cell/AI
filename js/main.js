@@ -38,6 +38,19 @@ async function show(route) {
   main.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
 
+// Przełącznik dzień/noc: zapamiętany w tej przeglądarce; bez wyboru panel bierze motyw systemu
+function themeButton() {
+  const root = document.documentElement;
+  const b = h('button.themebtn', { type: 'button', onclick: () => {
+    const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = t; try { localStorage.setItem('ai-prawo.theme', t); } catch (_) { /* bez localStorage */ }
+    set(); window.dispatchEvent(new Event('themechange'));
+  } });
+  const set = () => { const dark = root.dataset.theme === 'dark'; b.textContent = dark ? '☀' : '☾'; b.title = dark ? 'Włącz jasny motyw (dzień)' : 'Włącz ciemny motyw (noc)'; b.setAttribute('aria-label', b.title); };
+  set();
+  return b;
+}
+
 async function init() {
   await loadSettings();
   // etapy: 1 = nauka języka (dokumenty, formatowanie, nauka), 2 = nauka odpowiadania (rozmowy wzorcowe, dostrajanie)
@@ -45,7 +58,7 @@ async function init() {
   nav = h('nav.side', { 'aria-label': 'Zakładki' }, PANELS.map(p => h('a' + (p.stage ? '.stage' + p.stage : ''), { href: '#' + p.id, dataset: { id: p.id }, title: p.stage ? STAGE[p.stage] : null }, h('span.i', p.icon), h('span', p.title), p.id === 'nauka' || p.id === 'dostrajanie' ? h('span.jobdot', { hidden: true }) : null)));
   main = h('main.content', { tabIndex: -1 });
   document.body.append(
-    h('header.top', h('a.brand', { href: '#pulpit' }, h('span.logo', '§'), h('b', APP_NAME), h('span.ver', 'v' + VERSIONS.app)), h('span.sub', 'panel administracyjny')),
+    h('header.top', h('a.brand', { href: '#pulpit' }, h('span.logo', '§'), h('b', APP_NAME), h('span.ver', 'v' + VERSIONS.app)), h('span.sub', 'panel administracyjny'), h('span.sp'), themeButton()),
     h('div.layout', nav, main));
   // kropka przy zakładce, w której trwa nauka
   onTraining(() => {

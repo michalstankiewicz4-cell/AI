@@ -49,7 +49,9 @@ export function trainView(kind, { onDone } = {}) {
     requestAnimationFrame(() => drawLoss(canvas, state.points, m ? m.steps : 1));
   };
   const off = onTraining(render);
+  const onTheme = () => !el.hidden && drawLoss(canvas, state.points, state.last ? state.last.steps : 1);
+  window.addEventListener('themechange', onTheme);
   const ro = new ResizeObserver(() => !el.hidden && drawLoss(canvas, state.points, state.last ? state.last.steps : 1)); ro.observe(canvas);
   render();
-  return { el, destroy: () => { off(); ro.disconnect(); } };
+  return { el, destroy: () => { off(); ro.disconnect(); window.removeEventListener('themechange', onTheme); } };
 }

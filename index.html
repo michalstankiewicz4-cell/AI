@@ -6,6 +6,8 @@
 <title>AI – panel administracyjny</title>
 <meta name="description" content="AI do rozmów na tematy prawne, uczone w przeglądarce: nauka na dokumentach, dostrajanie na rozmowach wzorcowych, uczenie z rozmów.">
 <meta name="robots" content="noindex">
+<script>/* motyw przed narysowaniem strony (bez mignięcia): zapisany wybór albo motyw systemu */
+try { document.documentElement.dataset.theme = localStorage.getItem('ai-prawo.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (_) { document.documentElement.dataset.theme = 'light'; }</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/admin.css">

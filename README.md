@@ -21,7 +21,8 @@ Kroki 1–3 to etap 1 (nauka języka), 4–5 to etap 2 (nauka odpowiadania); w m
 
 - **Rozmowa** działa na każdym komputerze, nawet słabym, i na telefonie: jedna odpowiedź to kilkadziesiąt milisekund.
 - **Nauka** idzie najszybciej na karcie graficznej (WebGPU: Chrome, Edge). Bez niej liczy procesor (WASM SIMD), wolniej.
-- Dane (dokumenty, rozmowy, modele) są w bazie IndexedDB przeglądarki na tym komputerze.
+- Wszystko (dokumenty, rozmowy, ustawienia, modele) jest zapisane lokalnie w bazie IndexedDB przeglądarki. Na GitHub trafia tylko to, co zaznaczysz przy publikacji (model, ustawienia, dane).
+- Motyw dzień/noc: przełącznik w górnym pasku.
 
 ## Struktura
 

@@ -40,7 +40,7 @@ function pick(cols) {
 export function netView(model) {
   const rec = model.record, cols = columns(rec);
   pick(cols);
-  const css = getComputedStyle(document.documentElement), v = k => css.getPropertyValue(k).trim();
+  const v = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
   const colW = 104, W = 60 + cols.length * colW, H = 490, top = 92, bottom = 40;
   const canvas = h('canvas.netview', { width: W * (devicePixelRatio || 1), height: H * (devicePixelRatio || 1), style: { width: W + 'px', height: H + 'px' } });
   const info = h('p.status', 'Najedź na kółko, żeby zobaczyć jego połączenia.');
@@ -104,6 +104,7 @@ export function netView(model) {
     }
   });
   canvas.addEventListener('mouseleave', () => { hover = null; draw(); });
+  window.addEventListener('themechange', () => canvas.isConnected && draw());
   draw();
   return h('div.netbox',
     h('p.note', `Pokazane są najważniejsze neurony każdej kolumny (największe wagi); razem ${rec.params.toLocaleString('pl-PL')} parametrów. Linie: niebieskie = waga dodatnia, złote = ujemna, grubsza = silniejsza. Kolory kółek w kolumnach uwagi oznaczają głowy.`),

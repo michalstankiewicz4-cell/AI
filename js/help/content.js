@@ -201,10 +201,19 @@ export const SECTIONS = [
   { id: 'github', group: 'Modele', title: 'GitHub: publikacja i wczytywanie', topics: ['github', 'github.repo', 'github.branch', 'token', 'publikacja', 'wczytaj-z-github', 'aktualny'], body: [
     ['steps', [
       ['Token', 'Utwórz go na github.com/settings/personal-access-tokens/new: dostęp tylko do repo AI, uprawnienie Contents: Read and write. Wpisz w Ustawienia → GitHub → Token i kliknij „Sprawdź dostęp”.'],
-      ['Opublikuj', 'Modele → „Opublikuj na GitHub”. Powstaje jeden commit: plik models/&lt;id&gt;.json i lista models/index.json.'],
+      ['Opublikuj', 'Modele → „Opublikuj na GitHub” i zaznacz, co wysłać. Wszystko trafia jednym commitem.'],
       ['Gotowe', 'Po ok. minucie model jest pod adresem GitHub Pages, np. …/AI/models/index.json – stamtąd pobierze go inna aplikacja (np. PiK) albo ten panel na innym komputerze („Wczytaj z GitHub”).'],
     ]],
-    ['p', '<b>Aktualny</b> (index.json → active) to model, który inne aplikacje powinny brać domyślnie.'],
+    ['table', ['Checkbox', 'Plik w repo', 'Uwagi'], [
+      ['Model', 'models/&lt;nazwa&gt;-v&lt;wersja&gt;-&lt;id&gt;.json + models/index.json', 'np. models/rozmowa-3-v0.4.0-c_ab12.json; w środku także ustawienia i wersje z chwili publikacji'],
+      ['Oznacz jako aktualny', 'models/index.json → active', 'model, który inne aplikacje biorą domyślnie'],
+      ['Ustawienia i wersje', 'data/ustawienia.json', 'bez tokenu'],
+      ['Dokumenty zatwierdzone', 'data/dokumenty.json', 'nazwa, opis, tekst po formatowaniu'],
+      ['Rozmowy wzorcowe', 'data/rozmowy-wzorcowe.txt', 'w formacie do wczytania'],
+      ['Historia rozmów', 'data/historia-rozmow.json', 'rozmowy z czatu z ocenami'],
+    ]],
+    ['tip', 'Repozytorium AI jest publiczne (GitHub Pages w darmowym planie). Dokumenty i rozmowy po wysłaniu zobaczy każdy, także w historii repo. Nie wysyłaj danych osobowych ani poufnych.'],
+    ['p', 'Wersja w nazwie pliku to wersja programu, w której model powstał. Dzięki niej od razu widać, z której wersji jest dany model.'],
     ['tip', 'Token jest zapisany tylko w tej przeglądarce. Nie trafia do repo ani do plików modeli.'],
   ] },
   { id: 'gdzie-ustawienia', group: 'Ustawienia', title: 'Gdzie są ustawienia', topics: ['ustawienia'], body: [
@@ -216,6 +225,7 @@ export const SECTIONS = [
     ['tip', 'Po zmianie znaczników trzeba dostroić model ponownie. Model dostrojony pamięta znaczniki, na których go uczono, i czat ich używa.'],
   ] },
   { id: 'dane-w-przegladarce', group: 'Ustawienia', title: 'Dane w tej przeglądarce i wersje', topics: ['dane-w-przegladarce', 'wersje'], body: [
+    ['p', 'Wszystko – dokumenty, rozmowy wzorcowe, historia rozmów, ustawienia i modele – jest zapisane lokalnie, w bazie IndexedDB tej przeglądarki na tym komputerze. Na GitHub trafia tylko to, co sam wyślesz przy publikacji. Motyw dzień/noc też jest zapamiętany w tej przeglądarce.'],
     ['p', 'Dokumenty, rozmowy i modele są zapisane w bazie IndexedDB tej przeglądarki na tym komputerze. Wyczyszczenie danych strony w przeglądarce je usuwa. Modele zabezpieczysz plikiem albo publikacją na GitHub.'],
     ['p', 'Wersje: <b>program</b> (widoczna obok nazwy), <b>silnik</b> (budowa sieci – modele z innej wersji głównej się nie wczytają), <b>reguły formatowania</b> (zapisywana przy każdym dokumencie), <b>format pliku modelu</b>, <b>schemat bazy</b>.'],
   ] },

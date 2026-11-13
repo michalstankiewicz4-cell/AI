@@ -33,16 +33,29 @@ Model dostrojony zapamiętuje znaczniki rozmowy, na których go uczono (`data.ta
 
 ## Publikacja na GitHub
 
-*Modele → Opublikuj na GitHub* robi jeden commit w repo z ustawień (domyślnie `michalstankiewicz4-cell/AI`, gałąź `main`):
+Wszystko (dokumenty, rozmowy, historia, ustawienia, modele) jest zapisane lokalnie w przeglądarce. Na GitHub trafia tylko to, co zaznaczysz w oknie *Modele → Opublikuj na GitHub*. Wszystko idzie jednym commitem do repo z ustawień (domyślnie `michalstankiewicz4-cell/AI`, gałąź `main`):
 
-- `models/<id>.json` – plik modelu,
-- `models/index.json` – lista opublikowanych modeli:
+| Checkbox | Plik | Zawartość |
+|---|---|---|
+| Model | `models/<nazwa>-v<wersja>-<id>.json` | plik modelu + `published: { at, settings, versions }` (ustawienia i wersje z chwili publikacji) |
+| | `models/index.json` | lista opublikowanych modeli |
+| Oznacz jako aktualny | `models/index.json` → `active` | model brany domyślnie przez inne aplikacje |
+| Ustawienia i wersje | `data/ustawienia.json` | `{ publishedAt, versions, settings }`, bez tokenu |
+| Dokumenty zatwierdzone | `data/dokumenty.json` | nazwa, opis, rodzaj, data, tekst po formatowaniu |
+| Rozmowy wzorcowe | `data/rozmowy-wzorcowe.txt` | format do wczytania (`Ty: … / AI: …`) |
+| Historia rozmów | `data/historia-rozmow.json` | rozmowy z czatu z ocenami i poprawkami |
+
+`<wersja>` w nazwie pliku to wersja programu, w której model powstał (np. `models/rozmowa-3-v0.4.0-c_ab12.json`). Plik pobrany przyciskiem „Pobierz plik” ma tę samą nazwę.
+
+**Uwaga:** repo AI jest publiczne (GitHub Pages w darmowym planie), więc dokumenty i rozmowy po wysłaniu są widoczne dla każdego, także w historii repo.
+
+`models/index.json`:
 
 ```json
 {
   "active": "c_…",
   "updatedAt": "2026-11-13T18:00:00.000Z",
-  "models": [ { "id": "c_…", "name": "Rozmowa 3", "kind": "chat", "file": "models/c_….json", "publishedAt": "…", "versions": {}, "metrics": {}, "params": 1012345 } ]
+  "models": [ { "id": "c_…", "name": "Rozmowa 3", "kind": "chat", "file": "models/rozmowa-3-v0.4.0-c_….json", "publishedAt": "…", "versions": {}, "publishedWith": {}, "hp": {}, "metrics": {}, "params": 1012345 } ]
 }
 ```
 

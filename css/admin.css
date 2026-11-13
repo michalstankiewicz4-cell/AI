@@ -163,3 +163,6 @@ details.card.settings[open] > summary { margin-bottom: .6em; }
 .stagelegend span { padding: .15em .7em; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-2); }
 .stagelegend .stage1 { background: var(--stage1); border-color: var(--stage1-line); } .stagelegend .stage2 { background: var(--stage2); border-color: var(--stage2-line); }
 .docmain.grow { flex: 1 1 260px; }
+
+.themebtn { background: transparent; color: #e9ecf3; border: 1px solid rgba(255, 255, 255, .25); border-radius: 99px; width: 34px; height: 34px; padding: 0; font-size: 1rem; }
+.themebtn:hover { background: rgba(255, 255, 255, .1); filter: none; }

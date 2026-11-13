@@ -39,28 +39,50 @@ export async function testAccess({ repo, branch }) {
   return info.full_name;
 }
 
-export async function publishModel(model, { repo, branch }, { makeActive = true, onStep = () => {} } = {}) {
+// Nazwa pliku modelu: nazwa (bez polskich znaków) + wersja programu, w której powstał + id, np. rozmowa-3-v0.4.0-c_abc12.json
+export const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').replace(/Ł/g, 'L').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'model';
+export const modelFileName = m => `models/${slug(m.name)}-v${(m.versions && m.versions.app) || '0'}-${m.id}.json`;
+
+// Publikacja jednym commitem. what: { model, active, settings, documents, dialogs, conversations } — co wysłać;
+// data: { settings, versions, documents, dialogsText, conversations } — treść plików dodatkowych (przygotowuje panel).
+export async function publish(model, { repo, branch }, what, data, onStep = () => {}) {
   onStep('Sprawdzam repozytorium…');
   const ref = await gh(`/repos/${repo}/git/ref/heads/${encodeURIComponent(branch)}`);
   const head = await gh(`/repos/${repo}/git/commits/${ref.object.sha}`);
-  const cur = await gh(`/repos/${repo}/contents/models/index.json?ref=${encodeURIComponent(branch)}`, { allow404: true });
-  const index = cur ? JSON.parse(b64utf8(cur.content)) : { models: [], active: null };
-  const file = `models/${model.id}.json`, publishedAt = new Date().toISOString();
-  onStep('Wysyłam plik modelu…');
-  const blob = await gh(`/repos/${repo}/git/blobs`, { method: 'POST', body: JSON.stringify({ content: utf8b64(JSON.stringify(toFile(model))), encoding: 'base64' }) });
-  const entry = { id: model.id, name: model.name, kind: model.kind, file, createdAt: model.createdAt, publishedAt, versions: model.versions, metrics: model.metrics, params: model.record.params };
-  index.models = [entry, ...index.models.filter(m => m.id !== model.id)];
-  if (makeActive) index.active = model.id;
-  index.updatedAt = publishedAt;
-  const iblob = await gh(`/repos/${repo}/git/blobs`, { method: 'POST', body: JSON.stringify({ content: utf8b64(JSON.stringify(index, null, 2) + '\n'), encoding: 'base64' }) });
+  const files = [], at = new Date().toISOString(), blob = async (path, text) => {
+    onStep(`Wysyłam ${path}…`);
+    const b = await gh(`/repos/${repo}/git/blobs`, { method: 'POST', body: JSON.stringify({ content: utf8b64(text), encoding: 'base64' }) });
+    files.push({ path, mode: '100644', type: 'blob', sha: b.sha });
+  };
+  let file = null;
+  if (what.model && model) {
+    file = modelFileName(model);
+    // plik modelu zawiera też ustawienia i wersje z chwili publikacji
+    await blob(file, JSON.stringify({ ...toFile(model), published: { at, settings: data.settings, versions: data.versions } }));
+    const cur = await gh(`/repos/${repo}/contents/models/index.json?ref=${encodeURIComponent(branch)}`, { allow404: true });
+    const index = cur ? JSON.parse(b64utf8(cur.content)) : { models: [], active: null };
+    const entry = { id: model.id, name: model.name, kind: model.kind, file, createdAt: model.createdAt, publishedAt: at, versions: model.versions, publishedWith: data.versions, hp: model.hp, metrics: model.metrics, params: model.record.params };
+    index.models = [entry, ...index.models.filter(m => m.id !== model.id)];
+    if (what.active) index.active = model.id;
+    index.updatedAt = at;
+    await blob('models/index.json', JSON.stringify(index, null, 2) + '\n');
+  }
+  const meta = { publishedAt: at, versions: data.versions };
+  if (what.settings) await blob('data/ustawienia.json', JSON.stringify({ ...meta, settings: data.settings }, null, 2) + '\n');
+  if (what.documents) await blob('data/dokumenty.json', JSON.stringify({ ...meta, documents: data.documents }, null, 2) + '\n');
+  if (what.dialogs) await blob('data/rozmowy-wzorcowe.txt', data.dialogsText);
+  if (what.conversations) await blob('data/historia-rozmow.json', JSON.stringify({ ...meta, conversations: data.conversations }, null, 2) + '\n');
+  if (!files.length) throw new Error('Nic nie zaznaczono do wysłania.');
   onStep('Tworzę commit…');
-  const tree = await gh(`/repos/${repo}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: head.tree.sha, tree: [
-    { path: file, mode: '100644', type: 'blob', sha: blob.sha }, { path: 'models/index.json', mode: '100644', type: 'blob', sha: iblob.sha }] }) });
-  const commit = await gh(`/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify({
-    message: `Model: ${model.name} (${model.kind === 'base' ? 'nauka na dokumentach' : 'dostrojony do rozmowy'})${makeActive ? ', aktualny' : ''}`, tree: tree.sha, parents: [ref.object.sha] }) });
+  const parts = [what.model && model ? `model ${model.name}${what.active ? ' (aktualny)' : ''}` : null, what.settings && 'ustawienia', what.documents && 'dokumenty', what.dialogs && 'rozmowy wzorcowe', what.conversations && 'historia rozmów'].filter(Boolean);
+  const tree = await gh(`/repos/${repo}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: head.tree.sha, tree: files }) });
+  const commit = await gh(`/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify({ message: `Publikacja z panelu AI ${data.versions.app}: ${parts.join(', ')}`, tree: tree.sha, parents: [ref.object.sha] }) });
   await gh(`/repos/${repo}/git/refs/heads/${encodeURIComponent(branch)}`, { method: 'PATCH', body: JSON.stringify({ sha: commit.sha }) });
-  return { commit: commit.sha, file, url: commit.html_url };
+  return { commit: commit.sha, file, files: files.map(f => f.path), url: commit.html_url };
 }
+
+// Czy repo jest publiczne (do ostrzeżenia przy wysyłaniu danych)
+export async function repoInfo({ repo }) { const r = await gh(`/repos/${repo}`); return { private: r.private, name: r.full_name }; }
 
 // Odczyt opublikowanych modeli bez tokenu: najpierw z tej samej strony (GitHub Pages), potem z raw.githubusercontent.com.
 async function fetchPublished(path, { repo, branch }) {
