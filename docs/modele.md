@@ -27,6 +27,10 @@ Kolejność tensorów: `Emb [V,d]`, `Pos [T,d]`, a dla każdej warstwy `g1, b1, 
 
 Model dostrojony zapamiętuje znaczniki rozmowy, na których go uczono (`data.tags`). Czat używa tych znaczników, nawet jeśli w ustawieniach są już inne.
 
+## Podgląd budowy
+
+*Modele → Podgląd budowy* (`js/ui/netview.js`) rysuje kolumny: tokeny → embedding → dla każdej warstwy uwaga, MLP i wyjście warstwy → następny token. W każdej kolumnie pokazanych jest 12 najważniejszych neuronów (o największej sumie wag wchodzących), a pozostałe opisuje podpis „+ N”. Linie pochodzą z prawdziwych wag: Emb, część wartości Wqkv, W1, W2 i Wo. Kolor oznacza znak wagi, grubość jej siłę. Linia przerywana u góry to połączenie omijające (residual).
+
 ## Publikacja na GitHub
 
 *Modele → Opublikuj na GitHub* robi jeden commit w repo z ustawień (domyślnie `michalstankiewicz4-cell/AI`, gałąź `main`):

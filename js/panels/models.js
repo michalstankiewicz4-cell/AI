@@ -7,6 +7,7 @@ import { settings } from '../core/settings.js';
 import { getToken, publishModel, publishedIndex, downloadPublished } from '../core/github.js';
 import { db } from '../core/db.js';
 import { go } from '../main.js';
+import { netView } from '../ui/netview.js';
 
 export default {
   id: 'modele', title: 'Modele', icon: '📦',
@@ -43,6 +44,7 @@ export default {
           m.sample ? h('details', h('summary', 'Próbka z końca nauki'), h('pre.sample', m.sample)) : null,
           h('div.row.wrap',
             m.id !== active ? h('button', { type: 'button', onclick: async () => { await setActive(m.id); toast(`Aktywny: ${m.name}`, 'ok'); } }, 'Ustaw jako aktywny') : null,
+            h('button.ghost', { type: 'button', onclick: async () => modal(`Budowa modelu: ${m.name}`, netView(await db.get('models', m.id))) }, 'Podgląd budowy'),
             h('button.ghost', { type: 'button', onclick: async () => { const full = await db.get('models', m.id); download(`model-${m.name.replace(/\s+/g, '-').toLowerCase()}.json`, JSON.stringify(toFile(full))); } }, 'Pobierz plik'),
             h('button.ghost', { type: 'button', onclick: () => publish(m) }, 'Opublikuj na GitHub'),
             h('button.ghost', { type: 'button', onclick: async () => { const n = prompt('Nowa nazwa', m.name); if (n && n.trim()) await renameModel(m.id, n.trim()); } }, 'Zmień nazwę'),

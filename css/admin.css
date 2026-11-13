@@ -105,3 +105,7 @@ pre.sample { white-space: pre-wrap; word-break: break-word; background: var(--pa
 .model.active { border-color: var(--ok); box-shadow: 0 0 0 1px var(--ok), var(--shadow); }
 .model h2 { margin: 0; }
 .pubrow { border-bottom: 1px solid var(--line); padding: .5em 0; }
+
+/* podgląd budowy modelu */
+.netscroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--panel-2); }
+canvas.netview { display: block; }

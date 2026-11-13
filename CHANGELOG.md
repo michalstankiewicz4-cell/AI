@@ -2,6 +2,11 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.2.0 – 2026-11-13
+
+- Podgląd budowy modelu (Modele → „Podgląd budowy”): warstwy jako kolumny neuronów połączone liniami z prawdziwych wag (kolor = znak wagi, grubość = siła). Najechanie na neuron podświetla jego połączenia.
+- Poprawiona odmiana liczebników na pulpicie i w zakładkach, przyciski nie łamią się na dwie linie.
+
 ## 0.1.0 – 2026-11-13
 
 Pierwsza wersja (silnik 1.0.0, reguły 1.0.0, format modelu 1, baza 1).

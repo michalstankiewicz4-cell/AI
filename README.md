@@ -12,7 +12,7 @@ Własna sieć neuronowa (transformer), która uczy się języka prawnego z dokum
 3. **Rozmowy wzorcowe** – pytania i poprawne odpowiedzi w formacie `Ty: … / AI: …`.
 4. **Dostrajanie** (finetuning) – sieć uczy się odpowiadać. Błąd liczony jest tylko na odpowiedziach AI (maskowanie).
 5. **Czat i poprawki** – rozmawiasz, oceniasz odpowiedzi (✓ ✎ ✗) i przenosisz poprawione rozmowy do zestawu wzorcowego. Potem dostrajasz ponownie. Tak AI uczy się z rozmów.
-6. **Modele** – każda nauka zapisuje nową wersję. Model można pobrać jako plik albo opublikować na GitHub (`models/`), skąd jest dostępny przez GitHub Pages.
+6. **Modele** – każda nauka zapisuje nową wersję, a jej budowę widać w podglądzie (warstwy z neuronami połączonymi według wag). Model można pobrać jako plik albo opublikować na GitHub (`models/`), skąd jest dostępny przez GitHub Pages.
 
 Szczegóły: [docs/nauka.md](docs/nauka.md).
 
