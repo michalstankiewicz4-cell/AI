@@ -25,6 +25,7 @@ export const SECTIONS = [
   { id: 'krok-po-kroku', group: 'Start', title: 'Krok po kroku', topics: ['start', 'pulpit'], body: [
     ['p', 'AI uczy się w dwóch etapach: najpierw <b>języka</b> (z dokumentów), potem <b>odpowiadania</b> (z rozmów wzorcowych). Dalej uczy się z rozmów w czacie, które poprawiasz.'],
     ['steps', [
+      ['Research', 'Dodaj źródła dokumentów (strony www, API aktów prawnych Sejmu) i sprawdzaj je: co nowe, co się zmieniło, czy dokument już masz. Nowe dokumenty pobierasz prosto do biblioteki. Ten krok jest opcjonalny – pliki możesz też wgrywać ręcznie.'],
       ['Dokumenty', 'Wgraj ustawy, kodeksy, orzeczenia, artykuły (.txt, .md, .html) i dopisz do nich opis. Każdy plik trafia do bazy z ikonką, nazwą i datą.'],
       ['Formatowanie', 'Każdy wgrany dokument jest od razu przerabiany na dane do nauki. Obejrzyj wynik i raport zmian, a potem zatwierdź albo odrzuć. Do nauki trafiają tylko zatwierdzone.'],
       ['Nauka', 'Sieć czyta zatwierdzone dokumenty i uczy się przewidywać dalszy ciąg tekstu. Tak poznaje słownictwo i budowę przepisów. Wynik to <b>model bazowy</b>, który pisze „po prawniczemu”, ale nie umie jeszcze odpowiadać na pytania.'],
@@ -34,7 +35,7 @@ export const SECTIONS = [
       ['Historia rozmów', 'Rozmowy z dobrymi i poprawionymi odpowiedziami przenieś do rozmów wzorcowych. Potem wróć do kroku 5 i dostrój ponownie. Ta pętla to <b>uczenie z rozmów</b>.'],
       ['Modele', 'Każda nauka zapisuje nową wersję modelu. Porównaj je, wybierz aktywny, zobacz budowę, pobierz plik albo opublikuj na GitHub.'],
     ]],
-    ['tip', 'Kroki 1–3 robisz rzadko (gdy przybywa dokumentów). Kroki 4–7 powtarzasz często: to codzienne douczanie.'],
+    ['tip', 'Kroki 1–4 robisz rzadko (gdy przybywa dokumentów). Kroki 5–8 powtarzasz często: to codzienne douczanie. Kolory w menu: fioletowy – dokumenty, formatowanie i nauka; zielony – rozmowy wzorcowe i dostrajanie.'],
   ] },
   { id: 'porownanie-etapow', group: 'Start', title: 'Rozmowa wzorcowa a dostrajanie (i nauka)', topics: ['etapy'], body: [
     ['p', '<b>Rozmowa wzorcowa to dane, dostrajanie to proces.</b> Tak samo dokument to dane, a nauka to proces.'],

@@ -8,7 +8,7 @@ import { listDocs, addDoc } from '../core/documents.js';
 import { go } from '../main.js';
 
 export default {
-  id: 'research', title: 'Research', stage: 1, icon: '🔎',
+  id: 'research', title: 'Research', icon: '🔎',
   render(root) {
     const list = h('div'), extra = h('div'), docsBox = h('div'), urlOut = h('div.urlout');
     const urlIn = h('input', { type: 'text', placeholder: 'https://… adres dokumentu (PDF, Word, strona)', 'aria-label': 'Adres dokumentu', onkeydown: e => e.key === 'Enter' && checkAddress() });

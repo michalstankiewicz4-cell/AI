@@ -53,7 +53,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.actions { white-space: nowrap; text-align: right; }
 td.actions button { margin-left: .3em; }
 
-/* grupy kolorów w menu: 1 = Research i Dokumenty, 2 = Formatowanie i Nauka, 3 = Rozmowy wzorcowe i Dostrajanie */
+/* grupy kolorów w menu: 2 = Dokumenty, Formatowanie i Nauka (fioletowy), 3 = Rozmowy wzorcowe i Dostrajanie (zielony); 1 (niebieski) obecnie nieużywany */
 .stage1 { --sg: var(--stage1); --sgl: var(--stage1-line); } .stage2 { --sg: var(--stage2); --sgl: var(--stage2-line); } .stage3 { --sg: var(--stage3); --sgl: var(--stage3-line); }
 .side a.stage1, .side a.stage2, .side a.stage3 { background: var(--sg); box-shadow: inset 3px 0 0 var(--sgl); }
 .side a.stage1 + a.stage1, .side a.stage2 + a.stage2, .side a.stage3 + a.stage3 { margin-top: -2px; border-top-left-radius: 0; border-top-right-radius: 0; }

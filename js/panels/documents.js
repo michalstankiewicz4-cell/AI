@@ -10,7 +10,7 @@ import { go } from '../main.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
 
 export default {
-  id: 'dokumenty', title: 'Dokumenty', stage: 1, icon: '📄',
+  id: 'dokumenty', title: 'Dokumenty', stage: 2, icon: '📄',
   render(root) {
     const list = h('div'), stats = h('p.note');
     const prog = h('div.readprog', { hidden: true }, h('p.status'), h('div.progress', h('div.fill')));

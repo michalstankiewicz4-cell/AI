@@ -2,6 +2,11 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.6.2 – 2026-11-13
+
+- Kolory: Research bez koloru, Dokumenty fioletowe razem z Formatowaniem i Nauką; Rozmowy wzorcowe i Dostrajanie zielone bez zmian.
+- Pulpit: kafelek **Research** (pierwszy): liczba źródeł, ile dokumentów do pobrania po ostatnim sprawdzeniu (nowe i zmienione), ile źródeł niedostępnych. Kroki ponumerowane 1–7; Research także jako pierwszy krok w Pomocy „Krok po kroku”.
+
 ## 0.6.1 – 2026-11-13
 
 - Kolory w menu i na kafelkach pulpitu w trzech grupach: niebieski – Research i Dokumenty, fioletowy (nowy) – Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie (bez zmian). Legenda na pulpicie i dymki w menu odpowiednio; opis kolorów w README, docs/panel.md i docs/architektura.md.

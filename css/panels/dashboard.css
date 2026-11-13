@@ -10,3 +10,4 @@
 .stagelegend span { padding: .15em .7em; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-2); }
 .step.stage1, .step.stage2, .step.stage3 { background: var(--sg); border-color: var(--sgl); }
 .stagelegend .stage1, .stagelegend .stage2, .stagelegend .stage3 { background: var(--sg); border-color: var(--sgl); }
+.steps { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
