@@ -6,7 +6,7 @@
 .step h3 { margin: 0; } .step p { color: var(--ink-3); font-size: .88rem; flex: 1; margin: 0; }
 .step button { align-self: flex-start; white-space: normal; text-align: left; }
 
-.step.stage1 { background: var(--stage1); border-color: var(--stage1-line); } .step.stage2 { background: var(--stage2); border-color: var(--stage2-line); }
 .stagelegend { display: flex; flex-wrap: wrap; gap: .5em; margin-bottom: .6em; font-size: .8rem; }
 .stagelegend span { padding: .15em .7em; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-2); }
-.stagelegend .stage1 { background: var(--stage1); border-color: var(--stage1-line); } .stagelegend .stage2 { background: var(--stage2); border-color: var(--stage2-line); }
+.step.stage1, .step.stage2, .step.stage3 { background: var(--sg); border-color: var(--sgl); }
+.stagelegend .stage1, .stagelegend .stage2, .stagelegend .stage3 { background: var(--sg); border-color: var(--sgl); }

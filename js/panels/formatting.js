@@ -19,7 +19,7 @@ let saveT = null;
 const FILTERS = [['do-sprawdzenia', 'Do sprawdzenia'], ['zatwierdzony', 'Zatwierdzone'], ['odrzucony', 'Odrzucone'], ['all', 'Wszystkie']];
 
 export default {
-  id: 'formatowanie', title: 'Formatowanie', stage: 1, icon: '🧹',
+  id: 'formatowanie', title: 'Formatowanie', stage: 2, icon: '🧹',
   async render(root, _r, focusId) {
     let filter = 'do-sprawdzenia';
     if (focusId) { const d = (await listDocs()).find(x => x.id === focusId); if (d) filter = d.status; }

@@ -15,7 +15,7 @@ import { go } from '../main.js';
 const ARCH = ['unit', 'layers', 'dim', 'heads', 'ctx'];
 
 export default {
-  id: 'nauka', title: 'Nauka', stage: 1, icon: '🧠',
+  id: 'nauka', title: 'Nauka', stage: 2, icon: '🧠',
   render(root) {
     const s = settings(), hp = s.pretrain;
     let mode = 'new', fromId = null;

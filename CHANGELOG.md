@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.6.1 – 2026-11-13
+
+- Kolory w menu i na kafelkach pulpitu w trzech grupach: niebieski – Research i Dokumenty, fioletowy (nowy) – Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie (bez zmian). Legenda na pulpicie i dymki w menu odpowiednio.
+
 ## 0.6.0 – 2026-11-13
 
 Schemat bazy 2 (nowy magazyn `sources`; dotychczasowe dane bez zmian).

@@ -15,7 +15,7 @@ import { openChat } from '../chat/widget.js';
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export default {
-  id: 'dostrajanie', title: 'Dostrajanie', stage: 2, icon: '🎯',
+  id: 'dostrajanie', title: 'Dostrajanie', stage: 3, icon: '🎯',
   render(root) {
     const s = settings(), hp = s.finetune;
     let fromId = null;

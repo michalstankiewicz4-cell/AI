@@ -10,7 +10,7 @@ import { dialogEditor } from '../ui/dialog-editor.js';
 import { db } from '../core/db.js';
 
 export default {
-  id: 'rozmowy-wzorcowe', title: 'Rozmowy wzorcowe', stage: 2, icon: '💬',
+  id: 'rozmowy-wzorcowe', title: 'Rozmowy wzorcowe', stage: 3, icon: '💬',
   render(root) {
     const listBox = h('div'), stats = h('p.note');
     const search = h('input', { type: 'search', placeholder: 'Szukaj w rozmowach…', oninput: () => drawList() });

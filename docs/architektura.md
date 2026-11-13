@@ -69,7 +69,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 ### `js/panels/`, `js/chat/`, `js/ui/`, `js/help/`
 | Plik | Rola |
 |---|---|
-| `panels/*.js` | zakładki: `{ id, title, stage?, icon, render(root, rerender, arg) }`, `render` może zwrócić funkcję sprzątającą; `stage` (1 lub 2) koloruje zakładkę w menu |
+| `panels/*.js` | zakładki: `{ id, title, stage?, icon, render(root, rerender, arg) }`, `render` może zwrócić funkcję sprzątającą; `stage` koloruje zakładkę w menu i kafelek na pulpicie: 1 – niebieski (Research, Dokumenty), 2 – fioletowy (Formatowanie, Nauka), 3 – zielony (Rozmowy wzorcowe, Dostrajanie) |
 | `chat/widget.js` | okno czatu, ustawienia rozmowy pod ⚙ |
 | `ui/dom.js` | `h()` (tworzenie elementów; przyciski dostają dymki z `tips.js`), `help(tekst, temat)`, powiadomienia, okna, pliki, formaty liczb |
 | `ui/form.js` | formularz z `SCHEMA` (pole + [?] z tematem `grupa.pole`) |

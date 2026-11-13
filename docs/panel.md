@@ -1,6 +1,6 @@
 # Panel administracyjny – zakładki
 
-Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki przełącza się przez adres `#zakładka` albo `#zakładka/argument`. Menu i kafelki pulpitu mają kolory etapów: **etap 1** (nauka języka) to Dokumenty, Formatowanie i Nauka, a **etap 2** (nauka odpowiadania) to Rozmowy wzorcowe i Dostrajanie. W prawym górnym rogu jest przełącznik dzień/noc, w prawym dolnym ikona czatu.
+Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki przełącza się przez adres `#zakładka` albo `#zakładka/argument`. Menu i kafelki pulpitu mają trzy grupy kolorów: **niebieski** – Research i Dokumenty, **fioletowy** – Formatowanie i Nauka, **zielony** – Rozmowy wzorcowe i Dostrajanie; pozostałe zakładki są bez koloru.
 
 | Zakładka | Plik | Ustawienia w zakładce |
 |---|---|---|
@@ -21,7 +21,7 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 Sześć kafelków-kroków ze stanem: ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
 
 ## Research
-Źródła dokumentów (etap 1, przed Dokumentami):
+Źródła dokumentów (przed Dokumentami, kolor niebieski):
 - **Czy dokument był już pobrany?** – adres → wynik „już pobrany” (po adresie albo po treści, z odnośnikiem do dokumentu) albo „nie ma” z przyciskiem *Pobierz do dokumentów*.
 - **Źródła** – strona www albo API aktów prawnych Sejmu (ELI). Przy każdym: liczba pobranych z niego dokumentów, wynik ostatniego sprawdzenia (działa z czasem odpowiedzi / błąd HTTP / niedostępne – CORS), informacja o zmianach od poprzedniego sprawdzenia, a pod spodem:
   - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;

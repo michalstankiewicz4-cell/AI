@@ -53,13 +53,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td.actions { white-space: nowrap; text-align: right; }
 td.actions button { margin-left: .3em; }
 
-/* etapy w menu: 1 = nauka języka, 2 = nauka odpowiadania */
-.side a.stage1 { background: var(--stage1); } .side a.stage2 { background: var(--stage2); }
-.side a.stage1 + a.stage1, .side a.stage2 + a.stage2 { margin-top: -2px; border-top-left-radius: 0; border-top-right-radius: 0; }
-.side a.stage1:has(+ a.stage1), .side a.stage2:has(+ a.stage2) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-.side a.stage1 { box-shadow: inset 3px 0 0 var(--stage1-line); } .side a.stage2 { box-shadow: inset 3px 0 0 var(--stage2-line); }
-.side a.stage1[aria-current=page], .side a.stage2[aria-current=page] { box-shadow: inset 3px 0 0 var(--gold); font-weight: 650; color: var(--ink); }
-.side a.stage1:hover { background: color-mix(in srgb, var(--stage1) 70%, var(--stage1-line)); } .side a.stage2:hover { background: color-mix(in srgb, var(--stage2) 70%, var(--stage2-line)); }
+/* grupy kolorów w menu: 1 = Research i Dokumenty, 2 = Formatowanie i Nauka, 3 = Rozmowy wzorcowe i Dostrajanie */
+.stage1 { --sg: var(--stage1); --sgl: var(--stage1-line); } .stage2 { --sg: var(--stage2); --sgl: var(--stage2-line); } .stage3 { --sg: var(--stage3); --sgl: var(--stage3-line); }
+.side a.stage1, .side a.stage2, .side a.stage3 { background: var(--sg); box-shadow: inset 3px 0 0 var(--sgl); }
+.side a.stage1 + a.stage1, .side a.stage2 + a.stage2, .side a.stage3 + a.stage3 { margin-top: -2px; border-top-left-radius: 0; border-top-right-radius: 0; }
+.side a.stage1:has(+ a.stage1), .side a.stage2:has(+ a.stage2), .side a.stage3:has(+ a.stage3) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.side a.stage1:hover, .side a.stage2:hover, .side a.stage3:hover { background: color-mix(in srgb, var(--sg) 70%, var(--sgl)); }
+.side a[class^=stage][aria-current=page] { box-shadow: inset 3px 0 0 var(--gold); font-weight: 650; color: var(--ink); }
 
 /* przełącznik dzień/noc */
 .themebtn { background: transparent; color: #e9ecf3; border: 1px solid rgba(255, 255, 255, .25); border-radius: 99px; width: 34px; height: 34px; padding: 0; font-size: 1rem; }

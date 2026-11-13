@@ -54,8 +54,8 @@ function themeButton() {
 
 async function init() {
   await loadSettings();
-  // etapy: 1 = nauka języka (dokumenty, formatowanie, nauka), 2 = nauka odpowiadania (rozmowy wzorcowe, dostrajanie)
-  const STAGE = { 1: 'Etap 1: nauka języka z dokumentów', 2: 'Etap 2: nauka odpowiadania na rozmowach' };
+  // grupy kolorów w menu: 1 = Research i Dokumenty, 2 = Formatowanie i Nauka, 3 = Rozmowy wzorcowe i Dostrajanie
+  const STAGE = { 1: 'Zbieranie dokumentów', 2: 'Formatowanie i nauka języka', 3: 'Rozmowy wzorcowe i nauka odpowiadania' };
   nav = h('nav.side', { 'aria-label': 'Zakładki' }, PANELS.map(p => h('a' + (p.stage ? '.stage' + p.stage : ''), { href: '#' + p.id, dataset: { id: p.id }, title: p.stage ? STAGE[p.stage] : null }, h('span.i', p.icon), h('span', p.title), p.id === 'nauka' || p.id === 'dostrajanie' ? h('span.jobdot', { hidden: true }) : null)));
   main = h('main.content', { tabIndex: -1 });
   document.body.append(
