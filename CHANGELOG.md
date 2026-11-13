@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.6.4 – 2026-11-13
+
+- Research, znane źródła: więcej API Sejmu – procesy legislacyjne, interpelacje (z odpowiedziami ministrów), posiedzenia; druki sejmowe sortowane od najnowszych.
+
 ## 0.6.3 – 2026-11-13
 
 - Research: katalog **znanych źródeł** do dodania jednym kliknięciem („Dodaj”, „Dodaj wszystkie”): Dziennik Ustaw i Monitor Polski (API ELI), UOKiK (decyzje), UODO (decyzje), KNF (rekomendacje dla banków, Dziennik Urzędowy KNF), ZUS (interpretacje, BIP), KIS (EUREKA), SAOS (orzeczenia, API) i druki Sejmu (API).

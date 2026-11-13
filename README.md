@@ -10,7 +10,7 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 
 | Etap | Krok | Zakładka | Co się dzieje |
 |---|---|---|---|
-| 1 – nauka języka | 0 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS…): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
+| 1 – nauka języka | 0 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm…): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
 | | 1 | Dokumenty | biblioteka: wgrywasz ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) z opisem |
 | | 2 | Formatowanie | konwerter na dane do nauki: podgląd przed/po, statystyki zmian, ostrzeżenia; do nauki trafiają tylko zatwierdzone dokumenty |
 | | 3 | Nauka | sieć uczy się przewidywać dalszy ciąg tekstu, wynik to **model bazowy** |

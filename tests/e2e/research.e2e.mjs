@@ -97,19 +97,19 @@ await p.click('dialog.modal >> text=Anuluj'); await p.waitForTimeout(300);
 
 console.log('Znane źródła i API (JSON)');
 await p.goto(BASE + '#research'); await p.waitForTimeout(600);
-ok((await p.textContent('details.catalog summary')).includes('(9)'), 'katalog: 9 znanych źródeł (Dziennik Ustaw już jest na liście)');
+ok((await p.textContent('details.catalog summary')).includes('(12)'), 'katalog: 12 znanych źródeł (Dziennik Ustaw już jest na liście)');
 await p.route(/https:\/\/www\.saos\.org\.pl\/api\/search\/judgments.*/, r => r.fulfill({ headers: CORS, json: { items: [
   { id: 1, courtCases: [{ caseNumber: 'I C 1/26' }], judgmentDate: '2026-11-10' }, { id: 2, courtCases: [{ caseNumber: 'II K 2/26' }], judgmentDate: '2026-11-09' }], info: { totalResults: 450000 } } }));
 await p.click('details.catalog summary');
 await p.click('.catrow:has-text("SAOS") >> text=Dodaj'); await p.waitForTimeout(400);
-ok((await p.textContent('details.catalog summary')).includes('(8)') && (await p.textContent('main.content')).includes('SAOS – orzeczenia sądów (API)'), 'SAOS dodany z katalogu, znika z katalogu');
+ok((await p.textContent('details.catalog summary')).includes('(11)') && (await p.textContent('main.content')).includes('SAOS – orzeczenia sądów (API)'), 'SAOS dodany z katalogu, znika z katalogu');
 const saos = 'article.source:has-text("SAOS")';
 await p.click(saos + ' >> text=Sprawdź'); await p.waitForSelector(saos + ' >> text=Odpowiedź API');
 t = await p.textContent(saos);
 ok(t.includes('działa') && t.includes('2 pozycji') && t.includes('450') && t.includes('I C 1/26'), 'API (JSON): działa, 2 pozycje z 450 000, sygnatury widoczne');
-await p.click('details.catalog summary'); await p.click('text=/Dodaj wszystkie \\(8\\)/'); await p.waitForTimeout(600);
+await p.click('details.catalog summary'); await p.click('text=/Dodaj wszystkie \\(11\\)/'); await p.waitForTimeout(600);
 ok(!(await p.$('details.catalog')), 'Dodaj wszystkie: katalog pusty');
-ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) === 12, 'źródeł razem: 3 własne + 9 z katalogu');
+ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) === 15, 'źródeł razem: 3 własne + 12 z katalogu');
 await p.screenshot({ path: join(OUT, 'research-katalog.png'), fullPage: true });
 ok(!errs.length, 'brak błędów strony' + (errs.length ? ': ' + errs.join(' | ') : ''));
 await b.close(); server.close();

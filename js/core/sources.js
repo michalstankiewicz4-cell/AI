@@ -150,7 +150,10 @@ export const CATALOG = [
   { name: 'ZUS – interpretacje (BIP)', kind: 'www', url: 'https://www.zus.pl/en/web/biuletyn-informacji-publicznej/inne/interpretacje', description: 'Pisemne interpretacje przepisów z zakresu ubezpieczeń społecznych; strona z wyszukiwarką – linki do dokumentów mogą pojawiać się dopiero po wyszukaniu.' },
   { name: 'KIS – EUREKA (interpretacje podatkowe)', kind: 'www', url: 'https://eureka.mf.gov.pl/', description: 'Interpretacje indywidualne i ogólne, objaśnienia podatkowe; wyszukiwarka – linki do dokumentów mogą pojawiać się dopiero po wyszukaniu.' },
   { name: 'SAOS – orzeczenia sądów (API)', kind: 'api', url: 'https://www.saos.org.pl/api/search/judgments?pageSize=20&sortingField=JUDGMENT_DATE&sortingDirection=DESC', description: 'System Analizy Orzeczeń Sądowych: publiczne API (JSON, bez klucza) – najnowsze orzeczenia sądów powszechnych, SN, TK, KIO.' },
-  { name: 'Sejm – druki sejmowe (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/prints', description: 'Projekty ustaw i inne druki Sejmu X kadencji (JSON).' },
+  { name: 'Sejm – druki sejmowe (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/prints?sort_by=-deliveryDate', description: 'Projekty ustaw, sprawozdania komisji i inne druki Sejmu X kadencji, najnowsze najpierw (JSON).' },
+  { name: 'Sejm – procesy legislacyjne (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/processes', description: 'Przebieg prac nad projektami ustaw w Sejmie X kadencji: etapy, druki, uchwalenie (JSON).' },
+  { name: 'Sejm – interpelacje (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/interpellations?limit=50', description: 'Interpelacje poselskie i odpowiedzi ministrów – często z wykładnią przepisów (JSON).' },
+  { name: 'Sejm – posiedzenia (API)', kind: 'api', url: 'https://api.sejm.gov.pl/sejm/term10/proceedings', description: 'Posiedzenia Sejmu X kadencji; stąd prowadzą odnośniki do stenogramów (JSON).' },
 ];
 export function catalogMissing(sources) {
   const key = s => s.kind + '|' + s.url + '|' + (s.eli ? s.eli.publisher : '');
@@ -169,7 +172,7 @@ export async function checkApi(src) {
     last.count = list ? list.length : null;
     last.total = b && b.info && b.info.totalResults != null ? b.info.totalResults : b && b.count != null ? b.count : null;
     const label = it => it.title || it.name || (it.courtCases && it.courtCases[0] && it.courtCases[0].caseNumber) || it.number || it.id;
-    last.sample = list ? list.slice(0, 10).map(it => ({ label: String(label(it) ?? '').slice(0, 160), date: it.judgmentDate || it.documentDate || it.date || it.deliveryDate || '' })) : [];
+    last.sample = list ? list.slice(0, 10).map(it => ({ label: String(label(it) ?? '').slice(0, 160), date: it.judgmentDate || it.documentDate || it.date || it.deliveryDate || it.receiptDate || it.processStartDate || (Array.isArray(it.dates) ? it.dates[0] : '') || '' })) : [];
     last.hash = await textHash(JSON.stringify(b));
     last.changed = src.last && src.last.hash ? src.last.hash !== last.hash : null;
   }

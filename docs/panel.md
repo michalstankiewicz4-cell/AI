@@ -27,7 +27,7 @@ Siedem kafelków-kroków ze stanem: źródła w Researchu (ile, ile dokumentów 
   - strona www: tabela linków do dokumentów (nowy / już pobrany) z przyciskami *Pobierz* i *Pobierz wszystkie nowe*;
   - API ELI: akty z wybranych lat po filtrze tytułów, widoki *Nowe / Zmienione / Wszystkie*, *Pobierz* i *Pobierz nową wersję*.
   - API (JSON): czy działa, liczba pozycji (i wszystkich), pierwsze pozycje, zmiana od poprzedniego sprawdzenia.
-- **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, druki Sejmu) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
+- **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, API Sejmu: druki, procesy legislacyjne, interpelacje, posiedzenia) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
 - **Domeny z dokumentów** bez źródła – *Dodaj jako źródło*.
 - **Dokumenty z adresem źródła** – *Sprawdź zmiany u źródła*, przy zmienionych *Dodaj nową wersję*.
 
