@@ -19,6 +19,7 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 | douczanie | 7 | Czat | rozmowa z aktywnym modelem, ocena odpowiedzi ✓ ✎ ✗ |
 | | 7 | Historia rozmów | poprawione rozmowy wracają do rozmów wzorcowych → ponowne dostrajanie |
 | | – | Modele | wersje, podgląd budowy, plik, publikacja na GitHub i wczytywanie z GitHub |
+| | – | Logi | co i kiedy się działo, błędy w kolorach według ważności – do szukania, w którym momencie coś się popsuło |
 
 Numery kroków są takie jak na kafelkach pulpitu (krok 7 „Rozmowa i poprawki” to czat razem z historią rozmów). W menu i na pulpicie są dwie grupy kolorów: fioletowy – Dokumenty, Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie; Research i pozostałe zakładki są bez koloru.
 
@@ -43,7 +44,7 @@ js/
   version.js            wersje: program, silnik, reguły formatowania, format modelu, schemat bazy
   core/                 logika bez interfejsu: baza, ustawienia, klient silnika, stan nauki, modele,
                         dokumenty (z mieszaniem tekstu ogólnego), rozmowy wzorcowe, historia rozmów, GitHub,
-                        przenoszenie danych (sync), źródła Researchu (sources)
+                        przenoszenie danych (sync), źródła Researchu (sources), logi (log)
   reader/               odczyt plików: tekst/HTML/MD, Word/ODT/RTF (+ ZIP), PDF, OCR z wykrywaniem położenia
   cleaner/              formatowanie: reguły, raport, rozmowy wzorcowe
   engine/               silnik sieci w wątku w tle: transformer, BPE, GPU, szybkie generowanie

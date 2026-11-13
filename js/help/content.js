@@ -307,11 +307,28 @@ export const SECTIONS = [
   ] },
   { id: 'gdzie-ustawienia', group: 'Ustawienia', title: 'Gdzie są ustawienia', topics: ['ustawienia'], body: [
     ['p', 'Każde ustawienie jest tam, gdzie działa:'],
-    ['table', ['Ustawienia', 'Miejsce'], [['reguły formatowania, dodatkowe znaki, progi', 'Formatowanie → Ustawienia formatowania'], ['budowa sieci, kroki, tempo, karta graficzna', 'Nauka'], ['kroki, tempo, maska, rozmowy do sprawdzania', 'Dostrajanie'], ['najdłuższa odpowiedź wzorcowa', 'Rozmowy wzorcowe → Ustawienia rozmów wzorcowych'], ['temperatura, długość odpowiedzi, pamięć rozmowy, zapisywanie', '⚙ w oknie czatu'], ['nazwa asystenta, znaczniki rozmowy, GitHub', 'Ustawienia']]],
+    ['table', ['Ustawienia', 'Miejsce'], [['reguły formatowania, dodatkowe znaki, progi', 'Formatowanie → Ustawienia formatowania'], ['budowa sieci, kroki, tempo, udział tekstu ogólnego, karta graficzna', 'Nauka'], ['kroki, tempo, maska, rozmowy do sprawdzania', 'Dostrajanie'], ['najdłuższa odpowiedź wzorcowa', 'Rozmowy wzorcowe → Ustawienia rozmów wzorcowych'], ['temperatura, długość odpowiedzi, pamięć rozmowy, zapisywanie', '⚙ w oknie czatu'], ['nazwa asystenta, znaczniki rozmowy, GitHub', 'Ustawienia']]],
   ] },
   { id: 'ustawienia-ogolne', group: 'Ustawienia', title: 'Nazwa i znaczniki rozmowy', topics: ['general.name', 'general.userTag', 'general.botTag'], body: [
     ['p', 'Znaczniki to początek każdej kwestii w rozmowach wzorcowych i w kontekście czatu (domyślnie „Ty:” i „AI:”). Sieć po nich rozpoznaje, kto mówi, i wie, że po „AI:” ma odpowiedzieć.'],
     ['tip', 'Po zmianie znaczników trzeba dostroić model ponownie. Model dostrojony pamięta znaczniki, na których go uczono, i czat ich używa.'],
+  ] },
+  { id: 'logi', group: 'Ustawienia', title: 'Logi: co i kiedy się stało', topics: ['logi', 'logi-poziomy'], body: [
+    ['p', 'Zakładka „Logi” (pod Ustawieniami) zapisuje zdarzenia z panelu z dokładnym czasem. Gdy coś przestaje działać, sprawdzasz tu, <b>w którym momencie</b> i <b>przy czym</b> pojawił się pierwszy błąd lub ostrzeżenie.'],
+    ['table', ['Ważność', 'Kolor', 'Przykłady'], [
+      ['Błąd', 'czerwony', 'nauka przerwana błędem, plik nie dał się odczytać, publikacja na GitHub odrzucona, błąd strony lub wątku silnika'],
+      ['Ostrzeżenie', 'złoty', 'źródło niedostępne (CORS), ostrzeżenia formatowania dokumentu, pominięte znaki w nauce, nauka zatrzymana ręcznie'],
+      ['Informacja', 'niebieski', 'start panelu (z wersją), nowy lub usunięty dokument, sprawdzenie źródła, początek i koniec nauki, publikacja, aktywny model'],
+      ['Szczegóły', 'szary', 'czas odpowiedzi czatu, wczytanie modelu do pamięci, zmiana statusu dokumentu – domyślnie ukryte'],
+    ]],
+    ['steps', [
+      ['Zawęź', 'Zostaw zaznaczone „Błąd” i „Ostrzeżenie”, wybierz obszar (np. nauka, research, github) albo wpisz słowo w wyszukiwarkę.'],
+      ['Znajdź pierwszy problem', 'Logi są od najnowszych – przewiń do najstarszego błędu z serii i zobacz, co działo się tuż przed nim (włącz „Informacja” i „Szczegóły”).'],
+      ['Rozwiń szczegóły', 'Przy wielu wpisach jest „Szczegóły”: adres, ustawienia nauki, lista plików, ślad błędu (stos).'],
+      ['Zapisz', '„Pobierz logi” zapisuje widoczne wpisy do pliku .txt – możesz go komuś wysłać.'],
+    ]],
+    ['tip', 'Komunikaty o błędach (czerwone powiadomienia) trafiają do logów same, z nazwą zakładki. Każdy wpis ma też wersję panelu, więc widać, czy błąd pojawił się po aktualizacji.'],
+    ['p', `Logi są tylko w tej przeglądarce (nie idą na GitHub). Zapisywanych jest najwyżej 5000 ostatnich wpisów; starsze usuwają się same.`],
   ] },
   { id: 'dane-w-przegladarce', group: 'Ustawienia', title: 'Dane w tej przeglądarce i wersje', topics: ['dane-w-przegladarce', 'wersje'], body: [
     ['p', 'Wszystko – dokumenty, rozmowy wzorcowe, historia rozmów, ustawienia i modele – jest zapisane lokalnie, w bazie IndexedDB tej przeglądarki na tym komputerze. Na GitHub trafia tylko to, co sam wyślesz przy publikacji. Motyw dzień/noc też jest zapamiętany w tej przeglądarce.'],

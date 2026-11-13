@@ -2,6 +2,12 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.8.0 – 2026-11-13 (db 3)
+
+- Nowa zakładka **Logi** (pod Ustawieniami): zdarzenia i błędy z dokładnym czasem, kolor według ważności – czerwony błąd, złoty ostrzeżenie, niebieski informacja, szary szczegóły (domyślnie ukryte). Filtry ważności z licznikami, obszar, wyszukiwanie, rozwijane szczegóły (adres, ustawienia, ślad błędu), „Pobierz logi” (.txt), „Wyczyść logi”; nowe wpisy pojawiają się na żywo.
+- Co jest logowane: start panelu (wersja, przeglądarka), błędy strony i wątku silnika, każde czerwone powiadomienie (z nazwą zakładki), dokumenty (dodanie, usunięcie, ostrzeżenia formatowania, zmiana statusu), sprawdzanie źródeł i pobieranie w Researchu, start / koniec / zatrzymanie / błąd nauki i dostrajania (z ustawieniami i wynikiem), publikacja i wczytywanie z GitHub, aktywny i usunięty model, czas odpowiedzi czatu.
+- Baza w wersji 3: magazyn `logs` (najwyżej 5000 ostatnich wpisów). Logi nie trafiają na GitHub. Ustawienia → „Dane w tej przeglądarce” pokazują też liczbę źródeł i logów.
+
 ## 0.7.1 – 2026-11-13
 
 - Porządek w plikach: style Researchu przeniesione z `css/panels/documents.css` do nowego `css/panels/research.css`; `.okline` do `base.css` (obok `.warnline`).

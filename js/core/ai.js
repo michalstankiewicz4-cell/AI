@@ -5,11 +5,13 @@
 // ensureLoaded(id)    → wczytuje model z bazy do wątku, jeśli jeszcze go tam nie ma
 
 import { db } from './db.js';
+import { logError, logDebug } from './log.js';
 
 const worker = new Worker(new URL('../engine/worker.js', import.meta.url));
 const pending = new Map(), handlers = {}, loaded = new Set();
 let seq = 0, job = null;
 
+worker.onerror = e => { logError('silnik', 'Błąd wątku silnika: ' + (e.message || 'nieznany'), e.filename && `${e.filename}:${e.lineno}`); };
 worker.onmessage = e => {
   const m = e.data;
   if (m.reqId != null && pending.has(m.reqId)) {
@@ -40,8 +42,10 @@ export async function ensureLoaded(id) {
   if (loaded.has(id)) return;
   const rec = await db.get('models', id);
   if (!rec) throw new Error('Nie ma takiego modelu w bazie.');
+  const t0 = performance.now();
   await request('load', { id, record: rec.record });
   loaded.add(id);
+  logDebug('silnik', `Wczytano model „${rec.name}” do pamięci (${Math.round(performance.now() - t0)} ms)`);
 }
 export function markLoaded(id) { loaded.add(id); }
 export async function unload(id) { if (loaded.delete(id)) await request('unload', { id }); }

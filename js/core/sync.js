@@ -6,6 +6,7 @@
 // albo — na życzenie — zastępuje istniejące. Ustawienia są zastępowane w całości. Token nigdy nie jest wysyłany.
 
 import { db } from './db.js';
+import { log } from './log.js';
 import { settings, saveSettings, defaults, tags } from './settings.js';
 import { listDocs } from './documents.js';
 import { listDialogs } from './dialogs.js';
@@ -42,6 +43,9 @@ export async function fetchPublishedData(cfg) {
 // Zwraca { part: { added, replaced, skipped } }.
 export async function restore(pub, what, { replace = false } = {}) {
   const res = {};
+  try { return await restoreRaw(pub, what, replace, res); } catch (e) { log('error', 'github', 'Wczytywanie danych z GitHub nieudane: ' + e.message, e); throw e; }
+}
+async function restoreRaw(pub, what, replace, res) {
   if (what.settings && pub.settings) {
     const d = defaults(), s = pub.settings.settings || {};
     for (const g in d) Object.assign(d[g], s[g] || {});        // nowe pola z tej wersji panelu zostają z domyślnymi wartościami
@@ -60,5 +64,6 @@ export async function restore(pub, what, { replace = false } = {}) {
     res[k] = r;
   }
   if (res.conversations) conversationsChanged();
+  log('info', 'github', `Wczytano dane z GitHub (${replace ? 'zastąp' : 'dodaj brakujące'})`, res);
   return res;
 }

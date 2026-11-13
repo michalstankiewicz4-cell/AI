@@ -6,12 +6,13 @@
 //   conversations — rozmowy z czatu (do przeglądania, poprawiania i przenoszenia do rozmów wzorcowych)
 //   models        — wytrenowane modele: metadane + wagi (Float32Array)
 //   sources       — źródła dokumentów (strony www, API ELI Sejmu) i wyniki ich sprawdzania (Research)
+//   logs          — logi zdarzeń i błędów (od wersji bazy 3)
 //   kv            — ustawienia i drobne wartości (aktywny model itp.)
 
 import { VERSIONS } from '../version.js';
 
 const NAME = 'ai-prawo';
-const STORES = ['documents', 'dialogs', 'conversations', 'models', 'sources'];   // sources: od wersji bazy 2 (Research)
+const STORES = ['documents', 'dialogs', 'conversations', 'models', 'sources', 'logs'];   // sources: od wersji bazy 2 (Research), logs: od 3
 let dbp = null;
 
 function open() {
@@ -43,6 +44,7 @@ export const db = {
   put: (store, obj) => tx(store, 'readwrite', s => s.put(obj)),
   putMany: (store, list) => tx(store, 'readwrite', s => { list.forEach(o => s.put(o)); }),
   del: (store, id) => tx(store, 'readwrite', s => s.delete(id)),
+  delMany: (store, ids) => tx(store, 'readwrite', s => { ids.forEach(id => s.delete(id)); }),
   clear: store => tx(store, 'readwrite', s => s.clear()),
   count: store => tx(store, 'readonly', s => s.count()),
   kvGet: key => tx('kv', 'readonly', s => s.get(key)),

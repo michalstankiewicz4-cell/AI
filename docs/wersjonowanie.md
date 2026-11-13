@@ -8,7 +8,7 @@ Wszystkie wersje są w `js/version.js`. Historia zmian jest w [CHANGELOG.md](../
 | `engine` (semver) | zmiana budowy sieci lub kolejności tensorów → wersja główna (stare modele przestają się wczytywać); zmiana nauki bez wpływu na plik → wersja pomocnicza; poprawka → ostatnia cyfra |
 | `cleaner` (semver) | każda zmiana reguł formatowania, która zmienia wynik (panel oznacza dokumenty sformatowane starszą wersją) |
 | `modelFormat` (liczba) | zmiana zawartości pliku modelu; odczyt starszych formatów trzeba zachować |
-| `db` (liczba) | nowy magazyn lub indeks w IndexedDB (migracja w `core/db.js`, `onupgradeneeded`) |
+| `db` (liczba) | nowy magazyn lub indeks w IndexedDB (migracja w `core/db.js`, `onupgradeneeded`); 2 – `sources`, 3 – `logs` |
 
 Biblioteki w `vendor/` mają swoje wersje, opisane w `vendor/README.md`. Aktualizacja biblioteki to zmiana programu (`app`) z wpisem w CHANGELOG.
 

@@ -10,6 +10,7 @@
 import { db, uid } from './db.js';
 import { listDocs, addDoc, findDuplicate, textHash } from './documents.js';
 import { readFile } from '../reader/index.js';
+import { log } from './log.js';
 
 export const ELI_API = 'https://api.sejm.gov.pl/eli';
 export const PUBLISHERS = { DU: 'Dziennik Ustaw', MP: 'Monitor Polski' };
@@ -100,7 +101,14 @@ export async function checkEli(src) {
   return last;
 }
 
-export const checkSource = src => ({ eli: checkEli, api: checkApi, steno: checkSteno, wiki: checkWiki }[src.kind] || checkWeb)(src);
+export async function checkSource(src) {
+  let L;
+  try { L = await ({ eli: checkEli, api: checkApi, steno: checkSteno, wiki: checkWiki }[src.kind] || checkWeb)(src); }
+  catch (e) { log('error', 'research', `Sprawdzanie „${src.name}” przerwane: ${e.message}`, e); throw e; }
+  if (L.ok) log('info', 'research', `Sprawdzono „${src.name}”: działa (${L.ms} ms)${L.changed ? ', są zmiany' : ''}`, src.url);
+  else log('warn', 'research', `Sprawdzono „${src.name}”: ${L.cors ? 'błąd ' + L.status : 'niedostępne / CORS'}`, [src.url, L.error].filter(Boolean).join('\n'));
+  return L;
+}
 
 // ---------- pobieranie do biblioteki ----------
 const nameFromUrl = (u, type) => { const n = decodeURIComponent((u.split('?')[0].split('/').pop() || 'dokument')); return /\.\w{2,5}$/.test(n) ? n : n + (type.includes('pdf') ? '.pdf' : type.includes('html') ? '.html' : '.txt'); };
@@ -110,7 +118,7 @@ const nameFromUrl = (u, type) => { const n = decodeURIComponent((u.split('?')[0]
 export async function downloadToLibrary(url, { name, description = '', eli = null, sourceChangeDate = null, general = false, force = false, onProgress } = {}) {
   if (!force) { const dup = await findDuplicate({ url, eli }); if (dup) return { duplicate: dup }; }
   const r = await probe(url, { as: 'blob', timeout: 60000 });
-  if (!r.ok) throw new Error(r.error || `Serwis odpowiedział kodem ${r.status}.`);
+  if (!r.ok) { const msg = r.error || `Serwis odpowiedział kodem ${r.status}.`; log('error', 'research', 'Nie udało się pobrać dokumentu: ' + msg, url); throw new Error(msg); }
   const file = new File([r.body], name || nameFromUrl(url, r.type), { type: r.type.split(';')[0] });
   const read = await readFile(file, onProgress);
   if (!force) { const dup = await findDuplicate({ raw: read.raw }); if (dup) return { duplicate: dup }; }
@@ -226,5 +234,6 @@ export async function downloadWiki(src, n = 10, { minChars = 3000, onStep } = {}
       description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.` }));
     if (onStep) onStep(added.length, n, page.title);
   }
+  log('info', 'research', `Wikipedia: pobrano ${added.length} z ${n} artykułów`);
   return added;
 }

@@ -14,6 +14,7 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 | Historia rozmów | `js/panels/conversations.js` | – |
 | Modele | `js/panels/models.js` | – |
 | Ustawienia | `js/panels/settings.js` | nazwa, znaczniki rozmowy, GitHub (repo, gałąź, token) |
+| Logi | `js/panels/logs.js` | – |
 | Pomoc | `js/panels/help.js` | – |
 | czat (okno) | `js/chat/widget.js` | ⚙: temperatura, długość odpowiedzi, pamięć rozmowy, zapisywanie |
 
@@ -65,6 +66,9 @@ Lista wersji z metrykami, budową, danymi i wersjami programu. Przyciski: ustaw 
 
 ## Ustawienia
 Ustawienia ogólne (nazwa asystenta, znaczniki rozmowy), GitHub (repo, gałąź, token, sprawdzenie dostępu, wczytaj z GitHub), dane w tej przeglądarce (liczby rekordów, zajęte miejsce), wersje, przywracanie ustawień domyślnych.
+
+## Logi
+Zdarzenia i błędy z czasem (do sekundy), ważnością, obszarem i wersją panelu, najnowsze na górze. Kolor według ważności: czerwony – błąd, złoty – ostrzeżenie, niebieski – informacja, szary – szczegóły (domyślnie ukryte). Filtry ważności z licznikami, wybór obszaru (np. nauka, research, github, zakładka …), wyszukiwanie, rozwijane szczegóły, *Pobierz logi* (.txt z widocznymi wpisami), *Wyczyść logi*. Nowe wpisy dochodzą na żywo. Logi są tylko w tej przeglądarce (najwyżej 5000).
 
 ## Pomoc
 Działy z opisem, przykładami „przed → po” (dla reguł formatowania liczonymi na żywo przez prawdziwą regułę), tabelami porównań i schematem modelu z ponumerowanymi objaśnieniami. Adres `#pomoc/<temat>`. Ikona [?] w panelu prowadzi do odpowiedniego działu.

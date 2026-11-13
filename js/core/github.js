@@ -9,6 +9,7 @@
 // Token (fine-grained, tylko to repo, Contents: Read and write) trzymamy wyłącznie w localStorage tej przeglądarki.
 
 import { toFile, fromFile } from './models.js';
+import { log } from './log.js';
 
 const TOKEN_KEY = 'ai-prawo.githubToken';
 export const getToken = () => { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (_) { return ''; } };
@@ -45,7 +46,14 @@ export const modelFileName = m => `models/${slug(m.name)}-v${(m.versions && m.ve
 
 // Publikacja jednym commitem. what: { model, active, settings, documents, dialogs, conversations } — co wysłać;
 // data: { settings, versions, documents, dialogs, dialogsText, conversations } — treść plików (zbiera core/sync.js → collect()).
-export async function publish(model, { repo, branch }, what, data, onStep = () => {}) {
+export async function publish(model, cfg, what, data, onStep = () => {}) {
+  try {
+    const r = await publishRaw(model, cfg, what, data, onStep);
+    log('info', 'github', `Opublikowano w ${cfg.repo} (${cfg.branch}): ${r.files.length} plików`, r.files.join('\n'));
+    return r;
+  } catch (e) { log('error', 'github', 'Publikacja nieudana: ' + e.message, `${cfg.repo} (${cfg.branch})`); throw e; }
+}
+async function publishRaw(model, { repo, branch }, what, data, onStep) {
   onStep('Sprawdzam repozytorium…');
   const ref = await gh(`/repos/${repo}/git/ref/heads/${encodeURIComponent(branch)}`);
   const head = await gh(`/repos/${repo}/git/commits/${ref.object.sha}`);

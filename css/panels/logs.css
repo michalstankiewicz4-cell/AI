@@ -1,0 +1,19 @@
+/* Zakładka Logi: kolor według ważności (czerwony – błąd, złoty – ostrzeżenie, niebieski – informacja, szary – szczegóły) */
+.logchips { gap: .4em; }
+.logchip { border: 1px solid var(--line); border-radius: 999px; padding: .2em .7em .2em .5em; font-size: .85rem; cursor: pointer; display: inline-flex; align-items: center; gap: .25em; }
+.loglist { margin-top: .6em; }
+.logrow { border-left: 4px solid var(--line-2); background: var(--panel); border-bottom: 1px solid var(--line); padding: .35em .7em; font-size: .88rem; }
+.logrow .logtime { font: .8rem var(--mono); color: var(--ink-3); white-space: nowrap; }
+.logrow .logarea { color: var(--ink-2); font-size: .82rem; white-space: nowrap; }
+.logrow .logmsg { flex: 1 1 320px; }
+.logrow summary { font-size: .8rem; color: var(--ink-3); cursor: pointer; }
+.logdet { font: .78rem/1.4 var(--mono); white-space: pre-wrap; word-break: break-word; background: var(--panel-2); padding: .5em .7em; border-radius: 4px; max-height: 320px; overflow: auto; margin: .3em 0; }
+.lv-error.logrow, .logchip.lv-error { border-left-color: var(--bad); } .logrow.lv-error { background: var(--bad-soft); }
+.lv-warn.logrow, .logchip.lv-warn { border-left-color: var(--warn); } .logrow.lv-warn { background: var(--warn-soft); }
+.lv-info.logrow, .logchip.lv-info { border-left-color: var(--stage1-line); }
+.lv-debug.logrow, .logchip.lv-debug { border-left-color: var(--line-2); } .logrow.lv-debug { color: var(--ink-2); }
+.logchip.lv-error, .logchip.lv-warn, .logchip.lv-info, .logchip.lv-debug { border-left-width: 4px; }
+.badge.lv-error { background: var(--bad); color: #fff; border-color: transparent; }
+.badge.lv-warn { background: var(--warn); color: #1b1b1b; border-color: transparent; }
+.badge.lv-info { background: var(--stage1); color: var(--ink); border-color: var(--stage1-line); }
+.badge.lv-debug { background: transparent; color: var(--ink-3); }

@@ -3,6 +3,7 @@
 // skąd jednym kliknięciem przenosi się rozmowę do rozmów wzorcowych (uczenie z rozmów).
 
 import { h, clear, toast } from '../ui/dom.js';
+import { logDebug } from '../core/log.js';
 import { fieldsForm } from '../ui/form.js';
 import { saveSettings } from '../core/settings.js';
 import { settings, cleanerOpts, tags as settingsTags, onSettings } from '../core/settings.js';
@@ -108,6 +109,7 @@ async function send() {
     const history = conv.messages.map(m => ({ role: m.role, text: m.role === 'bot' ? botText(m) : m.text }));
     const r = await request('reply', { id: model.id, history, tags: model.tags || settingsTags(), temp: +c.temp, maxTokens: +c.maxTokens, turns: +c.turns });
     conv.messages.push({ role: 'bot', text: r.text, ts: Date.now(), ms: r.ms });
+    logDebug('czat', `Odpowiedź modelu „${model.name}” w ${r.ms} ms (${r.text.length} znaków)`);
   } catch (e) { toast(e.message, 'error'); conv.messages.pop(); ui.input.value = raw; }
   busy = false; await persist(); draw(); ui.input.focus();
 }

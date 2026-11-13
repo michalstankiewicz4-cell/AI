@@ -27,7 +27,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 ### `js/core/` – logika bez interfejsu
 | Plik | Rola |
 |---|---|
-| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `sources`, `kv` |
+| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `sources`, `logs`, `kv` |
 | `settings.js` | `SCHEMA` (pola, opisy, wartości domyślne), zapis, opcje formatowania, znaczniki |
 | `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
 | `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |
@@ -37,6 +37,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
+| `log.js` | logi: `log(ważność, obszar, treść, szczegóły)`, poziomy `LEVELS` (błąd, ostrzeżenie, informacja, szczegóły), zapis w magazynie `logs` (najwyżej `MAX`), słuchacze na żywo, eksport do tekstu |
 | `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
 ### `js/reader/` – odczyt plików
@@ -81,6 +82,7 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 | `conversations.js` | Historia rozmów: oceny, poprawki, przeniesienie do rozmów wzorcowych |
 | `models.js` | Modele: lista, aktywny, podgląd budowy, plik, publikacja i wczytywanie z GitHub |
 | `settings.js` | Ustawienia ogólne, GitHub i token, dane w przeglądarce, wersje |
+| `logs.js` | Logi: filtry ważności i obszaru, wyszukiwanie, szczegóły, pobieranie, czyszczenie |
 | `help.js` | Pomoc: spis działów, dział `#pomoc/<temat>` |
 
 ### `js/chat/`, `js/ui/`, `js/help/`
@@ -113,6 +115,7 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 | `panels/training.css` | Nauka, Dostrajanie, przebieg nauki |
 | `panels/dialogs.css` | Rozmowy wzorcowe, Historia rozmów |
 | `panels/models.css` | Modele |
+| `panels/logs.css` | Logi (kolory ważności) |
 | `panels/help.css` | Pomoc |
 
 ### Pozostałe
@@ -157,7 +160,7 @@ Błędy wracają jako `error {msg, reqId?, jobId?}`. `done.record` = `{ hp, char
 
 ## Dane
 
-IndexedDB `ai-prawo` (schemat w wersji `VERSIONS.db`, od 0.6.0 – 2), magazyny: `documents`, `dialogs`, `conversations`, `models`, `sources` (od schematu 2) i `kv` (ustawienia, aktywny model). Nowy magazyn tworzy `onupgradeneeded` w `db.js`; istniejące dane zostają. W `localStorage` są tylko token GitHub (`ai-prawo.githubToken`) i motyw (`ai-prawo.theme`). Dokumenty z wersji 0.1–0.2 (bez statusu) są przy odczycie traktowane jako zatwierdzone.
+IndexedDB `ai-prawo` (schemat w wersji `VERSIONS.db`, od 0.6.0 – 2, od 0.8.0 – 3), magazyny: `documents`, `dialogs`, `conversations`, `models`, `sources` (od schematu 2), `logs` (od schematu 3) i `kv` (ustawienia, aktywny model). Nowy magazyn tworzy `onupgradeneeded` w `db.js`; istniejące dane zostają. W `localStorage` są tylko token GitHub (`ai-prawo.githubToken`) i motyw (`ai-prawo.theme`). Dokumenty z wersji 0.1–0.2 (bez statusu) są przy odczycie traktowane jako zatwierdzone.
 
 ## Rozmowa
 
@@ -175,3 +178,7 @@ Sieć generuje do końca linii. Wiadomość użytkownika przechodzi przez to sam
 ## Pomoc
 
 Każdy dział w `help/content.js` ma `id` (adres `#pomoc/<id>`) i `topics`. `help(tekst, temat)` w panelu pokazuje krótki dymek, a kliknięcie prowadzi do działu. Pola ustawień mają temat `grupa.pole`. Test `tests/help.test.js` pilnuje, żeby każdy temat miał dział i żeby przykłady reguł pokazywały zmianę.
+
+## Logi
+
+`core/log.js` zapisuje zdarzenia w magazynie `logs`. Logują same moduły `core/` (dokumenty, źródła, nauka, GitHub, modele), `ui/dom.js` (każde powiadomienie o błędzie lub ostrzeżeniu, z nazwą zakładki; `toast(…, { log: false })` gdy zdarzenie jest już zalogowane), `main.js` (start panelu, `error` i `unhandledrejection`) i `core/ai.js` (błąd wątku, wczytanie modelu). Bez IndexedDB (testy w Node) `log` niczego nie zapisuje i nie zgłasza błędu. Token GitHub nigdy nie trafia do logów.

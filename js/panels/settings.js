@@ -39,7 +39,7 @@ export default {
         h('button.ghost.danger', { type: 'button', onclick: async () => { if (await confirmBox('Przywrócić ustawienia domyślne?', 'Wszystkie ustawienia wrócą do wartości początkowych.', 'Przywróć', true)) { await saveSettings(defaults()); rerender(); } } }, 'Przywróć domyślne'))));
 
     (async () => {
-      for (const [k, l] of [['documents', 'Dokumenty'], ['dialogs', 'Rozmowy wzorcowe'], ['conversations', 'Rozmowy z czatu'], ['models', 'Modele']]) counts.append(h('dt', l), h('dd', num(await db.count(k))));
+      for (const [k, l] of [['documents', 'Dokumenty'], ['dialogs', 'Rozmowy wzorcowe'], ['conversations', 'Rozmowy z czatu'], ['models', 'Modele'], ['sources', 'Źródła (Research)'], ['logs', 'Logi']]) counts.append(h('dt', l), h('dd', num(await db.count(k))));
       if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); counts.append(h('dt', 'Zajęte miejsce'), h('dd', `${num(Math.round(e.usage / 1e6))} MB z ok. ${num(Math.round(e.quota / 1e6))} MB`)); }
     })();
   },

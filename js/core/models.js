@@ -1,4 +1,5 @@
 // Modele: zapis w bazie, aktywny model czatu, eksport/import pliku i format publikacji.
+import { log } from './log.js';
 //
 // Rekord w bazie (magazyn „models”):
 //   { id, name, kind: 'base' | 'chat', parent, createdAt, versions, hp, metrics, data, record }
@@ -16,10 +17,10 @@ export async function listModels() { return (await db.all('models')).sort((a, b)
 // Lista bez wag (lżejsza do wyświetlania)
 export async function listMeta() { return (await listModels()).map(({ record, ...m }) => ({ ...m, params: record.params })); }
 export async function saveModel(m) { await db.put('models', m); changed(); }
-export async function deleteModel(id) { await db.del('models', id); if (await getActive() === id) await setActive(null); changed(); }
+export async function deleteModel(id) { const m = await db.get('models', id); log('info', 'modele', `Usunięto model „${m ? m.name : id}”`); await db.del('models', id); if (await getActive() === id) await setActive(null); changed(); }
 export async function renameModel(id, name) { const m = await db.get('models', id); m.name = name; await db.put('models', m); changed(); }
 export const getActive = () => db.kvGet('activeModel');
-export async function setActive(id) { await db.kvSet('activeModel', id); changed(); }
+export async function setActive(id) { await db.kvSet('activeModel', id); if (id) { const m = await db.get('models', id); log('info', 'modele', `Aktywny model: „${m ? m.name : id}”`); } changed(); }
 
 // kolejna nazwa w rodzaju „Baza 3”, „Rozmowa 5”
 export async function nextName(kind) {

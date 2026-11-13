@@ -1,6 +1,7 @@
 // Drobne narzędzia interfejsu: tworzenie elementów, podpowiedzi [?], powiadomienia, okna potwierdzenia, pliki.
 
 import { tipFor } from './tips.js';
+import { log } from '../core/log.js';
 
 // h('button.ghost#id', { onclick, title }, 'tekst', dziecko, …) — element z klasami, atrybutami i dziećmi
 export function h(sel, attrs, ...kids) {
@@ -64,7 +65,9 @@ window.addEventListener('scroll', () => tipOwner && hideTip(), true);
 window.addEventListener('resize', () => tipOwner && hideTip());
 
 let toastBox = null;
-export function toast(msg, kind = 'info', ms = 4000) {
+// Komunikaty o błędach i ostrzeżeniach trafiają też do Logów (z nazwą zakładki); { log: false } – gdy zdarzenie zalogowano już gdzie indziej
+export function toast(msg, kind = 'info', ms = 4000, { log: doLog = true } = {}) {
+  if (doLog && (kind === 'error' || kind === 'warn')) log(kind, 'zakładka ' + ((location.hash.slice(1).split('/')[0]) || 'pulpit'), msg);
   if (!toastBox) { toastBox = h('div.toasts', { 'aria-live': 'polite' }); document.body.append(toastBox); }
   const t = h('div.toast.' + kind, msg);
   toastBox.append(t);

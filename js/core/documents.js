@@ -5,6 +5,7 @@ import { cleanDocument } from '../cleaner/cleaner.js';
 import { cleanerOpts, settings } from './settings.js';
 import { VERSIONS } from '../version.js';
 import { ocrSummary } from '../reader/index.js';
+import { log } from './log.js';
 
 // rekord: { id, name, type: 'text'|'html'|'markdown'|'docx'|'odt'|'rtf'|'pdf'|'obraz'|'wklejony', encoding, size, addedAt, description, raw,
 //           ocr?: { pages: [{ page, method: 'tekst'|'OCR', rotation, skew, confidence }] },                      ← wgrany plik
@@ -32,17 +33,19 @@ export async function textHash(t) { const b = await crypto.subtle.digest('SHA-25
 export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false }) {
   const doc = format({ id: uid('d_'), name, type, encoding, size, raw, description, ocr, sourceUrl, eli, sourceChangeDate, general: !!general, rawHash: await textHash(raw), addedAt: Date.now(), status: 'do-sprawdzenia', enabled: true });
   await db.put('documents', doc);
+  log('info', 'dokumenty', `Dodano dokument „${name}” (${type}, ${raw.length} znaków${general ? ', tekst ogólny' : ''}${sourceUrl ? ', ze źródła' : ''})`, sourceUrl || null);
+  if (doc.report && doc.report.warnings && doc.report.warnings.length) log('warn', 'formatowanie', `„${name}”: ${doc.report.warnings.length} ostrzeż. formatowania`, doc.report.warnings.join('\n'));
   return doc;
 }
 export const saveDoc = doc => db.put('documents', doc);
-export const deleteDoc = id => db.del('documents', id);
+export const deleteDoc = async id => { const d = await db.get('documents', id); await db.del('documents', id); log('info', 'dokumenty', `Usunięto dokument „${d ? d.name : id}”`); };
 // Ponowne formatowanie z oryginału aktualnymi regułami. Zatwierdzony dokument wraca do sprawdzenia tylko wtedy, gdy wynik się zmienił.
 export async function recleanDoc(doc) {
   const before = doc.text; format(doc);
   if (doc.status === 'zatwierdzony' && doc.text !== before) doc.status = 'do-sprawdzenia';
   await saveDoc(doc); return doc;
 }
-export async function setStatus(doc, status) { doc.status = status; if (status === 'zatwierdzony') doc.enabled = true; await saveDoc(doc); }
+export async function setStatus(doc, status) { log('debug', 'formatowanie', `„${doc.name}”: ${STATUS[status] || status}`); doc.status = status; if (status === 'zatwierdzony') doc.enabled = true; await saveDoc(doc); }
 
 // Mieszanie korpusu: dokumenty prawnicze w całości, ogólne do ustalonego udziału (procent całego tekstu).
 // Bez dokumentów prawniczych idą same ogólne (w całości); udział 0 = bez tekstu ogólnego.
