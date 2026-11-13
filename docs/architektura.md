@@ -12,7 +12,7 @@ panels/ + chat/  ──►  core/  ──►  engine/worker.js (wątek w tle)
 - **`js/engine/`** – silnik sieci. Klasyczne skrypty ładowane w wątku przez `importScripts`. Nie zna panelu ani bazy: dostaje polecenia i odpowiada wiadomościami.
 - **`js/cleaner/`** – formatowanie danych. Czyste funkcje bez DOM (poza `extract.js`, który parsuje HTML). Testowane w Node.
 - **`js/core/`** – logika aplikacji bez interfejsu: baza (`db.js`), ustawienia (`settings.js`), klient wątku (`ai.js`), stan nauki (`training.js`), modele (`models.js`), korpus (`corpus.js`), rozmowy z czatu (`conversations.js`), GitHub (`github.js`).
-- **`js/ui/`** – elementy interfejsu wielokrotnego użytku.
+- **`js/ui/`** – elementy interfejsu wielokrotnego użytku. Dymki przycisków są w `ui/tips.js` (według napisu na przycisku); `h()` dodaje je sama.
 - **`js/panels/`** – zakładki. Każda eksportuje `{ id, title, icon, render(root, rerender) }`, a `render` może zwrócić funkcję sprzątającą.
 - **`js/chat/widget.js`** – okno czatu, niezależne od zakładek.
 

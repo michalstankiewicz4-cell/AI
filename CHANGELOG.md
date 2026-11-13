@@ -2,6 +2,14 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.2.2 – 2026-11-13
+
+- Dymki [?] dopasowują się do tekstu i zawsze mieszczą się na ekranie: nie przycinają ich ramki kart, tabel ani okien, przy krawędzi przesuwają się w bok, a gdy brak miejsca pod ikoną, pokazują się nad nią.
+
+## 0.2.1 – 2026-11-13
+
+- Dymki z podpowiedzią przy przyciskach (słownik w `js/ui/tips.js`, dodawane automatycznie) i nowe ikony [?]: raport formatowania, dane do nauki i dostrajania, pulpit, metryki modeli, oceny w historii, czat.
+
 ## 0.2.0 – 2026-11-13
 
 - Podgląd budowy modelu (Modele → „Podgląd budowy”): warstwy jako kolumny neuronów połączone liniami z prawdziwych wag (kolor = znak wagi, grubość = siła). Najechanie na neuron podświetla jego połączenia.

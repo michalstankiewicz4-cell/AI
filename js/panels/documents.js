@@ -51,7 +51,7 @@ export default {
       const existing = new Set((await listDocs()).map(d => d.name));
       const clean = queue.filter(d => !d.report.warnings.length);
       qBox.append(h('section.card.queue',
-        h('div.row', h('h2', `Do zatwierdzenia (${queue.length})`), h('span.sp'),
+        h('div.row', h('h2', `Do zatwierdzenia (${queue.length})`, help('Dokumenty po formatowaniu, jeszcze niezapisane. Sprawdź raport i podgląd, potem zatwierdź albo odrzuć. Lista znika po odświeżeniu strony.')), h('span.sp'),
           clean.length && clean.length < queue.length ? h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await approve(d, false); drawQueue(); drawList(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`) : null,
           h('button', { type: 'button', onclick: async () => { for (const d of [...queue]) await approve(d, false); drawQueue(); drawList(); } }, 'Zatwierdź wszystkie')),
         queue.map(d => docCard(d, existing.has(d.name)))));
@@ -65,8 +65,8 @@ export default {
           h('span.note', `${num(r.before)} → ${num(r.after)} znaków · ${num(r.paragraphs)} ${plural(r.paragraphs, 'akapit', 'akapity', 'akapitów')}`)),
         dup ? h('p.warnline', 'Dokument o tej nazwie jest już zatwierdzony.') : null,
         r.warnings.map(w => h('p.warnline', w)),
-        h('p.note', 'Zmiany: ' + summary(r)),
-        removed.length ? h('p.note', 'Usunięte znaki: ', removed.slice(0, 30).map(([c, n]) => h('code.ch', { title: 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0') }, `${c === ' ' ? '␠' : c} ×${n}`))) : null,
+        h('p.note', 'Zmiany: ' + summary(r), ' ', help('Ile razy każda reguła formatowania coś zmieniła w tym dokumencie. Opis reguł w Ustawienia → Formatowanie danych.')),
+        removed.length ? h('p.note', 'Usunięte znaki ', help('Znaki spoza listy dozwolonych, z liczbą wystąpień. Jeśli któryś jest potrzebny, dopisz go w Ustawienia → Dodatkowe dozwolone znaki i użyj „Formatuj ponownie”.'), ': ', removed.slice(0, 30).map(([c, n]) => h('code.ch', { title: 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0') }, `${c === ' ' ? '␠' : c} ×${n}`))) : null,
         h('details', h('summary', 'Podgląd'),
           h('div.row', h('button.ghost.small', { type: 'button', onclick: e => { showRaw = !showRaw; pre.textContent = (showRaw ? d.raw : d.text).slice(0, 4000); e.target.textContent = showRaw ? 'Pokaż po formatowaniu' : 'Pokaż przed formatowaniem'; } }, 'Pokaż przed formatowaniem')),
           pre),

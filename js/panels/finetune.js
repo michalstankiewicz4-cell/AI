@@ -28,7 +28,7 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Dostrajanie do rozmowy'),
         h('p', 'Krok 2. Model uczy się odpowiadać na rozmowach wzorcowych. Można powtarzać: po dodaniu nowych rozmów (np. poprawionych z historii czatu) dostrój ponownie — od modelu bazowego albo od ostatniego dostrojonego. Najlepiej na całym zestawie, nie tylko na nowych rozmowach, żeby sieć nie zapomniała wcześniejszych odpowiedzi.')),
-      h('section.card', h('h2', 'Dane'), info),
+      h('section.card', h('h2', 'Dane', help('Włączone rozmowy wzorcowe. Przed dostrajaniem są tasowane, a część (ustawienie „Rozmowy do sprawdzania”) odkładana do pomiaru.')), info),
       h('section.card', h('h2', 'Od którego modelu', help('Model bazowy (po nauce na dokumentach) albo już dostrojony. Budowa sieci i słownik zostają takie jak w wybranym modelu.')), fromBox,
         fieldsForm('finetune', hp, { onChange: () => saveSettings(s) }),
         h('div.row', startBtn)),

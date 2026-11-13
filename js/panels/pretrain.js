@@ -26,7 +26,7 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Nauka na dokumentach'),
         h('p', 'Krok 1. Sieć czyta zatwierdzone dokumenty i uczy się przewidywać kolejny kawałek tekstu. Tak poznaje słownictwo, składnię i strukturę przepisów. Nie umie jeszcze rozmawiać — tego uczy dostrajanie (krok 2).')),
-      h('section.card', h('h2', 'Dane'), corpusInfo, gpuLine),
+      h('section.card', h('h2', 'Dane', help('Włączone dokumenty z zakładki „Dokumenty”. 90% tekstu służy do nauki, 10% do sprawdzania postępów.')), corpusInfo, gpuLine),
       h('section.card',
         h('h2', 'Rodzaj nauki'),
         h('div.seg', { role: 'radiogroup' },

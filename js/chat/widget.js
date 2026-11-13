@@ -23,7 +23,7 @@ async function loadModel() {
 
 function build() {
   const log = h('div.chat-log', { 'aria-live': 'polite' });
-  const input = h('textarea.chat-input', { rows: 1, placeholder: 'Zadaj pytanie…', 'aria-label': 'Wiadomość',
+  const input = h('textarea.chat-input', { rows: 1, placeholder: 'Zadaj pytanie…', 'aria-label': 'Wiadomość', title: 'Enter – wyślij, Shift+Enter – nowa linia',
     onkeydown: e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } },
     oninput: e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px'; } });
   const sendBtn = h('button.chat-send', { type: 'button', 'aria-label': 'Wyślij', onclick: () => send() }, '➤');
@@ -49,6 +49,7 @@ function draw() {
   const s = settings().general;
   ui.title.textContent = s.name;
   ui.sub.textContent = model ? ` · ${model.name}` : '';
+  ui.sub.title = model ? 'Aktywny model. Zmienisz go w zakładce „Modele”.' : '';
   clear(ui.log);
   if (!model) {
     ui.log.append(h('div.chat-empty', h('p', 'Brak aktywnego modelu.'), h('p.note', 'Naucz sieć na dokumentach, dostrój ją do rozmowy i ustaw model jako aktywny (zakładka „Modele”).')));
@@ -79,7 +80,7 @@ function botMsg(m, i) {
       h('button', { type: 'button', title: 'Dobra odpowiedź', 'aria-pressed': m.status === 'ok', onclick: () => set('ok') }, '✓'),
       h('button', { type: 'button', title: 'Popraw odpowiedź', 'aria-pressed': m.status === 'corrected', onclick: edit }, '✎'),
       h('button', { type: 'button', title: 'Błędna odpowiedź', 'aria-pressed': m.status === 'wrong', onclick: () => set('wrong') }, '✗'),
-      m.ms != null ? h('span.ms', `${Math.round(m.ms)} ms`) : null));
+      m.ms != null ? h('span.ms', { title: 'Czas liczenia odpowiedzi' }, `${Math.round(m.ms)} ms`) : null));
 }
 
 async function persist() { if (settings().chat.save && conv.messages.length) await saveConversation(conv); }

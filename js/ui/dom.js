@@ -1,5 +1,7 @@
 // Drobne narzędzia interfejsu: tworzenie elementów, podpowiedzi [?], powiadomienia, okna potwierdzenia, pliki.
 
+import { tipFor } from './tips.js';
+
 // h('button.ghost#id', { onclick, title }, 'tekst', dziecko, …) — element z klasami, atrybutami i dziećmi
 export function h(sel, attrs, ...kids) {
   if (attrs == null || typeof attrs !== 'object' || attrs instanceof Node || Array.isArray(attrs)) { kids.unshift(attrs); attrs = {}; }
@@ -16,18 +18,44 @@ export function h(sel, attrs, ...kids) {
   }
   const add = c => { if (c == null || c === false) return; if (Array.isArray(c)) c.forEach(add); else el.append(c instanceof Node ? c : String(c)); };
   kids.forEach(add);
+  // dymek z podpowiedzią dla przycisku bez własnego title (słownik w tips.js)
+  if (el.tagName === 'BUTTON' && !el.title && !el.classList.contains('help')) { const t = tipFor(el.textContent.trim()); if (t) el.title = t; }
   return el;
 }
 
-// Ikona [?] z opisem po najechaniu / kliknięciu
+// Ikona [?] z opisem po najechaniu, fokusie albo kliknięciu.
+// Dymek jest jeden, przypięty do strony (position: fixed): nie przycinają go ramki kart, tabel ani okien,
+// dopasowuje się do tekstu i zawsze mieści na ekranie (przesuwa się od krawędzi, a gdy brak miejsca pod ikoną — pokazuje nad nią).
+let tipEl = null, tipOwner = null, tipPinned = false;
+function showTip(b, text) {
+  if (!tipEl) { tipEl = h('div.tipfloat', { role: 'tooltip', id: 'tipfloat' }); }
+  const host = b.closest('dialog[open]') || document.body;          // w otwartym oknie dymek musi być w jego warstwie
+  if (tipEl.parentNode !== host) host.append(tipEl);
+  tipEl.textContent = text; tipEl.hidden = false; tipOwner = b; b.setAttribute('aria-describedby', 'tipfloat');
+  const m = 8, vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+  tipEl.style.maxWidth = Math.min(340, vw - 2 * m) + 'px'; tipEl.style.left = '0px'; tipEl.style.top = '0px';
+  const r = b.getBoundingClientRect(), t = tipEl.getBoundingClientRect();
+  const left = Math.max(m, Math.min(r.left + r.width / 2 - t.width / 2, vw - t.width - m));
+  const below = r.bottom + 6, above = r.top - 6 - t.height;
+  const top = below + t.height <= vh - m || above < m ? Math.min(below, Math.max(m, vh - t.height - m)) : above;
+  tipEl.style.left = left + 'px'; tipEl.style.top = top + 'px';
+  tipEl.style.setProperty('--arrow', Math.max(10, Math.min(t.width - 10, r.left + r.width / 2 - left)) + 'px');
+  tipEl.classList.toggle('up', top < r.top);
+}
+function hideTip() { if (tipEl) tipEl.hidden = true; if (tipOwner) tipOwner.removeAttribute('aria-describedby'); tipOwner = null; tipPinned = false; }
 export function help(text) {
-  const b = h('button.help', { type: 'button', 'aria-label': 'Pomoc: ' + text, title: '' }, '?');
-  const tip = h('span.tip', { role: 'tooltip' }, text);
-  b.append(tip);
-  b.addEventListener('click', e => { e.stopPropagation(); b.classList.toggle('open'); });
+  const b = h('button.help', { type: 'button', 'aria-label': 'Pomoc: ' + text }, '?');
+  b.addEventListener('mouseenter', () => { if (!tipPinned) showTip(b, text); });
+  b.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(); });
+  b.addEventListener('focus', () => showTip(b, text));
+  b.addEventListener('blur', () => { if (!tipPinned) hideTip(); });
+  b.addEventListener('click', e => { e.stopPropagation(); if (tipPinned && tipOwner === b) hideTip(); else { showTip(b, text); tipPinned = true; } });
   return b;
 }
-document.addEventListener('click', () => document.querySelectorAll('.help.open').forEach(b => b.classList.remove('open')));
+document.addEventListener('click', () => tipPinned && hideTip());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
+window.addEventListener('scroll', () => tipOwner && hideTip(), true);
+window.addEventListener('resize', () => tipOwner && hideTip());
 
 let toastBox = null;
 export function toast(msg, kind = 'info', ms = 4000) {

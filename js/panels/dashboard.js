@@ -1,6 +1,6 @@
 // Zakładka „Pulpit”: stan całości i droga od dokumentów do rozmowy.
 
-import { h, num, dec, date, plural } from '../ui/dom.js';
+import { h, help, num, dec, date, plural } from '../ui/dom.js';
 import { db } from '../core/db.js';
 import { corpusText, trainingDialogs } from '../core/corpus.js';
 import { listMeta, getActive } from '../core/models.js';
@@ -27,10 +27,10 @@ export default {
         step(4, 'Dostrajanie', models.some(m => m.kind === 'chat') ? (n => `${num(n)} ${plural(n, 'model dostrojony', 'modele dostrojone', 'modeli dostrojonych')}`)(models.filter(m => m.kind === 'chat').length) : 'Sieć uczy się odpowiadać.', models.some(m => m.kind === 'chat'), 'Dostrajanie', 'dostrajanie'),
         step(5, 'Rozmowa i poprawki', todo ? `${num(todo)} ${plural(todo, 'odpowiedź', 'odpowiedzi', 'odpowiedzi')} do oceny, gotowe do zestawu: ${num(ready)}` : 'Rozmawiaj, oceniaj, poprawiaj.', false, 'Otwórz czat', 'chat')),
       h('div.grid2',
-        h('section.card', h('h2', 'Aktywny model'), am
-          ? h('dl.metrics.inline', h('dt', 'Nazwa'), h('dd', am.name), h('dt', 'Rodzaj'), h('dd', am.kind === 'base' ? 'bazowy' : 'dostrojony'), h('dt', 'Bity na znak'), h('dd', dec(am.metrics.bpc, 2)), h('dt', 'Parametry'), h('dd', num(am.params)), h('dt', 'Utworzony'), h('dd', date(am.createdAt)))
+        h('section.card', h('h2', 'Aktywny model', help('Model, który odpowiada w czacie. Zmienisz go w zakładce „Modele”.')), am
+          ? h('dl.metrics.inline', h('dt', 'Nazwa'), h('dd', am.name), h('dt', 'Rodzaj'), h('dd', am.kind === 'base' ? 'bazowy' : 'dostrojony'), h('dt', 'Bity na znak', help('Ile informacji sieć traci na każdą literę tekstu sprawdzającego. Mniej = lepiej.')), h('dd', dec(am.metrics.bpc, 2)), h('dt', 'Parametry'), h('dd', num(am.params)), h('dt', 'Utworzony'), h('dd', date(am.createdAt)))
           : h('p.note', 'Brak. Ustawisz go w zakładce „Modele”.')),
-        h('section.card', h('h2', 'Komputer'), h('dl.metrics.inline',
+        h('section.card', h('h2', 'Komputer', help('Karta graficzna przyspiesza naukę i dostrajanie. Rozmowa liczy się na procesorze i nie wymaga karty.')), h('dl.metrics.inline',
           h('dt', 'Karta graficzna'), h('dd', g.ok ? g.name : 'niedostępna — nauka na procesorze'),
           h('dt', 'Nauka w toku'), h('dd', state.job ? `${state.job.kind === 'base' ? 'nauka na dokumentach' : 'dostrajanie'}${state.last ? `, krok ${num(state.last.step)} z ${num(state.last.steps)}` : ''}` : 'nie'),
           h('dt', 'Rozmowy z czatu'), h('dd', num(convs.length)), h('dt', 'Modele'), h('dd', num(await db.count('models')))))));

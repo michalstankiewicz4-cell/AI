@@ -34,7 +34,7 @@ export default {
           h('div.row', h('b', first ? first.text.slice(0, 120) : '(pusta)'), h('span.sp'), h('span.note', date(c.updatedAt))),
           h('div.row.wrap',
             h('span.badge', c.modelName || '?'), h('span.note', `${num(bots.length)} ${plural(bots.length, 'odpowiedź', 'odpowiedzi', 'odpowiedzi')}:`),
-            h('span.badge.ok', `✓ ${cnt('ok')}`), h('span.badge.corrected', `✎ ${cnt('corrected')}`), h('span.badge.wrong', `✗ ${cnt('wrong')}`), h('span.badge', `bez oceny ${unreviewed(c)}`),
+            h('span.badge.ok', { title: 'Dobre odpowiedzi' }, `✓ ${cnt('ok')}`), h('span.badge.corrected', { title: 'Poprawione odpowiedzi' }, `✎ ${cnt('corrected')}`), h('span.badge.wrong', { title: 'Błędne odpowiedzi' }, `✗ ${cnt('wrong')}`), h('span.badge', { title: 'Odpowiedzi jeszcze nieocenione' }, `bez oceny ${unreviewed(c)}`),
             c.dialogId ? h('span.badge.ok', 'w zestawie') : null, h('span.sp'),
             h('button.ghost.small', { type: 'button', onclick: () => open(c) }, 'Otwórz'),
             h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć rozmowę?', first ? first.text : '', 'Usuń', true)) { await deleteConversation(c.id); } } }, 'Usuń')));
