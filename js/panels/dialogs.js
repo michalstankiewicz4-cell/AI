@@ -4,7 +4,8 @@
 import { h, help, toast, confirmBox, modal, pickFiles, num, date, clear, download, plural } from '../ui/dom.js';
 import { parseDialogs, dialogToText } from '../cleaner/dialogs.js';
 import { listDialogs, makeDialog, saveDialog, deleteDialog } from '../core/corpus.js';
-import { settings, cleanerOpts, tags } from '../core/settings.js';
+import { settings, saveSettings, cleanerOpts, tags } from '../core/settings.js';
+import { fieldsForm } from '../ui/form.js';
 import { db } from '../core/db.js';
 
 // Edytor rozmowy: naprzemienne kwestie użytkownika i AI. onSave(turns) — turns: [{role, text}]
@@ -21,12 +22,12 @@ export function dialogEditor(turns, onSave) {
   draw();
   return h('div.editor', rows,
     h('div.row', h('button.ghost.small', { type: 'button', onclick: () => { list.push({ role: 'user', text: '' }, { role: 'bot', text: '' }); draw(); } }, '+ kolejna wymiana'),
-      help('Kilka wymian w jednej rozmowie uczy sieć korzystać z kontekstu (nawiązywać do wcześniejszych pytań).'), h('span.sp'),
+      help('Kilka wymian w jednej rozmowie uczy sieć korzystać z kontekstu (nawiązywać do wcześniejszych pytań).', 'wymiany'), h('span.sp'),
       h('button', { type: 'button', onclick: () => onSave(list.map(x => ({ role: x.role, text: x.text.trim() }))) }, 'Zapisz')));
 }
 
 export default {
-  id: 'rozmowy-wzorcowe', title: 'Rozmowy wzorcowe', icon: '💬',
+  id: 'rozmowy-wzorcowe', title: 'Rozmowy wzorcowe', stage: 2, icon: '💬',
   render(root) {
     const listBox = h('div'), stats = h('p.note');
     const search = h('input', { type: 'search', placeholder: 'Szukaj w rozmowach…', oninput: () => drawList() });
@@ -38,7 +39,8 @@ export default {
           h('button', { type: 'button', onclick: addManual }, 'Dodaj rozmowę'),
           h('button.ghost', { type: 'button', onclick: importFile }, 'Wczytaj z pliku'),
           h('button.ghost', { type: 'button', onclick: exportFile }, 'Pobierz jako plik'),
-          help(`Format pliku .txt: każda kwestia w osobnej linii, zaczyna się znacznikiem („${settings().general.userTag}” albo „${settings().general.botTag}”), rozmowy oddzielone pustą linią. Szczegóły w docs/dane.md.`))),
+          help(`Format pliku .txt: każda kwestia w osobnej linii, zaczyna się znacznikiem („${settings().general.userTag}” albo „${settings().general.botTag}”), rozmowy oddzielone pustą linią. Szczegóły w Pomocy.`, 'format-pliku'))),
+      h('details.card.settings', h('summary', h('b', 'Ustawienia rozmów wzorcowych')), fieldsForm('cleaner', settings().cleaner, { only: ['maxAnswer'], onChange: () => saveSettings(settings()) })),
       h('section.card', h('div.row', h('h2', 'Zestaw'), h('span.sp'), search), stats, listBox));
 
     function addManual() {

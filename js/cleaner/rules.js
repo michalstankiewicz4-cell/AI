@@ -21,7 +21,7 @@ const replaceCount = (s, re, fn) => {
 // Początek linii, który zawsze zaczyna nową jednostkę tekstu prawnego (nie wolno go doklejać do poprzedniej linii).
 export const STRUCT_START = /^(Art\.|§|Rozdział|ROZDZIAŁ|Dział|DZIAŁ|Tytuł|TYTUŁ|Księga|KSIĘGA|Oddział|ODDZIAŁ|Załącznik|ZAŁĄCZNIK|\d+[a-z]?\)|\d+[a-z]?\.\s|[a-z]\)|[–•*-]\s)/u;
 
-// Znaki dozwolone zawsze; resztę można dopisać w ustawieniach („Dodatkowe dozwolone znaki”).
+// Znaki dozwolone zawsze; resztę można dopisać w zakładce Formatowanie → Ustawienia formatowania („Dodatkowe dozwolone znaki”).
 export const BASE_CHARS = 'aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźżAĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ0123456789 \n.,;:!?()[]„”\'-–§%/&*+=<>@#°';
 
 const LIGATURES = { 'ﬁ': 'fi', 'ﬂ': 'fl', 'ﬀ': 'ff', 'ﬃ': 'ffi', 'ﬄ': 'ffl', 'ﬅ': 'st', 'ﬆ': 'st' };

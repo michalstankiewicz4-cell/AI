@@ -2,6 +2,15 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.3.0 – 2026-11-13
+
+- **Konwerter dokumentów na dane do nauki.** Zakładka „Dokumenty” to biblioteka: każdy plik trafia do bazy z ikonką rodzaju (TXT, HTML, MD, wklejony tekst), nazwą, datą i polem opisu. Wgranie od razu formatuje dokument.
+- **Nowa zakładka „Formatowanie”** (między Dokumenty a Nauka): sformatowane dokumenty do podglądu przed/po, raport zmian i ostrzeżenia, statusy *do sprawdzenia / zatwierdzony / odrzucony*, zatwierdzanie hurtowe, ponowne formatowanie wszystkich aktualnymi regułami. Do nauki trafiają tylko zatwierdzone. Dokumenty z wersji 0.1–0.2 są traktowane jako zatwierdzone.
+- **Pomoc** w menu: działy z rozszerzonym opisem, przykładami „przed → po” (dla reguł formatowania liczonymi na żywo przez prawdziwą regułę) i tabelami porównań, w tym „Krok po kroku” i „Rozmowa wzorcowa a dostrajanie”. Kliknięcie [?] przenosi do odpowiedniego działu; najechanie pokazuje krótki opis.
+- **Ustawienia tam, gdzie działają:** formatowanie w „Formatowaniu”, długość odpowiedzi wzorcowych w „Rozmowach wzorcowych”, rozmowa pod ⚙ w oknie czatu, nauka i dostrajanie w swoich zakładkach. W „Ustawieniach” zostały: nazwa, znaczniki, GitHub, dane, wersje.
+- **Kolory etapów** w menu i na kafelkach pulpitu: etap 1 (dokumenty, formatowanie, nauka) i etap 2 (rozmowy wzorcowe, dostrajanie).
+- Test: każda ikona [?] prowadzi do istniejącego działu Pomocy, przykłady reguł pokazują zmianę.
+
 ## 0.2.2 – 2026-11-13
 
 - Dymki [?] dopasowują się do tekstu i zawsze mieszczą się na ekranie: nie przycinają ich ramki kart, tabel ani okien, przy krawędzi przesuwają się w bok, a gdy brak miejsca pod ikoną, pokazują się nad nią.

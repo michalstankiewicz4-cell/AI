@@ -19,7 +19,7 @@ export default {
       h('section.card', h('div.row',
         h('button.ghost', { type: 'button', onclick: importFile }, 'Wczytaj z pliku'),
         h('button.ghost', { type: 'button', onclick: fromGitHub }, 'Wczytaj z GitHub'),
-        help('Wczytanie z GitHub pobiera opublikowany model (bez tokenu: z GitHub Pages albo raw.githubusercontent.com). Przydaje się na innym komputerze.'))),
+        help('Wczytanie z GitHub pobiera opublikowany model (bez tokenu: z GitHub Pages albo raw.githubusercontent.com). Przydaje się na innym komputerze.', 'wczytaj-z-github'))),
       listBox);
 
     async function draw() {
@@ -33,14 +33,14 @@ export default {
             h('h2', m.name), h('span.badge', m.kind === 'base' ? 'bazowy' : 'dostrojony'), m.id === active ? h('span.badge.ok', 'aktywny w czacie') : null,
             m.published ? h('span.badge', { title: `Opublikowano ${date(m.published.at)}` }, 'na GitHub') : null, h('span.sp'), h('span.note', date(m.createdAt))),
           h('dl.metrics.inline',
-            h('dt', 'Bity na znak', help('Na tekście sprawdzającym (dokumenty albo rozmowy odłożone na bok). Mniej = lepiej. Porównuj modele tego samego rodzaju.')), h('dd', dec(me.bpc, 2)),
-            h('dt', 'Błąd', help('Średni błąd na token w tekście sprawdzającym (entropia krzyżowa). Mniej = lepiej; nie porównuj modeli z różnym słownikiem — do tego są bity na znak.')), h('dd', dec(me.val, 3)),
-            h('dt', 'Parametry', help('Liczba wag sieci. Więcej = większa pojemność, ale potrzeba więcej tekstu i czasu nauki.')), h('dd', num(m.record.params)),
-            h('dt', 'Budowa', help('Warstwy × szerokość, głowy uwagi, okno (ile tokenów sieć widzi naraz) i słownik (BPE: liczba sklejeń, albo litery).')), h('dd', `${m.hp.layers} warstw × ${m.hp.dim}, ${m.hp.heads} głowy, okno ${m.hp.ctx}, ${m.record.tok ? 'BPE ' + m.record.tok.merges.length : 'litery'}`),
-            h('dt', 'Nauka', help('Wykonane kroki, czas i urządzenie. Jeśli nauka wróciła do najlepszego momentu, liczba kroków to wszystkie wykonane.')), h('dd', `${num(me.steps)} kroków, ${dur(me.seconds || 0)}, ${me.device || ''}`),
+            h('dt', 'Bity na znak', help('Na tekście sprawdzającym (dokumenty albo rozmowy odłożone na bok). Mniej = lepiej. Porównuj modele tego samego rodzaju.', 'bity-na-znak')), h('dd', dec(me.bpc, 2)),
+            h('dt', 'Błąd', help('Średni błąd na token w tekście sprawdzającym (entropia krzyżowa). Mniej = lepiej; nie porównuj modeli z różnym słownikiem — do tego są bity na znak.', 'blad')), h('dd', dec(me.val, 3)),
+            h('dt', 'Parametry', help('Liczba wag sieci. Więcej = większa pojemność, ale potrzeba więcej tekstu i czasu nauki.', 'parametry')), h('dd', num(m.record.params)),
+            h('dt', 'Budowa', help('Warstwy × szerokość, głowy uwagi, okno (ile tokenów sieć widzi naraz) i słownik (BPE: liczba sklejeń, albo litery).', 'budowa')), h('dd', `${m.hp.layers} warstw × ${m.hp.dim}, ${m.hp.heads} głowy, okno ${m.hp.ctx}, ${m.record.tok ? 'BPE ' + m.record.tok.merges.length : 'litery'}`),
+            h('dt', 'Nauka', help('Wykonane kroki, czas i urządzenie. Jeśli nauka wróciła do najlepszego momentu, liczba kroków to wszystkie wykonane.', 'nauka-modelu')), h('dd', `${num(me.steps)} kroków, ${dur(me.seconds || 0)}, ${me.device || ''}`),
             h('dt', 'Dane'), h('dd', m.kind === 'base' ? `${num(m.data.docs)} ${plural(m.data.docs, 'dokument', 'dokumenty', 'dokumentów')}, ${num(m.data.chars)} znaków${m.data.mode === 'continue' ? ' (dalsza nauka)' : ''}` : `${num(m.data.dialogs)} ${plural(m.data.dialogs, 'rozmowa wzorcowa', 'rozmowy wzorcowe', 'rozmów wzorcowych')}`),
             m.parent ? [h('dt', 'Od modelu'), h('dd', names[m.parent] || '(usunięty)')] : null,
-            h('dt', 'Wersje', help('Wersje programu, silnika i reguł formatowania, z którymi powstał model.')), h('dd', `program ${m.versions.app}, silnik ${m.versions.engine}, reguły ${m.versions.cleaner}`)),
+            h('dt', 'Wersje', help('Wersje programu, silnika i reguł formatowania, z którymi powstał model.', 'wersje-modelu')), h('dd', `program ${m.versions.app}, silnik ${m.versions.engine}, reguły ${m.versions.cleaner}`)),
           m.sample ? h('details', h('summary', 'Próbka z końca nauki'), h('pre.sample', m.sample)) : null,
           h('div.row.wrap',
             m.id !== active ? h('button', { type: 'button', onclick: async () => { await setActive(m.id); toast(`Aktywny: ${m.name}`, 'ok'); } }, 'Ustaw jako aktywny') : null,
@@ -77,7 +77,7 @@ export default {
       } }, 'Opublikuj');
       modal(`Publikacja: ${m.name}`,
         h('p', `Repo: ${gh.repo}, gałąź ${gh.branch}. Model trafi do pliku models/${m.id}.json, a lista modeli do models/index.json — jednym commitem.`),
-        h('div.field.check', active, h('label', { htmlFor: 'pub-active' }, 'Oznacz jako aktualny model (index.json → active)'), help('Inne aplikacje (np. PiK) mogą brać zawsze model oznaczony jako aktualny.')),
+        h('div.field.check', active, h('label', { htmlFor: 'pub-active' }, 'Oznacz jako aktualny model (index.json → active)'), help('Inne aplikacje (np. PiK) mogą brać zawsze model oznaczony jako aktualny.', 'aktualny')),
         log, h('div.row.end', btn));
     }
 

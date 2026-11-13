@@ -3,6 +3,8 @@
 // skąd jednym kliknięciem przenosi się rozmowę do rozmów wzorcowych (uczenie z rozmów).
 
 import { h, clear, toast } from '../ui/dom.js';
+import { fieldsForm } from '../ui/form.js';
+import { saveSettings } from '../core/settings.js';
 import { settings, cleanerOpts, tags as settingsTags, onSettings } from '../core/settings.js';
 import { cleanLine } from '../cleaner/cleaner.js';
 import { getActive, onModels } from '../core/models.js';
@@ -28,11 +30,17 @@ function build() {
     oninput: e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px'; } });
   const sendBtn = h('button.chat-send', { type: 'button', 'aria-label': 'Wyślij', onclick: () => send() }, '➤');
   const title = h('b'), sub = h('span.chat-sub');
+  const opts = h('div.chat-opts', { hidden: true });
   const panel = h('section.chat-panel', { hidden: true, role: 'dialog', 'aria-label': 'Czat z AI' },
     h('header.chat-head', h('div', title, sub), h('span.sp'),
+      h('button.chat-hbtn', { type: 'button', title: 'Ustawienia rozmowy (temperatura, długość odpowiedzi, pamięć)', 'aria-expanded': 'false', onclick: e => toggleOpts(e.currentTarget) }, '⚙'),
       h('button.chat-hbtn', { type: 'button', title: 'Nowa rozmowa', onclick: () => { conv = newConv(); draw(); input.focus(); } }, '＋'),
       h('button.chat-hbtn', { type: 'button', title: 'Zamknij', onclick: () => toggle(false) }, '✕')),
-    log, h('div.chat-foot', input, sendBtn));
+    opts, log, h('div.chat-foot', input, sendBtn));
+  const toggleOpts = btn => {
+    opts.hidden = !opts.hidden; btn.setAttribute('aria-expanded', String(!opts.hidden));
+    if (!opts.hidden) { const s = settings(); clear(opts); opts.append(fieldsForm('chat', s.chat, { onChange: () => saveSettings(s) })); }
+  };
   const fab = h('button.chat-fab', { type: 'button', 'aria-label': 'Otwórz czat z AI', title: 'Czat z AI', onclick: () => toggle() },
     h('span.ico', { innerHTML: '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm5 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm5 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>' }));
   document.body.append(panel, fab);

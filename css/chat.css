@@ -38,3 +38,6 @@
 .chat-foot { display: flex; gap: .5em; padding: .6em; border-top: 1px solid var(--line); background: var(--panel); align-items: flex-end; }
 .chat-input { resize: none; max-height: 120px; }
 .chat-send { width: 42px; height: 40px; padding: 0; flex: none; border-radius: 10px; font-size: 1.05rem; }
+
+.chat-opts { padding: .4em .9em .6em; border-bottom: 1px solid var(--line); background: var(--panel); max-height: 55%; overflow: auto; }
+.chat-opts .fields { grid-template-columns: 1fr 1fr; gap: .5em .8em; margin: .3em 0; }

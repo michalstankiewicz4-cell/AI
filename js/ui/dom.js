@@ -43,13 +43,19 @@ function showTip(b, text) {
   tipEl.classList.toggle('up', top < r.top);
 }
 function hideTip() { if (tipEl) tipEl.hidden = true; if (tipOwner) tipOwner.removeAttribute('aria-describedby'); tipOwner = null; tipPinned = false; }
-export function help(text) {
+// topic: dział Pomocy (js/help/content.js → topics). Z tematem kliknięcie przenosi do Pomocy, bez tematu przypina dymek.
+export function help(text, topic) {
+  const full = topic ? text + '\n\nKliknij [?], aby przeczytać więcej w Pomocy.' : text;
   const b = h('button.help', { type: 'button', 'aria-label': 'Pomoc: ' + text }, '?');
-  b.addEventListener('mouseenter', () => { if (!tipPinned) showTip(b, text); });
+  b.addEventListener('mouseenter', () => { if (!tipPinned) showTip(b, full); });
   b.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(); });
-  b.addEventListener('focus', () => showTip(b, text));
+  b.addEventListener('focus', () => showTip(b, full));
   b.addEventListener('blur', () => { if (!tipPinned) hideTip(); });
-  b.addEventListener('click', e => { e.stopPropagation(); if (tipPinned && tipOwner === b) hideTip(); else { showTip(b, text); tipPinned = true; } });
+  b.addEventListener('click', e => {
+    e.stopPropagation();
+    if (topic) { hideTip(); location.hash = 'pomoc/' + topic; return; }
+    if (tipPinned && tipOwner === b) hideTip(); else { showTip(b, full); tipPinned = true; }
+  });
   return b;
 }
 document.addEventListener('click', () => tipPinned && hideTip());

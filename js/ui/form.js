@@ -19,8 +19,8 @@ export function fieldsForm(group, values, { only, onChange, disabled } = {}) {
     } else input = h('input', { type: f.type === 'password' ? 'password' : 'text', id, value: values[f.id] ?? '', oninput: e => set(e.target.value) });
     if (disabled && disabled.includes(f.id)) input.disabled = true;
     box.append(h('div.field' + (f.type === 'bool' ? '.check' : ''), f.type === 'bool'
-      ? [input, h('label', { htmlFor: id }, f.label), help(f.help)]
-      : [h('label', { htmlFor: id }, f.label, help(f.help)), input]));
+      ? [input, h('label', { htmlFor: id }, f.label), help(f.help, `${group}.${f.id}`)]
+      : [h('label', { htmlFor: id }, f.label, help(f.help, `${group}.${f.id}`)), input]));
   }
   return box;
 }

@@ -15,7 +15,7 @@ import { go } from '../main.js';
 const ARCH = ['unit', 'layers', 'dim', 'heads', 'ctx'];
 
 export default {
-  id: 'nauka', title: 'Nauka', icon: '🧠',
+  id: 'nauka', title: 'Nauka', stage: 1, icon: '🧠',
   render(root) {
     const s = settings(), hp = s.pretrain;
     let mode = 'new', fromId = null;
@@ -26,19 +26,19 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Nauka na dokumentach'),
         h('p', 'Krok 1. Sieć czyta zatwierdzone dokumenty i uczy się przewidywać kolejny kawałek tekstu. Tak poznaje słownictwo, składnię i strukturę przepisów. Nie umie jeszcze rozmawiać — tego uczy dostrajanie (krok 2).')),
-      h('section.card', h('h2', 'Dane', help('Włączone dokumenty z zakładki „Dokumenty”. 90% tekstu służy do nauki, 10% do sprawdzania postępów.')), corpusInfo, gpuLine),
+      h('section.card', h('h2', 'Dane', help('Włączone dokumenty z zakładki „Dokumenty”. 90% tekstu służy do nauki, 10% do sprawdzania postępów.', 'nauka-dane')), corpusInfo, gpuLine),
       h('section.card',
         h('h2', 'Rodzaj nauki'),
         h('div.seg', { role: 'radiogroup' },
-          h('label', h('input', { type: 'radio', name: 'mode', value: 'new', checked: true, onchange: () => { mode = 'new'; draw(); } }), ' Od zera ', help('Nowy słownik tokenów i nowa sieć. Wybierz przy pierwszej nauce albo gdy zmieniasz budowę sieci.')),
-          h('label', h('input', { type: 'radio', name: 'mode', value: 'continue', onchange: () => { mode = 'continue'; draw(); } }), ' Dalsza nauka modelu ', help('Sieć uczy się dalej od miejsca, w którym skończyła: ten sam słownik i budowa. Dobre po dodaniu nowych dokumentów. Znaki, których model nie zna, zostaną pominięte (lista pojawi się w przebiegu).'))),
+          h('label', h('input', { type: 'radio', name: 'mode', value: 'new', checked: true, onchange: () => { mode = 'new'; draw(); } }), ' Od zera ', help('Nowy słownik tokenów i nowa sieć. Wybierz przy pierwszej nauce albo gdy zmieniasz budowę sieci.', 'od-zera')),
+          h('label', h('input', { type: 'radio', name: 'mode', value: 'continue', onchange: () => { mode = 'continue'; draw(); } }), ' Dalsza nauka modelu ', help('Sieć uczy się dalej od miejsca, w którym skończyła: ten sam słownik i budowa. Dobre po dodaniu nowych dokumentów. Znaki, których model nie zna, zostaną pominięte (lista pojawi się w przebiegu).', 'dalsza-nauka'))),
         fromBox, formBox, estimate,
         h('div.row', startBtn, h('span.note', 'Nauka liczy się w tej karcie przeglądarki: nie zamykaj jej do końca. Możesz w tym czasie przechodzić między zakładkami.'))),
       tv.el);
 
     async function draw() {
       const c = await corpusText();
-      corpusInfo.textContent = c.docs ? `${num(c.docs)} ${plural(c.docs, 'włączony dokument', 'włączone dokumenty', 'włączonych dokumentów')}, ${num(c.chars)} znaków.` : 'Brak dokumentów. Dodaj je w zakładce „Dokumenty”.';
+      corpusInfo.textContent = c.docs ? `${num(c.docs)} ${plural(c.docs, 'włączony dokument', 'włączone dokumenty', 'włączonych dokumentów')}, ${num(c.chars)} znaków.` : 'Brak zatwierdzonych dokumentów. Wgraj je w zakładce „Dokumenty” i zatwierdź w „Formatowaniu”.';
       const g = await gpuInfo();
       gpuLine.textContent = g.ok ? `Karta graficzna dostępna: ${g.name}.` : `Karta graficzna niedostępna (${g.msg}) — nauka na procesorze.`;
       clear(fromBox); clear(formBox);
@@ -65,7 +65,7 @@ export default {
     async function run() {
       try {
         const c = await corpusText();
-        if (!c.docs) return toast('Najpierw dodaj i zatwierdź dokumenty.', 'error');
+        if (!c.docs) return toast('Najpierw wgraj dokumenty i zatwierdź je w zakładce „Formatowanie”.', 'error');
         const g = await gpuInfo(), device = hp.device === 'gpu' && !g.ok ? 'wasm' : hp.device;
         if (mode === 'continue') await ensureLoaded(fromId);
         const t = tags();

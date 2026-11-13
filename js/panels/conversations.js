@@ -19,7 +19,7 @@ export default {
       h('section.card',
         h('div.row', h('div.seg',
           ['all', 'todo', 'ready'].map(f => h('label', h('input', { type: 'radio', name: 'cf', checked: f === filter, onchange: () => { filter = f; draw(); } }), ' ', { all: 'Wszystkie', todo: 'Do oceny', ready: 'Gotowe do zestawu' }[f]))),
-          help('„Gotowe do zestawu” — rozmowy, w których co najmniej pierwsza odpowiedź jest oceniona jako dobra albo poprawiona, a rozmowa nie trafiła jeszcze do zestawu.')),
+          help('„Gotowe do zestawu” — rozmowy, w których co najmniej pierwsza odpowiedź jest oceniona jako dobra albo poprawiona, a rozmowa nie trafiła jeszcze do zestawu.', 'gotowe-do-zestawu')),
         stats, listBox));
 
     async function draw() {

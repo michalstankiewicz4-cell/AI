@@ -5,7 +5,6 @@ export const TIPS = {
   'Wgraj pliki': 'Wybierz pliki .txt, .md albo .html. Każdy przejdzie przez formatowanie i pojawi się do zatwierdzenia.',
   'Wklej tekst': 'Wklej tekst skopiowany ze strony albo dokumentu. Przejdzie przez formatowanie jak plik.',
   'Zatwierdź do nauki': 'Zapisz dokument po formatowaniu. Od teraz będzie brał udział w nauce.',
-  'Zatwierdź wszystkie': 'Zatwierdź wszystkie dokumenty z listy, także te z ostrzeżeniami.',
   'Odrzuć': 'Nie dodawaj tego dokumentu. Nic nie zostanie zapisane.',
   'Podgląd': 'Pokaż tekst dokumentu po formatowaniu.',
   'Formatuj ponownie': 'Zastosuj aktualne reguły formatowania do zapisanego surowego tekstu (np. po zmianie ustawień).',
@@ -42,12 +41,14 @@ export const TIPS = {
   'Anuluj': 'Zamknij bez zmian.',
   '✓ dobra': 'Odpowiedź jest poprawna: może trafić do rozmów wzorcowych bez zmian.',
   '✗ błędna': 'Odpowiedź jest zła. Rozmowa trafi do zestawu tylko do tego miejsca (albo popraw odpowiedź).',
-  'Dokumenty': 'Przejdź do dokumentów do nauki.', 'Nauka': 'Przejdź do nauki na dokumentach.',
+  'Dokumenty': 'Przejdź do biblioteki dokumentów.', 'Formatowanie': 'Sprawdź i zatwierdź dokumenty po konwersji na dane do nauki.',
+  'Cofnij zatwierdzenie': 'Dokument wróci do sprawdzenia i nie będzie brał udziału w nauce.', 'Nauka': 'Przejdź do nauki na dokumentach.',
   'Rozmowy wzorcowe': 'Przejdź do rozmów wzorcowych.', 'Dostrajanie': 'Przejdź do dostrajania.',
 };
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Formatuj wszystkie ponownie/.test(label)) return 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.';
   if (/^Zatwierdź bez ostrzeżeń/.test(label)) return 'Zatwierdź tylko dokumenty, przy których formatowanie nie zgłosiło ostrzeżeń.';
   if (/^Dodaj \d/.test(label)) return 'Dodaj poprawne rozmowy do zestawu. Błędne zostaną pominięte.';
   if (/^Dodaj do rozmów wzorcowych/.test(label)) return 'Przenieś ocenione wymiany do rozmów wzorcowych. Przed zapisem możesz je edytować.';

@@ -15,7 +15,7 @@ import { openChat } from '../chat/widget.js';
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export default {
-  id: 'dostrajanie', title: 'Dostrajanie', icon: '🎯',
+  id: 'dostrajanie', title: 'Dostrajanie', stage: 2, icon: '🎯',
   render(root) {
     const s = settings(), hp = s.finetune;
     let fromId = null;
@@ -28,8 +28,8 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Dostrajanie do rozmowy'),
         h('p', 'Krok 2. Model uczy się odpowiadać na rozmowach wzorcowych. Można powtarzać: po dodaniu nowych rozmów (np. poprawionych z historii czatu) dostrój ponownie — od modelu bazowego albo od ostatniego dostrojonego. Najlepiej na całym zestawie, nie tylko na nowych rozmowach, żeby sieć nie zapomniała wcześniejszych odpowiedzi.')),
-      h('section.card', h('h2', 'Dane', help('Włączone rozmowy wzorcowe. Przed dostrajaniem są tasowane, a część (ustawienie „Rozmowy do sprawdzania”) odkładana do pomiaru.')), info),
-      h('section.card', h('h2', 'Od którego modelu', help('Model bazowy (po nauce na dokumentach) albo już dostrojony. Budowa sieci i słownik zostają takie jak w wybranym modelu.')), fromBox,
+      h('section.card', h('h2', 'Dane', help('Włączone rozmowy wzorcowe. Przed dostrajaniem są tasowane, a część (ustawienie „Rozmowy do sprawdzania”) odkładana do pomiaru.', 'finetune-dane')), info),
+      h('section.card', h('h2', 'Od którego modelu', help('Model bazowy (po nauce na dokumentach) albo już dostrojony. Budowa sieci i słownik zostają takie jak w wybranym modelu.', 'od-ktorego-modelu')), fromBox,
         fieldsForm('finetune', hp, { onChange: () => saveSettings(s) }),
         h('div.row', startBtn)),
       tv.el);

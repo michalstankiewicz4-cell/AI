@@ -14,28 +14,35 @@ import finetune from './panels/finetune.js';
 import conversations from './panels/conversations.js';
 import models from './panels/models.js';
 import settingsPanel from './panels/settings.js';
+import formatting from './panels/formatting.js';
+import helpPanel from './panels/help.js';
 
-const PANELS = [dashboard, documents, pretrain, dialogs, finetune, conversations, models, settingsPanel];
+const PANELS = [dashboard, documents, formatting, pretrain, dialogs, finetune, conversations, models, settingsPanel, helpPanel];
 let main, nav, cleanup = null, current = null;
 
+// Adres: #zakładka albo #zakładka/argument (np. #pomoc/formatowanie, #formatowanie/<id dokumentu>)
 export function go(id) { if (location.hash !== '#' + id) location.hash = id; else show(id); }
 
-async function show(id) {
+async function show(route) {
+  const [id, ...rest] = (route || '').split('/'), arg = rest.join('/') || null;
   const p = PANELS.find(x => x.id === id) || PANELS[0];
+  document.querySelectorAll('dialog[open]').forEach(d => d.close());   // przejście z okna (np. kliknięcie [?]) zamyka je
   if (cleanup) { try { cleanup(); } catch (_) { /* zakładka już zniknęła */ } cleanup = null; }
   current = p.id;
   nav.querySelectorAll('a').forEach(a => a.setAttribute('aria-current', a.dataset.id === p.id ? 'page' : 'false'));
   clear(main);
   const root = h('div.panel-' + p.id); main.append(root);
   document.title = `${p.title} · ${APP_NAME} – panel`;
-  try { const r = await p.render(root, () => show(p.id)); if (typeof r === 'function') cleanup = r; }
+  try { const r = await p.render(root, () => show(route), arg); if (typeof r === 'function') cleanup = r; }
   catch (e) { console.error(e); root.append(h('p.warnline', 'Błąd zakładki: ' + e.message)); }
   main.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
 
 async function init() {
   await loadSettings();
-  nav = h('nav.side', { 'aria-label': 'Zakładki' }, PANELS.map(p => h('a', { href: '#' + p.id, dataset: { id: p.id } }, h('span.i', p.icon), h('span', p.title), p.id === 'nauka' || p.id === 'dostrajanie' ? h('span.jobdot', { hidden: true }) : null)));
+  // etapy: 1 = nauka języka (dokumenty, formatowanie, nauka), 2 = nauka odpowiadania (rozmowy wzorcowe, dostrajanie)
+  const STAGE = { 1: 'Etap 1: nauka języka z dokumentów', 2: 'Etap 2: nauka odpowiadania na rozmowach' };
+  nav = h('nav.side', { 'aria-label': 'Zakładki' }, PANELS.map(p => h('a' + (p.stage ? '.stage' + p.stage : ''), { href: '#' + p.id, dataset: { id: p.id }, title: p.stage ? STAGE[p.stage] : null }, h('span.i', p.icon), h('span', p.title), p.id === 'nauka' || p.id === 'dostrajanie' ? h('span.jobdot', { hidden: true }) : null)));
   main = h('main.content', { tabIndex: -1 });
   document.body.append(
     h('header.top', h('a.brand', { href: '#pulpit' }, h('span.logo', '§'), h('b', APP_NAME), h('span.ver', 'v' + VERSIONS.app)), h('span.sub', 'panel administracyjny')),

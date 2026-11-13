@@ -7,14 +7,15 @@ Własna sieć neuronowa (transformer), która uczy się języka prawnego z dokum
 
 ## Jak to działa
 
-1. **Dokumenty** – wgrywasz ustawy, kodeksy, orzeczenia, artykuły (.txt, .md, .html). Każdy plik przechodzi przez [formatowanie](docs/dane.md). Do nauki trafia dopiero po zatwierdzeniu raportu.
-2. **Nauka** (pretraining) – sieć uczy się przewidywać kolejny fragment tekstu, a przez to poznaje słownictwo i strukturę przepisów.
-3. **Rozmowy wzorcowe** – pytania i poprawne odpowiedzi w formacie `Ty: … / AI: …`.
-4. **Dostrajanie** (finetuning) – sieć uczy się odpowiadać. Błąd liczony jest tylko na odpowiedziach AI (maskowanie).
-5. **Czat i poprawki** – rozmawiasz, oceniasz odpowiedzi (✓ ✎ ✗) i przenosisz poprawione rozmowy do zestawu wzorcowego. Potem dostrajasz ponownie. Tak AI uczy się z rozmów.
-6. **Modele** – każda nauka zapisuje nową wersję, a jej budowę widać w podglądzie (warstwy z neuronami połączonymi według wag). Model można pobrać jako plik albo opublikować na GitHub (`models/`), skąd jest dostępny przez GitHub Pages.
+1. **Dokumenty** – biblioteka: wgrywasz ustawy, kodeksy, orzeczenia, artykuły (.txt, .md, .html) z opisem. Każdy plik od razu przechodzi przez konwerter na dane do nauki.
+2. **Formatowanie** – podgląd przed/po i raport [formatowania](docs/dane.md); do nauki trafiają tylko zatwierdzone dokumenty.
+3. **Nauka** (pretraining) – sieć uczy się przewidywać kolejny fragment tekstu, a przez to poznaje słownictwo i strukturę przepisów.
+4. **Rozmowy wzorcowe** – pytania i poprawne odpowiedzi w formacie `Ty: … / AI: …`.
+5. **Dostrajanie** (finetuning) – sieć uczy się odpowiadać. Błąd liczony jest tylko na odpowiedziach AI (maskowanie).
+6. **Czat i poprawki** – rozmawiasz, oceniasz odpowiedzi (✓ ✎ ✗) i przenosisz poprawione rozmowy do zestawu wzorcowego. Potem dostrajasz ponownie. Tak AI uczy się z rozmów.
+7. **Modele** – każda nauka zapisuje nową wersję, a jej budowę widać w podglądzie (warstwy z neuronami połączonymi według wag). Model można pobrać jako plik albo opublikować na GitHub (`models/`), skąd jest dostępny przez GitHub Pages.
 
-Szczegóły: [docs/nauka.md](docs/nauka.md).
+Kroki 1–3 to etap 1 (nauka języka), 4–5 to etap 2 (nauka odpowiadania); w menu i na pulpicie mają osobne kolory. Opis każdej funkcji z przykładami jest w zakładce **Pomoc** (ikona [?] przy funkcji prowadzi do odpowiedniego działu). Szczegóły techniczne: [docs/nauka.md](docs/nauka.md).
 
 ## Wymagania
 
@@ -34,6 +35,7 @@ js/
   cleaner/            formatowanie danych: reguły, raport, odczyt plików, rozmowy wzorcowe
   engine/             silnik sieci (wątek w tle): transformer, BPE, GPU, szybkie generowanie
   panels/             zakładki panelu
+  help/               treść zakładki Pomoc (działy, przykłady, porównania)
   chat/               okno czatu w prawym dolnym rogu
   ui/                 elementy interfejsu: DOM, formularze, wykres, widok nauki
 docs/                 dokumentacja

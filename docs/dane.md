@@ -1,8 +1,11 @@
 # Dane i formatowanie
 
-Formatowanie (`js/cleaner/`) pilnuje, żeby do nauki i dostrajania nie przedostały się błędy: zły zapis znaków, śmieci z PDF-ów, numery stron, powtórzenia. Każdą regułę można wyłączyć w *Ustawienia → Formatowanie danych*. Przy każdym pliku powstaje raport, a dokument trafia do nauki dopiero po zatwierdzeniu.
+Formatowanie (`js/cleaner/`) pilnuje, żeby do nauki i dostrajania nie przedostały się błędy: zły zapis znaków, śmieci z PDF-ów, numery stron, powtórzenia. Każdą regułę można wyłączyć w zakładce *Formatowanie → Ustawienia formatowania*. Wgrany dokument (zakładka *Dokumenty*) od razu przechodzi przez formatowanie, a wynik z raportem czeka w zakładce *Formatowanie* na zatwierdzenie; do nauki trafiają tylko zatwierdzone.
 
 ## Dokumenty
+
+Zakładka *Dokumenty* to biblioteka: każdy plik ma ikonkę rodzaju, nazwę, datę i opis. Oryginał zostaje w bazie, więc formatowanie można powtórzyć. Statusy w zakładce *Formatowanie*: **do sprawdzenia** (po wgraniu albo gdy ponowne formatowanie zmieniło wynik zatwierdzonego dokumentu), **zatwierdzony** (bierze udział w nauce, można go wyłączyć), **odrzucony**.
+
 
 Obsługiwane pliki: `.txt`, `.md`, `.html`/`.htm`. Kodowanie (UTF-8, Windows-1250, ISO-8859-2) jest rozpoznawane samo. Z HTML usuwane są skrypty, style, menu, nagłówki i stopki strony; jeśli strona ma `<main>` albo `<article>`, brana jest tylko ta część.
 
@@ -19,7 +22,7 @@ Obsługiwane pliki: `.txt`, `.md`, `.html`/`.htm`. Kodowanie (UTF-8, Windows-125
 | Myślniki i łączniki | między spacjami „ – ”, wewnątrz wyrazu „-” |
 | Interpunkcja | „…” → „...”, bez spacji przed przecinkiem i kropką, „!!!” → „!”, spacja po przecinku |
 | Zapis oznaczeń prawnych | „art.5” → „art. 5”, „§1” → „§ 1”, „ust.2” → „ust. 2”, „pkt. 3” → „pkt 3”, „lit.a” → „lit. a”, „Dz.U.” → „Dz. U.” |
-| Dozwolone znaki | usuwa znaki spoza listy i wypisuje je w raporcie; dodatkowe znaki ustawisz w ustawieniach |
+| Dozwolone znaki | usuwa znaki spoza listy i wypisuje je w raporcie; dodatkowe znaki dopiszesz w Formatowanie → Ustawienia formatowania |
 | Spacje i puste linie | jedna spacja, najwyżej jedna pusta linia między akapitami |
 | Powtórzone akapity | usuwa akapit, który już wystąpił w dokumencie |
 

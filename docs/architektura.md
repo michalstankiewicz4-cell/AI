@@ -14,7 +14,10 @@ panels/ + chat/  ──►  core/  ──►  engine/worker.js (wątek w tle)
 - **`js/core/`** – logika aplikacji bez interfejsu: baza (`db.js`), ustawienia (`settings.js`), klient wątku (`ai.js`), stan nauki (`training.js`), modele (`models.js`), korpus (`corpus.js`), rozmowy z czatu (`conversations.js`), GitHub (`github.js`).
 - **`js/ui/`** – elementy interfejsu wielokrotnego użytku. Dymki przycisków są w `ui/tips.js` (według napisu na przycisku); `h()` dodaje je sama.
 - **`js/panels/`** – zakładki. Każda eksportuje `{ id, title, icon, render(root, rerender) }`, a `render` może zwrócić funkcję sprzątającą.
-- **`js/chat/widget.js`** – okno czatu, niezależne od zakładek.
+- **`js/chat/widget.js`** – okno czatu, niezależne od zakładek (ustawienia rozmowy pod ⚙).
+- **`js/help/content.js`** – treść Pomocy. Dział ma `id` i `topics`; `help(tekst, temat)` w panelu prowadzi do `#pomoc/<temat>`. Pola ustawień mają temat `grupa.pole`. Test `tests/help.test.js` pilnuje, żeby każdy temat miał dział.
+
+Adresy: `#zakładka` albo `#zakładka/argument` (np. `#pomoc/formatowanie`, `#formatowanie/<id dokumentu>`). Zakładka dostaje argument jako trzeci parametr `render`. Pole `stage` (1 lub 2) koloruje zakładkę w menu.
 
 Integracja z innym serwisem (np. PiK) powinna korzystać z `core/` i `engine/` bez `panels/`. Panel jest tylko jednym z klientów.
 

@@ -3,6 +3,7 @@
   --bg: #f4f2ee; --panel: #ffffff; --panel-2: #f9f8f5; --line: #e3dfd6; --line-2: #d3cdc0;
   --ink: #1b2233; --ink-2: #4a5164; --ink-3: #7b8191;
   --navy: #1d2b4a; --navy-2: #2a3c63; --accent: #2f5bd3; --accent-ink: #fff; --gold: #c7972f; --gold-soft: #f6ecd4;
+  --stage1: #e6eefc; --stage1-line: #8fb0ec; --stage2: #e4f4ec; --stage2-line: #7fc4a0;
   --ok: #1f8a5b; --ok-soft: #e2f3ea; --warn: #b7791f; --warn-soft: #fbf0d9; --bad: #c0392b; --bad-soft: #fbe3e0;
   --r: 10px; --r-s: 7px; --shadow: 0 1px 2px rgba(20, 28, 45, .06), 0 4px 16px rgba(20, 28, 45, .05);
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -15,6 +16,7 @@
     --bg: #11151d; --panel: #181e29; --panel-2: #1d2431; --line: #2a3242; --line-2: #364055;
     --ink: #e7e9ee; --ink-2: #b4bac7; --ink-3: #848b9b;
     --navy: #0d1220; --navy-2: #1a2440; --accent: #6b8cff; --accent-ink: #0b1020; --gold: #e0b45a; --gold-soft: #3a3020;
+    --stage1: #1b2740; --stage1-line: #3f5d96; --stage2: #172e25; --stage2-line: #3a8063;
     --ok: #4cc38a; --ok-soft: #173325; --warn: #e0a84a; --warn-soft: #3a2e17; --bad: #ff7b6b; --bad-soft: #3d1d1a;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
     color-scheme: dark;
@@ -65,8 +67,8 @@ code.ch { background: var(--panel-2); border: 1px solid var(--line); border-radi
 /* podpowiedź [?] */
 .help { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em; padding: 0;
   border-radius: 50%; font-size: .72rem; font-weight: 700; background: var(--panel-2); color: var(--ink-3); border: 1px solid var(--line-2); vertical-align: middle; flex: none; }
-.tipfloat { position: fixed; z-index: 1000; width: max-content; box-sizing: border-box; pointer-events: none;
-  background: var(--navy); color: #eef1f7; font: 400 .82rem/1.45 var(--font); text-align: left; white-space: normal; overflow-wrap: break-word;
+.tipfloat { position: fixed; z-index: 1000; width: max-content; box-sizing: border-box; pointer-events: none; white-space: pre-line;
+  background: var(--navy); color: #eef1f7; font: 400 .82rem/1.45 var(--font); text-align: left; overflow-wrap: break-word;
   padding: .6em .75em; border-radius: var(--r-s); box-shadow: 0 6px 24px rgba(10, 15, 25, .3); }
 .tipfloat[hidden] { display: none; }
 .tipfloat::before { content: ''; position: absolute; left: var(--arrow, 50%); top: -5px; width: 10px; height: 10px; margin-left: -5px; background: inherit; transform: rotate(45deg); }
