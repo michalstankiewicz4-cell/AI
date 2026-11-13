@@ -20,6 +20,8 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 | | 7 | Historia rozmów | poprawione rozmowy wracają do rozmów wzorcowych → ponowne dostrajanie |
 | | – | Modele | wersje, podgląd budowy, plik, publikacja na GitHub i wczytywanie z GitHub |
 
+W menu i na pulpicie są trzy grupy kolorów: niebieski – Research i Dokumenty, fioletowy – Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie.
+
 Szczegóły: [docs/panel.md](docs/panel.md), [docs/dane.md](docs/dane.md), [docs/nauka.md](docs/nauka.md), [docs/modele.md](docs/modele.md).
 
 ## Wymagania

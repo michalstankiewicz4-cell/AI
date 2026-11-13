@@ -4,7 +4,7 @@ Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy 
 
 ## 0.6.1 – 2026-11-13
 
-- Kolory w menu i na kafelkach pulpitu w trzech grupach: niebieski – Research i Dokumenty, fioletowy (nowy) – Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie (bez zmian). Legenda na pulpicie i dymki w menu odpowiednio.
+- Kolory w menu i na kafelkach pulpitu w trzech grupach: niebieski – Research i Dokumenty, fioletowy (nowy) – Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie (bez zmian). Legenda na pulpicie i dymki w menu odpowiednio; opis kolorów w README, docs/panel.md i docs/architektura.md.
 
 ## 0.6.0 – 2026-11-13
 
