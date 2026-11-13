@@ -1,0 +1,9 @@
+{
+  "name": "ai",
+  "private": true,
+  "type": "module",
+  "description": "AI do rozmów i nauki tematów prawnych, uczone w przeglądarce. Strona statyczna (GitHub Pages) – package.json służy tylko testom.",
+  "scripts": {
+    "test": "node tests/run.js"
+  }
+}
