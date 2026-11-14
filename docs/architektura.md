@@ -32,12 +32,13 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
 | `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |
 | `models.js` | modele w bazie, aktywny model, plik modelu (eksport/import), bity na znak |
-| `documents.js` | biblioteka dokumentów, formatowanie, statusy, tekst do nauki (mieszanie z tekstem ogólnym: `mixCorpus`), skrót treści (`textHash`), wyszukiwanie duplikatów (adres, ELI, treść) |
+| `documents.js` | biblioteka dokumentów, formatowanie, statusy, kategorie (`tags`, `autoTags`, `markOutdated` – „nieaktualny”), tekst do nauki (mieszanie z tekstem ogólnym: `mixCorpus`), skrót treści (`textHash`), wyszukiwanie duplikatów (adres, ELI, treść) |
 | `dialogs.js` | rozmowy wzorcowe |
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
-| `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
-| `packs.js` | pakiety tematyczne (`PACKS`): źródła, akty po ELI, hasła Wikipedii; nowy pakiet = nowy obiekt |
+| `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp); części: ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety; plik z danymi (`exportData`, `dataFromFile`) |
+| `search.js` | wyszukiwanie w bibliotece (BM25 po fragmentach zatwierdzonych dokumentów) – fragmenty pod odpowiedzią czatu |
+| `packs.js` | pakiety tematyczne: wbudowane (`PACKS`) i własne (kv `userPacks`, edycja, plik pakietu); źródła, akty po ELI (z frazą tekstu jednolitego), hasła Wikipedii, typowe pytania |
 | `log.js` | logi: `log(ważność, obszar, treść, szczegóły)`, poziomy `LEVELS` (błąd, ostrzeżenie, informacja, szczegóły), zapis w magazynie `logs` (najwyżej `MAX`), słuchacze na żywo, eksport do tekstu |
 | `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`, `downloadWikiTitle`), akt po ELI (`downloadEliAct`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
@@ -75,7 +76,7 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 |---|---|
 | `dashboard.js` | Pulpit: kafelki kroków 1–7 ze stanem, aktywny model, komputer |
 | `research.js` | Research: „czy już pobrany”, źródła (www, ELI, API JSON, stenogramy, Wikipedia), katalog znanych źródeł, domeny z dokumentów, zmiany u źródła |
-| `documents.js` | Dokumenty: biblioteka (ikonka, opis, adres źródła, tekst ogólny), wgrywanie i wklejanie |
+| `documents.js` | Dokumenty: biblioteka (ikonka, opis, kategorie z filtrem, adres źródła, tekst ogólny), wgrywanie i wklejanie |
 | `formatting.js` | Formatowanie: podgląd przed/po, raport, zatwierdzanie, formatowanie ponowne, ustawienia formatowania |
 | `pretrain.js` | Nauka: dane (z podziałem prawnicze/ogólne), rodzaj nauki, ustawienia, przebieg |
 | `dialogs.js` | Rozmowy wzorcowe: edytor, wczytywanie i zapis pliku |
@@ -97,10 +98,12 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 | `ui/trainview.js` | widok przebiegu nauki i dostrajania |
 | `ui/netview.js` | podgląd budowy modelu z prawdziwych wag |
 | `ui/fileicon.js` | ikonka rodzaju pliku |
+| `ui/tags.js` | kategorie dokumentów: plakietki, edycja (z podpowiedziami), filtr z liczbami |
 | `ui/dialog-editor.js` | edytor rozmowy wzorcowej (osadzany w zakładkach i oknach) |
 | `ui/modals/publish.js` | okno publikacji na GitHub (checkboxy) |
 | `ui/modals/github-import.js` | okno „Wczytaj z GitHub” (modele i dane) |
 | `ui/modals/format-stats.js` | statystyki formatowania i porównanie „Czy to coś dało?” |
+| `ui/modals/data-file.js` | okna „Zapisz dane do pliku” i „Wczytaj dane z pliku” |
 | `help/content.js` | działy Pomocy: `id`, `topics`, bloki treści (akapit, kroki, tabela, przykład, przykład reguły na żywo, schemat) |
 | `help/diagram.js` | schemat przykładowego modelu z objaśnieniami |
 

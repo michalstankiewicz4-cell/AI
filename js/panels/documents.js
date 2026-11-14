@@ -8,11 +8,13 @@ import { readFile, finishReading, ACCEPT, kindOf } from '../reader/index.js';
 import { listDocs, addDoc, saveDoc, deleteDoc, findDuplicate, STATUS } from '../core/documents.js';
 import { go } from '../main.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
+import { tagEditor, tagFilter } from '../ui/tags.js';
+import { tagCounts, hasTags } from '../core/documents.js';
 
 export default {
   id: 'dokumenty', title: 'Dokumenty', stage: 2, icon: '📄',
   render(root) {
-    const list = h('div'), stats = h('p.note');
+    const list = h('div'), stats = h('p.note'), filterBox = h('div'), selTags = new Set();
     const prog = h('div.readprog', { hidden: true }, h('p.status'), h('div.progress', h('div.fill')));
     const search = h('input', { type: 'search', placeholder: 'Szukaj po nazwie i opisie…', oninput: () => draw() });
     root.append(
@@ -25,7 +27,7 @@ export default {
           h('span.note', 'Word (.docx), OpenDocument (.odt), RTF, PDF, obrazy (OCR), .txt, .md, .html.'),
           help('Każdy dokument ma ikonkę rodzaju, nazwę, datę i opis. Skany w PDF i zdjęcia przechodzą przez OCR, który sam obraca strony leżące bokiem lub do góry nogami i prostuje przekrzywione.', 'dokumenty')),
         prog),
-      h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), stats, list));
+      h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), stats, h('div.row', filterBox, help('Kategorie (plakietki) dokumentu: część dostaje sam według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, „nieaktualny” przy nowszej wersji aktu), resztę dopisujesz w polu „+ kategoria”. Kliknięcie kategorii tutaj filtruje bibliotekę; kilka zaznaczonych = dokumenty, które mają je wszystkie.', 'kategorie')), list));
 
     async function addFiles() {
       const files = await pickFiles(ACCEPT, true); let n = 0; const done = [];
@@ -68,7 +70,10 @@ export default {
       stats.textContent = docs.length
         ? `${num(docs.length)} ${plural(docs.length, 'dokument', 'dokumenty', 'dokumentów')}: zatwierdzone ${num(by('zatwierdzony'))}, do sprawdzenia ${num(by('do-sprawdzenia'))}, odrzucone ${num(by('odrzucony'))}.`
         : 'Biblioteka jest pusta. Wgraj pierwsze dokumenty.';
-      const shown = q ? docs.filter(d => (d.name + ' ' + d.description).toLowerCase().includes(q)) : docs;
+      for (const t of [...selTags]) if (!docs.some(d => d.tags.includes(t))) selTags.delete(t);
+      clear(filterBox); filterBox.append(tagFilter(docs, selTags, draw));
+      const all = tagCounts(docs).map(([t]) => t);
+      const shown = docs.filter(d => hasTags(d, [...selTags]) && (!q || (d.name + ' ' + d.description + ' ' + d.tags.join(' ')).toLowerCase().includes(q)));
       clear(list);
       list.append(...shown.map(d => {
         const descIn = h('textarea.desc', { rows: 1, value: d.description, placeholder: 'Opis: co to za dokument, skąd pochodzi, stan prawny…', 'aria-label': 'Opis dokumentu',
@@ -78,6 +83,7 @@ export default {
           h('div.docmain',
             h('div.row.wrap', h('b.docname', d.name), h('span.note', date(d.addedAt)), h('span.note', `${num((d.raw || '').length)} znaków`), d.encoding && d.type !== 'wklejony' ? h('span.note', d.encoding) : null),
             descIn,
+            tagEditor(d, all, async x => { await saveDoc(x); clear(filterBox); filterBox.append(tagFilter(await listDocs(), selTags, draw)); }),
             h('input.srcurl', { type: 'url', value: d.sourceUrl, placeholder: 'Adres źródła (skąd pobrano): https://…', 'aria-label': 'Adres źródła',
               onchange: async e => { d.sourceUrl = e.target.value.trim(); await saveDoc(d); toast('Zapisano adres źródła.', 'ok', 1200); } })),
           h('div.docside',

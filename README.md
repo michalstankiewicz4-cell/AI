@@ -10,13 +10,13 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 
 | Etap | Krok | Zakładka | Co się dzieje |
 |---|---|---|---|
-| 1 – nauka języka | 1 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm…; tekst ogólny: stenogramy Sejmu, Wikipedia; pakiety tematyczne, np. Prawo pracy): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
-| | 2 | Dokumenty | biblioteka: wgrywasz ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) z opisem; tekst ogólny (nie prawniczy) oznaczony plakietką „ogólny” |
+| 1 – nauka języka | 1 | Research | źródła dokumentów (strony www, API aktów prawnych Sejmu, inne API JSON; katalog znanych źródeł: UOKiK, UODO, KNF, ZUS, KIS, SAOS, Sejm…; tekst ogólny: stenogramy Sejmu, Wikipedia; pakiety tematyczne, np. Prawo pracy – także własne; pełne orzeczenia z SAOS): czy działają, co nowe i zmienione, czy dokument był już pobrany; pobieranie do biblioteki |
+| | 2 | Dokumenty | biblioteka z kategoriami (filtr, „nieaktualny”): wgrywasz ustawy, kodeksy, orzeczenia, artykuły (Word, OpenDocument, RTF, PDF, skany i zdjęcia przez OCR, .txt, .md, .html) z opisem; tekst ogólny (nie prawniczy) oznaczony plakietką „ogólny” |
 | | 3 | Formatowanie | konwerter na dane do nauki: podgląd przed/po, statystyki zmian, ostrzeżenia; do nauki trafiają tylko zatwierdzone dokumenty |
 | | 4 | Nauka | sieć uczy się przewidywać dalszy ciąg tekstu (tekst ogólny do ustalonego udziału, domyślnie 20%), wynik to **model bazowy** |
 | 2 – nauka odpowiadania | 5 | Rozmowy wzorcowe | pytania i poprawne odpowiedzi (`Ty: … / AI: …`) |
 | | 6 | Dostrajanie | sieć uczy się odpowiadać, wynik to **model dostrojony** |
-| douczanie | 7 | Czat | rozmowa z aktywnym modelem, ocena odpowiedzi ✓ ✎ ✗ |
+| douczanie | 7 | Czat | rozmowa z aktywnym modelem, ocena odpowiedzi ✓ ✎ ✗, pod odpowiedzią fragmenty z biblioteki (dokładny tekst przepisu) |
 | | 7 | Historia rozmów | poprawione rozmowy wracają do rozmów wzorcowych → ponowne dostrajanie |
 | | – | Modele | wersje, podgląd budowy, plik, publikacja na GitHub i wczytywanie z GitHub |
 | | – | Logi | co i kiedy się działo, błędy w kolorach według ważności – do szukania, w którym momencie coś się popsuło |

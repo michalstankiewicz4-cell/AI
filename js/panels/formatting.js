@@ -9,6 +9,8 @@ import { VERSIONS } from '../version.js';
 import { go } from '../main.js';
 import { fieldsForm } from '../ui/form.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
+import { tagFilter, tagChips } from '../ui/tags.js';
+import { hasTags } from '../core/documents.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
 // wszystkie pola grupy „cleaner” poza długością odpowiedzi wzorcowej (ta jest w „Rozmowach wzorcowych”)
@@ -23,7 +25,7 @@ export default {
   async render(root, _r, focusId) {
     let filter = 'do-sprawdzenia';
     if (focusId) { const d = (await listDocs()).find(x => x.id === focusId); if (d) filter = d.status; }
-    const list = h('div'), stats = h('p.note'), bulk = h('div.row.wrap');
+    const list = h('div'), stats = h('p.note'), bulk = h('div.row.wrap'), filterBox = h('div'), selTags = new Set();
     const seg = h('div.seg', FILTERS.map(([v, l]) => h('label', h('input', { type: 'radio', name: 'ff', checked: v === filter, onchange: () => { filter = v; draw(); } }), ' ', l)));
     root.append(
       h('header.ph', h('h1', 'Formatowanie'),
@@ -31,13 +33,14 @@ export default {
       h('details.card.settings', h('summary', h('b', 'Ustawienia formatowania'), ' ', h('span.note', '— reguły, dodatkowe znaki, progi')),
         h('p.note', 'Zmiana dotyczy nowo wgranych dokumentów. Już wgrane sformatujesz od nowa przyciskiem „Formatuj wszystkie ponownie”.'),
         fieldsForm('cleaner', settings().cleaner, { only: CLEANER_HERE, onChange: () => { clearTimeout(saveT); saveT = setTimeout(async () => { await saveSettings(settings()); toast('Zapisano ustawienia formatowania.', 'ok', 1500); }, 400); } })),
-      h('section.card', h('div.row.wrap', seg, h('span.sp'), bulk), stats, list));
+      h('section.card', h('div.row.wrap', seg, h('span.sp'), bulk), filterBox, stats, list));
 
     async function draw() {
-      const all = await listDocs(), docs = filter === 'all' ? all : all.filter(d => d.status === filter);
+      const all = await listDocs(), docs = (filter === 'all' ? all : all.filter(d => d.status === filter)).filter(d => hasTags(d, [...selTags]));
+      clear(filterBox); filterBox.append(tagFilter(all, selTags, draw));
       const appr = all.filter(d => d.status === 'zatwierdzony' && d.enabled), chars = appr.reduce((a, d) => a + d.chars, 0);
       stats.textContent = `W nauce: ${num(appr.length)} ${plural(appr.length, 'dokument', 'dokumenty', 'dokumentów')}, ${num(chars)} znaków.` + (chars && chars < 300000 ? ' Mała sieć zaczyna sensownie pisać od ok. 300–500 tys. znaków.' : '');
-      const todo = all.filter(d => d.status === 'do-sprawdzenia'), clean = todo.filter(d => !d.report.warnings.length);
+      const todo = all.filter(d => d.status === 'do-sprawdzenia' && hasTags(d, [...selTags])), clean = todo.filter(d => !d.report.warnings.length);
       const stale = all.filter(d => d.cleanerVersion !== VERSIONS.cleaner);
       clear(bulk);
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));
@@ -59,7 +62,7 @@ export default {
       const toggle = h('button.ghost.small', { type: 'button', onclick: () => { showRaw = !showRaw; pre.textContent = cut(showRaw ? d.raw : d.text); toggle.textContent = showRaw ? 'Pokaż po formatowaniu' : 'Pokaż przed formatowaniem'; } }, 'Pokaż przed formatowaniem');
       const act = (label, fn, cls = '.ghost') => h('button' + cls, { type: 'button', onclick: async () => { await fn(); draw(); } }, label);
       return h('article.doc.st-' + d.status + (r.warnings.length ? '.warn' : ''), { dataset: { id: d.id } },
-        h('div.row.wrap', fileIcon(d.type), h('div.docmain.grow', h('b', d.name), d.description ? h('div.note', d.description) : null),
+        h('div.row.wrap', fileIcon(d.type), h('div.docmain.grow', h('b', d.name), d.description ? h('div.note', d.description) : null, d.tags.length ? h('div.row.wrap.tags', tagChips(d.tags)) : null),
           h('span.badge.st-' + d.status, STATUS[d.status]),
           h('span.note', `${num(r.before)} → ${num(r.after)} znaków · ${num(r.paragraphs)} ${plural(r.paragraphs, 'akapit', 'akapity', 'akapitów')}`)),
         r.read ? h('p.note', 'Odczyt: ' + r.read, ' ', help('Jak odczytano plik: strony z warstwą tekstową PDF albo przez OCR, obroty (do góry nogami, bokiem), wyprostowanie przekrzywienia i pewność rozpoznania.', 'ocr')) : null,

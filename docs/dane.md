@@ -76,6 +76,12 @@ Po wgraniu, wklejeniu i każdym formatowaniu pojawia się okno **statystyk** (`u
 
 Każdy dokument zapamiętuje wersję reguł (`VERSIONS.cleaner`), którą go sformatowano. Po zmianie reguł starsze są oznaczone, a „Formatuj wszystkie ponownie” stosuje aktualne reguły do oryginałów.
 
+### Kategorie (plakietki)
+Dokument ma listę kategorii `tags`. Część nadaje się sama według pochodzenia (`autoTags`): *akt prawny* (ELI), *orzeczenie* (SAOS), *Wikipedia*, *stenogram Sejmu*, nazwa pakietu; dochodzą kategorie źródła z Researchu. Pobranie nowszej wersji tego samego aktu (ten sam ELI) albo nowszego tekstu jednolitego oznacza starszy dokument jako **nieaktualny**. Po kategoriach filtruje się Dokumenty i Formatowanie (kilka zaznaczonych = wszystkie naraz).
+
+### Plik z danymi
+Ustawienia → *Zapisz dane do pliku* tworzy plik `{ format: 'ai-prawo-dane', version: 1, … }` z wybranymi częściami (ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety). *Wczytaj dane z pliku* używa tego samego przywracania co „Wczytaj z GitHub”. Token nie trafia do pliku.
+
 ## Rozmowy wzorcowe
 
 Plik `.txt`, każda kwestia w osobnej linii ze znacznikiem na początku, rozmowy oddzielone pustą linią:
@@ -98,6 +104,8 @@ AI: …
 - Błędne rozmowy nie są dodawane; raport podaje numer linii i powód.
 
 Kilka wymian w jednej rozmowie uczy sieć korzystać z kontekstu.
+
+Szkielety z pakietów (`draft: true`): pytanie bez odpowiedzi, plakietka „do uzupełnienia”, pomijane w dostrajaniu; po dopisaniu odpowiedzi („Uzupełnij”) zwykła rozmowa wzorcowa.
 
 ## Słownik modelu
 

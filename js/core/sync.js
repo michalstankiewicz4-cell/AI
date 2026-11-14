@@ -13,6 +13,8 @@ import { listDialogs } from './dialogs.js';
 import { listConversations, changed as conversationsChanged } from './conversations.js';
 import { dialogToText } from '../cleaner/dialogs.js';
 import { fetchPublished } from './github.js';
+import { listSources } from './sources.js';
+import { userPacks } from './packs.js';
 import { VERSIONS } from '../version.js';
 
 export const PARTS = {
@@ -20,15 +22,17 @@ export const PARTS = {
   documents: { file: 'data/dokumenty.json', label: 'Dokumenty', store: 'documents' },
   dialogs: { file: 'data/rozmowy-wzorcowe.json', label: 'Rozmowy wzorcowe', store: 'dialogs' },
   conversations: { file: 'data/historia-rozmow.json', label: 'Historia rozmów', store: 'conversations' },
+  sources: { file: 'data/zrodla.json', label: 'Źródła (Research)', store: 'sources' },
+  packs: { file: 'data/pakiety.json', label: 'Własne pakiety', kv: 'userPacks' },
 };
 
 // Wszystko, co może pójść na GitHub (pełne rekordy, żeby dało się je odtworzyć 1:1)
 export async function collect() {
-  const [documents, dialogs, conversations] = await Promise.all([listDocs(), listDialogs(), listConversations()]);
+  const [documents, dialogs, conversations, sources, packs] = await Promise.all([listDocs(), listDialogs(), listConversations(), listSources(), userPacks()]);
   return {
     settings: settings(), versions: { ...VERSIONS },
-    documents, dialogs, conversations,
-    dialogsText: dialogs.slice().reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n',
+    documents, dialogs, conversations, sources, packs,
+    dialogsText: dialogs.filter(d => !d.draft).reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n',
   };
 }
 
@@ -41,17 +45,22 @@ export async function fetchPublishedData(cfg) {
 
 // Przywrócenie wybranych części. replace: zastąp rekordy o tym samym id (domyślnie pomiń).
 // Zwraca { part: { added, replaced, skipped } }.
-export async function restore(pub, what, { replace = false } = {}) {
+export async function restore(pub, what, { replace = false, from = 'github' } = {}) {
   const res = {};
-  try { return await restoreRaw(pub, what, replace, res); } catch (e) { log('error', 'github', 'Wczytywanie danych z GitHub nieudane: ' + e.message, e); throw e; }
+  try { return await restoreRaw(pub, what, replace, res, from); } catch (e) { log('error', from === 'plik' ? 'dane' : 'github', `Wczytywanie danych z ${from === 'plik' ? 'pliku' : 'GitHub'} nieudane: ` + e.message, e); throw e; }
 }
-async function restoreRaw(pub, what, replace, res) {
+async function restoreRaw(pub, what, replace, res, from) {
   if (what.settings && pub.settings) {
     const d = defaults(), s = pub.settings.settings || {};
     for (const g in d) Object.assign(d[g], s[g] || {});        // nowe pola z tej wersji panelu zostają z domyślnymi wartościami
     await saveSettings(d); res.settings = { replaced: 1 };
   }
-  for (const k of ['documents', 'dialogs', 'conversations']) {
+  if (what.packs && pub.packs) {
+    const own = await userPacks(), ids = new Set(own.map(p => p.id)), r = { added: 0, replaced: 0, skipped: 0 };
+    for (const p of pub.packs.packs || []) { if (!p || !p.id) continue; if (ids.has(p.id)) { if (replace) { own.splice(own.findIndex(x => x.id === p.id), 1, p); r.replaced++; } else r.skipped++; } else { own.push(p); r.added++; } }
+    await db.kvSet('userPacks', own); res.packs = r;
+  }
+  for (const k of ['documents', 'dialogs', 'conversations', 'sources']) {
     if (!what[k] || !pub[k]) continue;
     const list = pub[k][k] || [], store = PARTS[k].store, r = { added: 0, replaced: 0, skipped: 0 };
     const have = new Set((await db.all(store)).map(x => x.id)), put = [];
@@ -64,6 +73,23 @@ async function restoreRaw(pub, what, replace, res) {
     res[k] = r;
   }
   if (res.conversations) conversationsChanged();
-  log('info', 'github', `Wczytano dane z GitHub (${replace ? 'zastąp' : 'dodaj brakujące'})`, res);
+  log('info', from === 'plik' ? 'dane' : 'github', `Wczytano dane z ${from === 'plik' ? 'pliku' : 'GitHub'} (${replace ? 'zastąp' : 'dodaj brakujące'})`, res);
   return res;
+}
+
+// ---------- plik z danymi (bez GitHub) ----------
+// { format: 'ai-prawo-dane', version: 1, exportedAt, versions, settings?, documents?, dialogs?, conversations?, sources?, packs? }
+// Wczytanie używa tego samego przywracania co GitHub (te same części, dodaj brakujące albo zastąp).
+export async function exportData(what) {
+  const d = await collect(), out = { format: 'ai-prawo-dane', version: 1, exportedAt: new Date().toISOString(), versions: d.versions };
+  for (const k of Object.keys(PARTS)) if (what[k]) out[k] = d[k];
+  log('info', 'dane', 'Zapisano dane do pliku: ' + Object.keys(PARTS).filter(k => what[k]).map(k => PARTS[k].label.toLowerCase()).join(', '));
+  return out;
+}
+// plik → ten sam kształt co fetchPublishedData (część: { publishedAt, [część]: … })
+export function dataFromFile(o) {
+  if (!o || o.format !== 'ai-prawo-dane') throw new Error('To nie jest plik z danymi panelu (format ai-prawo-dane).');
+  const pub = {};
+  for (const k of Object.keys(PARTS)) if (o[k] != null) pub[k] = k === 'settings' ? { publishedAt: o.exportedAt, settings: o.settings } : { publishedAt: o.exportedAt, [k]: o[k] };
+  return pub;
 }

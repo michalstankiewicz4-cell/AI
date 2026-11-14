@@ -1,11 +1,13 @@
 // Zakładka „Research”: źródła dokumentów (strony www, API ELI Sejmu), sprawdzanie ich (czy działają, czy są zmiany
 // i nowe dokumenty), sprawdzanie, czy dokument był już pobrany, i pobieranie do biblioteki z adresem źródła.
 
-import { h, help, toast, confirmBox, modal, num, date, clear, plural } from '../ui/dom.js';
+import { h, help, toast, confirmBox, modal, num, date, clear, plural, pickFiles, download as saveFile } from '../ui/dom.js';
 import { listSources, saveSource, deleteSource, newSource, hostOf, sourcesFromDocuments, docsOfSource, checkSource,
-  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog, downloadWiki, downloadEliAct, downloadWikiTitle } from '../core/sources.js';
-import { PACKS } from '../core/packs.js';
-import { listDocs, addDoc } from '../core/documents.js';
+  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog, downloadWiki, downloadEliAct, downloadWikiTitle, findNewerConsolidated, isSaos, saosUrl, downloadSaosJudgment } from '../core/sources.js';
+import { listPacks, savePack, deletePack, packToFile, packFromFile } from '../core/packs.js';
+import { listDialogs, addQuestionDrafts } from '../core/dialogs.js';
+import { listDocs, addDoc, mergeTags, markOutdated } from '../core/documents.js';
+import { tagChips } from '../ui/tags.js';
 import { go } from '../main.js';
 
 const STATUS_TXT = { dodano: 'dodano', jest: 'już jest', zmieniony: 'nowa wersja', 'inny-tytul': 'pominięto – inny tytuł niż w pakiecie', brak: 'brak takiego artykułu', blad: 'błąd' };
@@ -65,6 +67,7 @@ export default {
       const eliBox = h('div.fields', h('div.field', h('label', 'Wydawnictwo'), pub), h('div.field', h('label', 'Lata', help('Z których lat sprawdzać akty (oddzielone przecinkami). Każdy rok to jedno zapytanie do API.', 'research-eli')), years),
         h('div.field', h('label', 'Tylko tytuły zawierające', help('Słowa oddzielone przecinkami: pokazywane są akty, których tytuł zawiera którekolwiek z nich. W Dzienniku Ustaw jest ok. 2000 aktów rocznie, więc filtr pomaga znaleźć te, które Cię interesują.', 'research-eli')), filter));
       const gen = h('input', { type: 'checkbox', checked: !!s.general });
+      const tagsIn = h('input', { type: 'text', value: (s.tags || []).join(', '), placeholder: 'np. Prawo pracy, orzeczenie' });
       const kind = h('select', { onchange: () => { eliBox.hidden = kind.value !== 'eli'; if (kind.value === 'eli' && !url.value) url.value = ELI_API; } },
         h('option', { value: 'www', selected: s.kind === 'www' }, 'strona www z dokumentami'), h('option', { value: 'eli', selected: s.kind === 'eli' }, 'API aktów prawnych Sejmu (ELI)'), h('option', { value: 'api', selected: s.kind === 'api' }, 'API (JSON) – inne'),
         h('option', { value: 'steno', selected: s.kind === 'steno' }, 'stenogramy Sejmu (API Sejmu)'), h('option', { value: 'wiki', selected: s.kind === 'wiki' }, 'Wikipedia (API MediaWiki)'));
@@ -72,10 +75,11 @@ export default {
       const close = modal(src ? `Źródło: ${s.name}` : 'Nowe źródło',
         h('div.fields', h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Rodzaj', help('Strona www: panel szuka na niej linków do dokumentów (PDF, Word, HTML…). API ELI: lista aktów Dziennika Ustaw albo Monitora Polskiego z wybranych lat, z datą ostatniej zmiany każdego aktu. API (JSON): dowolne API zwracające JSON – sprawdzane jest, czy działa, ile ma pozycji i czy coś się zmieniło.', 'research-zrodla')), kind)),
         h('div.field', h('label', 'Adres'), url), h('div.field', h('label', 'Opis'), desc), eliBox,
+        h('div.field', h('label', 'Kategorie dokumentów z tego źródła ', help('Pobrane z tego źródła dokumenty dostaną te kategorie (plakietki) – po przecinku. W Dokumentach i Formatowaniu można po nich filtrować.', 'kategorie')), tagsIn),
         h('div.field.check', gen, h('label', ' Tekst ogólny (nie prawniczy) ', help('Dokumenty pobrane z tego źródła dostaną oznaczenie „ogólny”. W nauce idą tylko do ustalonego udziału (Nauka → „Udział tekstu ogólnego”).', 'tekst-ogolny'))),
         h('div.row.end', h('button', { type: 'button', onclick: async () => {
           if (!name.value.trim() || !/^https?:\/\//.test(url.value.trim())) return toast('Podaj nazwę i pełny adres (https://…).', 'error');
-          Object.assign(s, { name: name.value.trim(), url: url.value.trim(), kind: kind.value, description: desc.value.trim(), general: gen.checked,
+          Object.assign(s, { name: name.value.trim(), url: url.value.trim(), kind: kind.value, description: desc.value.trim(), general: gen.checked, tags: mergeTags(tagsIn.value.split(',')),
             eli: kind.value === 'eli' ? { publisher: pub.value, years: years.value.trim(), filter: filter.value.trim() } : null });
           if (src && (src.url !== s.url || src.kind !== s.kind)) delete s.last;
           await saveSource(s); close(); draw();
@@ -106,11 +110,11 @@ export default {
       const L = s.last; if (!L || !L.ok || !L.links) return null;
       const fresh = L.links.filter(l => !l.have), box = h('div');
       box.append(h('p.note', `Linki do dokumentów na stronie: ${num(L.links.length)} — nowe: ${num(fresh.length)}, już pobrane: ${num(L.links.length - fresh.length)}.`));
-      if (fresh.length > 1) box.append(h('button.ghost.small', { type: 'button', onclick: async e => { e.currentTarget.disabled = true; for (const l of fresh) await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general }, box); await checkSource(s); draw(); } }, `Pobierz wszystkie nowe (${fresh.length})`));
+      if (fresh.length > 1) box.append(h('button.ghost.small', { type: 'button', onclick: async e => { e.currentTarget.disabled = true; for (const l of fresh) await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general, tags: s.tags || [] }, box); await checkSource(s); draw(); } }, `Pobierz wszystkie nowe (${fresh.length})`));
       if (L.links.length) box.append(h('div.tablebox', h('table.srctable', h('tbody', L.links.slice(0, 150).map(l => h('tr',
         h('td', h('a', { href: l.url, target: '_blank', rel: 'noopener', title: l.url }, l.title)),
         h('td', l.have ? h('span.badge.ok', 'już pobrany') : h('span.badge.corrected', 'nowy')),
-        h('td.actions', l.have ? null : h('button.small', { type: 'button', onclick: async e => { const cell = e.currentTarget.parentNode; e.currentTarget.remove(); if (await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general }, cell)) l.have = true; } }, 'Pobierz'))))))));
+        h('td.actions', l.have ? null : h('button.small', { type: 'button', onclick: async e => { const cell = e.currentTarget.parentNode; e.currentTarget.remove(); if (await download(l.url, { name: l.name, description: `Źródło: ${s.name}`, general: !!s.general, tags: s.tags || [] }, cell)) l.have = true; } }, 'Pobierz'))))))));
       return h('details', { open: fresh.length > 0 }, h('summary', s.kind === 'steno' ? `Stenogramy (najnowsze ${L.links.length} z ${num(L.total || L.links.length)} dni posiedzeń)` : 'Dokumenty na stronie'), box);
     }
 
@@ -127,7 +131,7 @@ export default {
           h('td', a.changed ? h('span.badge.corrected', 'zmieniony') : a.have ? h('span.badge.ok', 'już pobrany') : h('span.badge', 'nowy')),
           h('td.actions', !a.have || a.changed ? h('button.small', { type: 'button', onclick: async e => {
             const cell = e.currentTarget.parentNode; e.currentTarget.remove();
-            const ok = await download(eliTextUrl(a), { general: !!s.general, name: `${a.eli.replace(/\//g, ' ')} – ${a.title}`.slice(0, 180), description: `ELI ${a.eli} (${PUBLISHERS[a.eli.split('/')[0]] || ''})`, eli: a.eli, sourceChangeDate: a.changeDate, force: a.changed }, cell);
+            const ok = await download(eliTextUrl(a), { general: !!s.general, tags: s.tags || [], name: `${a.eli.replace(/\//g, ' ')} – ${a.title}`.slice(0, 180), description: `ELI ${a.eli} (${PUBLISHERS[a.eli.split('/')[0]] || ''})`, eli: a.eli, sourceChangeDate: a.changeDate, force: a.changed }, cell);
             if (ok) { a.have = true; a.changed = false; }
           } }, a.changed ? 'Pobierz nową wersję' : 'Pobierz') : null))));
         if (sel.length > 150) rows.append(h('tr', h('td', { colSpan: 4 }, h('span.note', `Pokazano 150 z ${num(sel.length)}. Zawęź filtr tytułów w ustawieniach źródła.`))));
@@ -142,6 +146,7 @@ export default {
 
     function apiView(s) {
       const L = s.last; if (!L || !L.ok) return null;
+      if (isSaos(s.url) && L.sample && L.sample.some(x => x.id != null)) return saosView(s, L);
       return h('details', h('summary', `Odpowiedź API: ${L.count != null ? num(L.count) + ' pozycji' : 'JSON'}${L.total != null ? ` (wszystkich: ${num(L.total)})` : ''}`),
         L.sample && L.sample.length ? h('ul', L.sample.map(x => h('li', x.label, x.date ? h('span.note', ' · ' + x.date) : null))) : h('p.note', 'API działa, ale odpowiedź nie zawiera listy pozycji.'));
     }
@@ -160,15 +165,25 @@ export default {
         } }, 'Pobierz losowe artykuły')), out);
     }
 
-    // Pakiety tematyczne: źródła + akty (ELI) + hasła Wikipedii (tekst ogólny) jednym przyciskiem
+    // Pakiety tematyczne: źródła + akty (ELI) + hasła Wikipedii (tekst ogólny) + typowe pytania; wbudowane i własne
     async function packsView(all) {
+      const packs = await listPacks();
       let docs = await listDocs(), have = new Set(docs.map(d => d.eli).filter(Boolean)), urls = docs.map(d => d.sourceUrl || '');
       const refresh = async () => { docs = await listDocs(); have = new Set(docs.map(d => d.eli).filter(Boolean)); urls = docs.map(d => d.sourceUrl || ''); };
       const wikiHave = t => urls.some(u => u.startsWith('https://pl.wikipedia.org/wiki/') && decodeURIComponent(u.slice(30)).replace(/_/g, ' ').toLowerCase() === t.toLowerCase());
-      return h('details.packs', { open: true }, h('summary', h('b', `Pakiety tematyczne (${PACKS.length})`), ' ', help('Pakiet to gotowy zestaw do jednej dziedziny: źródła do listy, akty prawne z Dziennika Ustaw (po identyfikatorze ELI, ze sprawdzeniem tytułu) i hasła Wikipedii pobierane jako tekst ogólny. Już pobrane są pomijane, więc pakiet można uruchamiać wielokrotnie.', 'pakiety')),
-        ...PACKS.map(pk => {
+      const dlgKeys = new Set((await listDialogs()).map(d => (d.turns[0] ? d.turns[0].text : '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()));
+      return h('details.packs', { open: true }, h('summary', h('b', `Pakiety tematyczne (${packs.length})`), ' ', help('Pakiet to gotowy zestaw do jednej dziedziny: źródła do listy, akty prawne z Dziennika Ustaw (po identyfikatorze ELI, ze sprawdzeniem tytułu), hasła Wikipedii pobierane jako tekst ogólny i typowe pytania jako szkielety rozmów wzorcowych. Już pobrane są pomijane, więc pakiet można uruchamiać wielokrotnie. Własne pakiety tworzysz przyciskiem „Nowy pakiet”.', 'pakiety')),
+        h('div.row.wrap', h('button.ghost.small', { type: 'button', onclick: () => packEditor(null) }, 'Nowy pakiet'),
+          h('button.ghost.small', { type: 'button', onclick: async () => {
+            const [f] = await pickFiles('.json,application/json', false); if (!f) return;
+            try { const p = packFromFile(JSON.parse(await f.text())); if ((await listPacks()).some(x => x.id === p.id) && !await confirmBox('Pakiet już jest', `Pakiet „${p.name}” (${p.id}) już jest. Zastąpić go wczytanym?`, 'Zastąp')) return; await savePack(p); toast(`Wczytano pakiet „${p.name}”.`, 'ok'); draw(); }
+            catch (e) { toast(`${f.name}: ${e.message}`, 'error', 8000); }
+          } }, 'Wczytaj pakiet z pliku')),
+        ...packs.map(pk => {
           const srcMiss = catalogMissing(all, pk.sources), actsMiss = pk.acts.filter(a => !have.has(a.eli)), wikiMiss = pk.wiki.filter(t => !wikiHave(t));
-          const out = h('div.packout'), missLine = h('p.note', `Brakuje: źródeł ${srcMiss.length}, aktów ${actsMiss.length}, haseł Wikipedii ${wikiMiss.length}.`);
+          const qMiss = (pk.questions || []).filter(q => !dlgKeys.has(q.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()));
+          const missText = () => `Brakuje: źródeł ${catalogMissing(all, pk.sources).length}, aktów ${pk.acts.filter(a => !have.has(a.eli)).length}, haseł Wikipedii ${pk.wiki.filter(t => !wikiHave(t)).length}.`;
+          const out = h('div.packout'), missLine = h('p.note', missText());
           const run = async (btn, label, items, fn) => {
             btn.disabled = true; clear(out);
             const head = h('p.status', `${label}: 0 z ${items.length}…`), ul = h('ul.packlog'); out.append(head, ul);
@@ -181,19 +196,102 @@ export default {
               head.textContent = `${label}: ${i + 1} z ${items.length}…`;
             }
             head.textContent = `${label}: gotowe – ` + Object.entries(cnt).map(([k, v]) => `${STATUS_TXT[k] || k}: ${v}`).join(', ') + '. Nowe dokumenty są w Formatowaniu.';
-            await refresh(); missLine.textContent = `Brakuje: źródeł ${srcMiss.length}, aktów ${pk.acts.filter(a => !have.has(a.eli)).length}, haseł Wikipedii ${pk.wiki.filter(t => !wikiHave(t)).length}.`;
+            await refresh(); missLine.textContent = missText();
             toast(`${pk.name}: ${label.toLowerCase()} – gotowe.`, 'ok'); btn.disabled = false;
           };
+          // nowsze teksty jednolite aktów z pakietu
+          const checkTj = async btn => {
+            btn.disabled = true; clear(out);
+            const head = h('p.status', 'Szukam nowszych tekstów jednolitych w Dzienniku Ustaw…'), ul = h('ul.packlog'); out.append(head, ul);
+            const cache = new Map(); let found = 0;
+            for (const a of pk.acts) {
+              if (a.tj === '-') continue;
+              let n; try { n = await findNewerConsolidated(a, { cache }); } catch (e) { ul.append(h('li.pk-blad', `${a.eli} (${a.note}) – błąd: ${e.message}`)); continue; }
+              if (!n) { ul.append(h('li.pk-jest', `${a.eli} (${a.note}) – aktualny`)); continue; }
+              found++;
+              const li = h('li.pk-zmieniony', `${a.eli} (${a.note}) – jest nowszy tekst jednolity: ${n.eli} – ${n.title.slice(0, 140)} `);
+              li.append(h('button.small', { type: 'button', onclick: async e => {
+                e.currentTarget.disabled = true; li.append(h('span.note', ' pobieram…'));
+                const r = await downloadEliAct(n.eli, { tags: [pk.name], description: `${a.note} (nowszy tekst jednolity). ELI ${n.eli}. Pakiet: ${pk.name}.` });
+                if (r.status === 'dodano' || r.status === 'jest') {
+                  const old = (await listDocs()).filter(d => d.eli === a.eli); await markOutdated(old, `nowszy tekst jednolity ${n.eli}`);
+                  await savePack({ ...pk, acts: pk.acts.map(x => x === a ? { ...a, eli: n.eli } : x) });
+                  li.lastChild.textContent = ` pobrano i podmieniono w pakiecie${old.length ? `; poprzednia wersja oznaczona jako „nieaktualny”` : ''}.`;
+                  await refresh(); missLine.textContent = missText();
+                } else li.lastChild.textContent = ` ${STATUS_TXT[r.status] || r.status}${r.error ? ': ' + r.error : ''}`;
+              } }, 'Pobierz i podmień w pakiecie'));
+              ul.append(li);
+            }
+            head.textContent = found ? `Nowsze teksty jednolite: ${found}. Pobranie podmienia akt w pakiecie, a starą wersję w bibliotece oznacza jako „nieaktualny”.` : 'Wszystkie akty z pakietu są w najnowszym tekście jednolitym (sprawdzono ostatnie 5 lat).';
+            btn.disabled = false;
+          };
           return h('section.pack',
-            h('div.row.wrap', h('b', pk.name), h('span.badge', `${pk.sources.length} źródeł`), h('span.badge', `${pk.acts.length} aktów`), h('span.badge.gen', `${pk.wiki.length} haseł Wikipedii (ogólne)`)),
-            h('p.note', pk.description),
+            h('div.row.wrap', h('b', pk.name), pk.builtin ? h('span.badge', pk.edited ? 'wbudowany, zmieniony' : 'wbudowany') : h('span.badge', 'własny'),
+              h('span.badge', `${pk.sources.length} źródeł`), h('span.badge', `${pk.acts.length} aktów`), h('span.badge.gen', `${pk.wiki.length} haseł Wikipedii (ogólne)`), h('span.badge', `${(pk.questions || []).length} pytań`), h('span.sp'),
+              h('button.ghost.small', { type: 'button', onclick: () => packEditor(pk) }, 'Edytuj pakiet'),
+              h('button.ghost.small', { type: 'button', onclick: () => saveFile(`pakiet-${pk.id}.json`, JSON.stringify(packToFile(pk), null, 1)) }, 'Zapisz pakiet do pliku'),
+              !pk.builtin || pk.edited ? h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox(pk.builtin ? 'Przywrócić wbudowany pakiet?' : 'Usunąć pakiet?', pk.builtin ? `Twoje zmiany w „${pk.name}” zostaną usunięte.` : `„${pk.name}” zniknie z listy (dokumenty i źródła zostają).`, pk.builtin ? 'Przywróć' : 'Usuń', true)) { await deletePack(pk.id); draw(); } } }, pk.builtin ? 'Przywróć wbudowany' : 'Usuń pakiet') : null),
+            pk.description ? h('p.note', pk.description) : null,
             missLine,
             h('div.row.wrap',
-              h('button.ghost', { type: 'button', disabled: !srcMiss.length, onclick: async () => { for (const c of srcMiss) await addFromCatalog(c); toast(`Dodano ${srcMiss.length} źródeł z pakietu „${pk.name}”.`, 'ok'); draw(); } }, `Dodaj źródła pakietu (${srcMiss.length})`),
-              h('button', { type: 'button', disabled: !actsMiss.length, onclick: e => run(e.currentTarget, 'Akty prawne', actsMiss, { label: a => `${a.eli} (${a.note})`, run: a => downloadEliAct(a.eli, { expect: a.expect, description: `${a.note}. ELI ${a.eli}. Pakiet: ${pk.name}.` }) }) }, `Pobierz akty pakietu (${actsMiss.length})`),
-              h('button', { type: 'button', disabled: !wikiMiss.length, onclick: e => run(e.currentTarget, 'Hasła Wikipedii', wikiMiss, { label: t => t, run: t => downloadWikiTitle(t, { description: `Pakiet: ${pk.name}.` }) }) }, `Pobierz hasła Wikipedii (${wikiMiss.length})`)),
+              h('button.ghost', { type: 'button', disabled: !srcMiss.length, onclick: async () => { for (const c of srcMiss) await addFromCatalog({ ...c, tags: mergeTags(c.tags, [pk.name]) }); toast(`Dodano ${srcMiss.length} źródeł z pakietu „${pk.name}”.`, 'ok'); draw(); } }, `Dodaj źródła pakietu (${srcMiss.length})`),
+              h('button', { type: 'button', disabled: !actsMiss.length, onclick: e => run(e.currentTarget, 'Akty prawne', actsMiss, { label: a => `${a.eli} (${a.note})`, run: a => downloadEliAct(a.eli, { expect: a.expect, tags: [pk.name], description: `${a.note}. ELI ${a.eli}. Pakiet: ${pk.name}.` }) }) }, `Pobierz akty pakietu (${actsMiss.length})`),
+              h('button', { type: 'button', disabled: !wikiMiss.length, onclick: e => run(e.currentTarget, 'Hasła Wikipedii', wikiMiss, { label: t => t, run: t => downloadWikiTitle(t, { tags: [pk.name], description: `Pakiet: ${pk.name}.` }) }) }, `Pobierz hasła Wikipedii (${wikiMiss.length})`),
+              h('button.ghost', { type: 'button', disabled: !qMiss.length, onclick: async () => { const r = await addQuestionDrafts(qMiss, pk.name); toast(`Dodano ${r.added} ${plural(r.added, 'pytanie', 'pytania', 'pytań')} do rozmów wzorcowych (do uzupełnienia odpowiedzi).`, 'ok', 6000); draw(); } }, `Dodaj pytania do rozmów wzorcowych (${qMiss.length})`),
+              h('button.ghost', { type: 'button', disabled: !pk.acts.some(a => a.tj !== '-'), onclick: e => checkTj(e.currentTarget) }, 'Sprawdź nowe teksty jednolite')),
             out);
         }));
+    }
+
+    // Edytor pakietu: nazwa, opis, źródła (z listy Researchu), akty (ELI | słowo w tytule | opis), hasła Wikipedii, typowe pytania
+    async function packEditor(pk) {
+      const p = pk ? JSON.parse(JSON.stringify(pk)) : { id: '', name: '', description: '', sources: [], acts: [], wiki: [], questions: [] };
+      const name = h('input', { type: 'text', value: p.name, placeholder: 'np. Ochrona danych osobowych' });
+      const desc = h('textarea', { rows: 2, value: p.description, placeholder: 'Czego dotyczy pakiet' });
+      const acts = h('textarea.mono', { rows: 6, value: p.acts.map(a => [a.eli, a.expect, a.note, a.tj].filter((x, i) => i < 3 || x).join(' | ')).join('\n'), placeholder: 'DU/2026/1245 | Kodeks pracy | Kodeks pracy – tekst jednolity' });
+      const wiki = h('textarea', { rows: 5, value: p.wiki.join('\n'), placeholder: 'Jeden tytuł hasła w linii, np. Urlop wypoczynkowy' });
+      const qs = h('textarea', { rows: 5, value: (p.questions || []).join('\n'), placeholder: 'Jedno pytanie w linii, tak jak zadałby je ktoś potocznie' });
+      const srcs = await listSources(), inPack = new Set(p.sources.map(s => s.kind + '|' + s.url));
+      const srcBoxes = [...p.sources.map(s => ({ s, on: true })), ...srcs.filter(s => !inPack.has(s.kind + '|' + s.url)).map(s => ({ s, on: false }))]
+        .map(x => ({ ...x, i: h('input', { type: 'checkbox', checked: x.on }) }));
+      const close = modal(pk ? `Edycja pakietu: ${pk.name}` : 'Nowy pakiet',
+        h('div.field', h('label', 'Nazwa'), name), h('div.field', h('label', 'Opis'), desc),
+        h('div.field', h('label', 'Źródła pakietu ', help('Zaznacz źródła z listy Researchu, które mają wejść do pakietu. „Dodaj źródła pakietu” doda je komuś, kto wczyta ten pakiet.', 'pakiety')),
+          srcBoxes.length ? h('div.srcpick', srcBoxes.map(x => h('label.check', x.i, ' ', x.s.name, h('span.note', ' – ' + (x.s.url || ''))))) : h('p.note', 'Brak źródeł na liście Researchu.')),
+        h('div.field', h('label', 'Akty prawne (jeden w linii: ELI | słowo, które musi być w tytule | opis | fraza tekstu jednolitego) ', help('Identyfikator ELI z api.sejm.gov.pl, np. DU/2026/1245. Słowo z tytułu chroni przed pomyłką w numerze. Fraza tekstu jednolitego (opcjonalna, domyślnie słowo z tytułu) służy do szukania nowszych tekstów jednolitych; „-” = nie szukaj.', 'pakiety')), acts),
+        h('div.field', h('label', 'Hasła Wikipedii (tekst ogólny)'), wiki),
+        h('div.field', h('label', 'Typowe pytania (szkielety rozmów wzorcowych)'), qs),
+        h('div.row.end', h('button', { type: 'button', onclick: async () => {
+          if (!name.value.trim()) return toast('Podaj nazwę pakietu.', 'error', 3000, { log: false });
+          const lines = acts.value.split('\n').map(l => l.trim()).filter(Boolean), bad = lines.filter(l => !/^[A-Z]+\/\d{4}\/\d+\b/.test(l));
+          if (bad.length) return toast(`Zły identyfikator ELI w linii: „${bad[0]}” (powinno być np. DU/2026/1245).`, 'error', 6000, { log: false });
+          const saved = await savePack({ id: p.id || 'pakiet-' + slugify(name.value), name: name.value, description: desc.value,
+            sources: srcBoxes.filter(x => x.i.checked).map(({ s }) => ({ name: s.name, kind: s.kind, url: s.url, description: s.description, general: s.general, tags: s.tags || [], eli: s.eli || null })),
+            acts: lines.map(l => { const [eli, expect, note, tj] = l.split('|').map(x => (x || '').trim()); return { eli, expect, note: note || expect || eli, tj }; }),
+            wiki: wiki.value.split('\n'), questions: qs.value.split('\n') });
+          close(); toast(`Zapisano pakiet „${saved.name}”.`, 'ok'); draw();
+        } }, 'Zapisz pakiet')));
+    }
+    const slugify = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'pakiet';
+
+    // SAOS: lista orzeczeń z wyszukiwania + pobieranie pełnej treści do biblioteki
+    function saosView(s, L) {
+      const box = h('div'), items = L.sample.filter(x => x.id != null);
+      (async () => {
+        const docs = await listDocs(), have = new Set(docs.map(d => d.sourceUrl));
+        const fresh = items.filter(x => !have.has(saosUrl(x.id)));
+        const dl = async (x, cell) => {
+          cell.textContent = 'pobieram…';
+          const r = await downloadSaosJudgment(x.id, { tags: s.tags || [] });
+          cell.textContent = STATUS_TXT[r.status] + (r.error ? ': ' + r.error : ''); cell.className = 'pk-' + r.status;
+          return r.status === 'dodano';
+        };
+        box.append(h('div.row.wrap', h('span.note', `Orzeczeń w odpowiedzi: ${num(items.length)}${L.total != null ? ` (wszystkich pasujących: ${num(L.total)})` : ''} — nowe: ${num(fresh.length)}, już pobrane: ${num(items.length - fresh.length)}.`), h('span.sp'),
+          fresh.length ? h('button.small', { type: 'button', onclick: async e => { e.currentTarget.disabled = true; let n = 0; for (const x of fresh) { const c = box.querySelector(`[data-sid="${x.id}"]`); if (await dl(x, c)) n++; } toast(`Pobrano ${n} ${plural(n, 'orzeczenie', 'orzeczenia', 'orzeczeń')} do biblioteki.`, 'ok'); } }, `Pobierz wszystkie nowe orzeczenia (${fresh.length})`) : null),
+          h('table.srctable', h('tbody', items.map(x => { const got = have.has(saosUrl(x.id)), cell = h('td', { dataset: { sid: String(x.id) } }, got ? h('span.badge.ok', 'już pobrane') : h('button.small.ghost', { type: 'button', onclick: async e => { await dl(x, e.currentTarget.parentNode); } }, 'Pobierz'));
+            return h('tr', h('td', h('a', { href: saosUrl(x.id), target: '_blank', rel: 'noopener' }, x.label || String(x.id))), h('td.note', x.date || ''), cell); }))));
+      })();
+      return h('details', { open: true }, h('summary', 'Orzeczenia (SAOS)'), box);
     }
 
     async function draw() {
@@ -209,7 +307,7 @@ export default {
       for (const s of all) {
         const n = (await docsOfSource(s)).length, st = h('span.status');
         list.append(h('article.source',
-          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : KIND[s.kind] || 'strona www'), s.general ? h('span.badge.gen', { title: 'Tekst ogólny (nie prawniczy)' }, 'ogólny') : null,
+          h('div.row.wrap', h('b', s.name), h('span.badge', s.kind === 'eli' ? `API ELI · ${PUBLISHERS[s.eli.publisher]} · ${s.eli.years}` : KIND[s.kind] || 'strona www'), s.general ? h('span.badge.gen', { title: 'Tekst ogólny (nie prawniczy)' }, 'ogólny') : null, ...tagChips(s.tags),
             h('a.note', { href: s.url, target: '_blank', rel: 'noopener' }, hostOf(s.url) || s.url), h('span.note', `dokumentów z tego źródła: ${num(n)}`), h('span.sp'), st,
             h('button.small', { type: 'button', onclick: () => checkOne(s, st) }, 'Sprawdź'),
             h('button.ghost.small', { type: 'button', onclick: () => editSource(s) }, 'Edytuj'),

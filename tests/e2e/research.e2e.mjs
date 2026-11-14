@@ -4,6 +4,7 @@
 
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -104,9 +105,9 @@ await p.click('details.catalog summary');
 await p.click('.catrow:has-text("SAOS") >> text=Dodaj'); await p.waitForTimeout(400);
 ok((await p.textContent('details.catalog summary')).includes('(13)') && (await p.textContent('main.content')).includes('SAOS – orzeczenia sądów (API)'), 'SAOS dodany z katalogu, znika z katalogu');
 const saos = 'article.source:has-text("SAOS")';
-await p.click(saos + ' >> text=Sprawdź'); await p.waitForSelector(saos + ' >> text=Odpowiedź API');
+await p.click(saos + ' >> text=Sprawdź'); await p.waitForSelector(saos + ' >> text=Orzeczenia (SAOS)'); await p.waitForTimeout(300);
 t = await p.textContent(saos);
-ok(t.includes('działa') && t.includes('2 pozycji') && t.includes('450') && t.includes('I C 1/26'), 'API (JSON): działa, 2 pozycje z 450 000, sygnatury widoczne');
+ok(t.includes('działa') && t.includes('Orzeczeń w odpowiedzi: 2') && t.includes('450') && t.includes('I C 1/26') && t.includes('Pobierz wszystkie nowe orzeczenia (2)'), 'API SAOS: działa, 2 orzeczenia z 450 000, sygnatury, pobieranie');
 await p.click('details.catalog summary'); await p.click('text=/Dodaj wszystkie \\(13\\)/'); await p.waitForTimeout(600);
 ok(!(await p.$('details.catalog')), 'Dodaj wszystkie: katalog pusty');
 ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) === 17, 'źródeł razem: 3 własne + 14 z katalogu');
@@ -177,6 +178,91 @@ ok((await p.textContent(pack)).includes('Brakuje: źródeł 0, aktów 2, haseł 
 await p.goto(BASE + '#pulpit'); await p.waitForTimeout(300); await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
 ok((await p.textContent(pack)).includes('Brakuje: źródeł 0, aktów 2, haseł Wikipedii 1'), 'pakiet: po ponownym otwarciu brakuje tylko tego, czego nie udało się pobrać');
 await p.screenshot({ path: join(OUT, 'pakiet.png'), fullPage: true });
+console.log('Kategorie, nieaktualny, pytania, teksty jednolite, własny pakiet, SAOS, plik z danymi');
+const eliSrc = 'article.source:has-text("Dziennik Ustaw (ELI)")';
+await p.goto(BASE + '#pulpit'); await p.goto(BASE + '#research'); await p.waitForSelector(eliSrc);
+if (!(await p.isVisible(eliSrc + ' >> text=/Zmienione/'))) await p.click(eliSrc + ' >> summary:has-text("Akty prawne")');
+await p.click(eliSrc + ' >> label:has-text("Zmienione")');
+await p.click(eliSrc + ' >> text=Pobierz nową wersję'); await p.waitForTimeout(1500);
+let tagsOf = await p.evaluate(async () => (await (await import('./js/core/documents.js')).listDocs()).filter(d => d.eli === 'DU/2025/10').map(d => d.tags));
+ok(tagsOf.length === 2 && tagsOf.filter(x => x.includes('nieaktualny')).length === 1, 'nowa wersja aktu: starsza dostaje plakietkę „nieaktualny”');
+await p.goto(BASE + '#dokumenty'); await p.waitForSelector('.tagfilter');
+t = await p.textContent('.tagfilter');
+ok(t.includes('Prawo pracy (41)') && t.includes('Wikipedia') && t.includes('akt prawny') && t.includes('nieaktualny (1)'), 'filtr kategorii z liczbami (Prawo pracy, Wikipedia, akt prawny, nieaktualny)');
+await p.click('.tagfilter >> text=/^Prawo pracy/'); await p.waitForTimeout(400);
+ok((await p.$$('article.docrow')).length === 41, 'filtr „Prawo pracy”: 41 dokumentów');
+await p.click('.tagfilter >> text=/^akt prawny/'); await p.waitForTimeout(400);
+ok((await p.$$('article.docrow')).length === 10, 'dwie kategorie naraz: Prawo pracy + akt prawny = 10');
+await p.fill('article.docrow >> nth=0 >> input.taginput', 'do przejrzenia'); await p.press('article.docrow >> nth=0 >> input.taginput', 'Enter'); await p.waitForTimeout(400);
+ok((await p.textContent('.tagfilter')).includes('do przejrzenia (1)'), 'ręcznie dodana kategoria pojawia się w filtrze');
+await p.screenshot({ path: join(OUT, 'kategorie.png') });
+await p.goto(BASE + '#formatowanie'); await p.waitForSelector('.tagfilter');
+await p.click('label:has-text("Wszystkie") input'); await p.click('.tagfilter >> text=/^Wikipedia/'); await p.waitForTimeout(300);
+ok((await p.$$('article.doc')).length >= 31 && (await p.$$('article.doc')).length === (await p.$$('article.doc:has(.tag:text("Wikipedia"))')).length, 'Formatowanie: filtr kategorii, plakietki przy dokumentach');
+
+// pytania z pakietu
+await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
+await p.click(pack + ' >> text=/Dodaj pytania do rozmów wzorcowych \\(20\\)/'); await p.waitForTimeout(500);
+await p.goto(BASE + '#rozmowy-wzorcowe'); await p.waitForTimeout(500);
+ok((await p.textContent('main.content')).includes('Do uzupełnienia (pytania z pakietów bez odpowiedzi): 20'), 'pytania pakietu: 20 szkieletów do uzupełnienia');
+ok(await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).trainingDialogs()).length) === 0, 'szkielety nie idą do dostrajania');
+await p.click('text=Uzupełnij >> nth=0'); await p.waitForSelector('dialog.modal textarea');
+const tas = await p.$$('dialog.modal textarea'); await tas[tas.length - 1].fill('Zależy od stażu pracy: 20 dni przy stażu krótszym niż 10 lat, 26 dni przy co najmniej 10 latach (art. 154 Kodeksu pracy).');
+await p.click('dialog.modal >> text=Zapisz'); await p.waitForTimeout(400);
+ok(await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).trainingDialogs()).length) === 1 && (await p.textContent('main.content')).includes('pakietów bez odpowiedzi): 19'), 'uzupełniona rozmowa trafia do dostrajania');
+
+// nowsze teksty jednolite
+await p.route(/https:\/\/api\.sejm\.gov\.pl\/eli\/acts\/DU\/(19|20)\d\d$/, r => {
+  const y = +r.request().url().slice(-4);
+  return r.fulfill({ headers: CORS, json: y === 2026 ? [{ ELI: 'DU/2026/1999', pos: 1999, title: 'Obwieszczenie Marszałka Sejmu w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy', changeDate: '2026-11-10T10:00:00' }, { ELI: 'DU/2026/1000', pos: 1000, title: 'Obwieszczenie w sprawie ogłoszenia jednolitego tekstu ustawy – Kodeks pracy', changeDate: null }] : [] });
+});
+await p.goto(BASE + '#pulpit'); await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
+await p.click(pack + ' >> text=Sprawdź nowe teksty jednolite'); await p.waitForSelector(pack + ' >> text=/Nowsze teksty jednolite: 1/', { timeout: 30000 });
+ok((await p.textContent(pack)).includes('DU/2026/1999'), 'wykryto nowszy tekst jednolity Kodeksu pracy (DU/2026/1999, nie starszy 1000)');
+await p.click(pack + ' >> text=Pobierz i podmień w pakiecie'); await p.waitForSelector(pack + ' >> text=/podmieniono w pakiecie/');
+const kp = await p.evaluate(async () => { const l = await (await import('./js/core/documents.js')).listDocs(); const pk = await (await import('./js/core/packs.js')).packById('prawo-pracy');
+  return { old: l.find(d => d.eli === 'DU/2026/1245').tags, neu: l.find(d => d.eli === 'DU/2026/1999').tags, pack: pk.acts[0].eli, edited: pk.edited }; });
+ok(kp.old.includes('nieaktualny') && kp.neu.includes('Prawo pracy') && kp.pack === 'DU/2026/1999' && kp.edited, 'podmiana: nowy tekst w pakiecie, stary „nieaktualny”');
+
+// własny pakiet + plik pakietu
+await p.goto(BASE + '#pulpit'); await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
+ok((await p.textContent(pack)).includes('wbudowany, zmieniony'), 'zmieniony wbudowany pakiet oznaczony');
+await p.click('text=Nowy pakiet'); await p.waitForSelector('dialog.modal');
+const mi = await p.$$('dialog.modal input[type=text]'); await mi[0].fill('Ochrona danych');
+const mt = await p.$$('dialog.modal textarea'); await mt[1].fill('DU/2019/1781 | ochronie danych | ustawa o ochronie danych osobowych'); await mt[2].fill('Ogólne rozporządzenie o ochronie danych'); await mt[3].fill('Czy szef może sprawdzać moją pocztę?');
+await p.click('dialog.modal >> text=Zapisz pakiet'); await p.waitForSelector('section.pack:has-text("Ochrona danych")');
+const own = 'section.pack:has-text("Ochrona danych")';
+ok((await p.textContent(own)).includes('własny') && (await p.textContent(own)).includes('1 aktów'), 'własny pakiet zapisany');
+const dlp = p.waitForEvent('download'); await p.click(own + ' >> text=Zapisz pakiet do pliku');
+const packFile = join(OUT, 'pakiet.json'); await (await dlp).saveAs(packFile);
+ok(JSON.parse(readFileSync(packFile, 'utf8')).format === 'ai-prawo-pakiet', 'pakiet zapisany do pliku');
+await p.click(own + ' >> text=Usuń pakiet'); await p.click('dialog >> text=Usuń'); await p.waitForTimeout(500);
+ok(!(await p.$(own)), 'własny pakiet usunięty');
+const fcp = p.waitForEvent('filechooser'); await p.click('text=Wczytaj pakiet z pliku'); (await fcp).setFiles(packFile); await p.waitForSelector(own);
+ok(true, 'pakiet wczytany z pliku');
+
+// SAOS: pełne orzeczenia
+await p.route(/https:\/\/www\.saos\.org\.pl\/api\/judgments\/\d+$/, r => { const id = r.request().url().split('/').pop();
+  return r.fulfill({ headers: CORS, json: { data: { id: +id, courtType: 'COMMON', courtCases: [{ caseNumber: `IV P ${id}/26` }], judgmentType: 'SENTENCE', judgmentDate: '2026-11-0' + id, division: { court: { name: 'Sąd Rejonowy w Testowie' } }, textContent: `<h2>WYROK</h2><p>Sąd Rejonowy w Testowie, Wydział Pracy, po rozpoznaniu sprawy z powództwa pracownika o przywrócenie do pracy (${id}) orzeka: przywraca powoda do pracy.</p>` } } }); });
+const saosPk = 'article.source:has-text("orzeczenia powołujące Kodeks pracy")';
+await p.click(saosPk + ' >> text=Sprawdź'); await p.waitForSelector(saosPk + ' >> text=/Pobierz wszystkie nowe orzeczenia \\(2\\)/');
+await p.click(saosPk + ' >> text=/Pobierz wszystkie nowe orzeczenia/'); await p.waitForTimeout(1500);
+const ors = await p.evaluate(async () => (await (await import('./js/core/documents.js')).listDocs()).filter(d => /saos\.org\.pl\/judgments/.test(d.sourceUrl)));
+ok(ors.length === 2 && ors.every(d => d.tags.includes('orzeczenie') && d.tags.includes('Prawo pracy') && d.raw.includes('przywraca powoda') && /IV P \d\/26/.test(d.name)), 'SAOS: 2 pełne orzeczenia w bibliotece, kategorie orzeczenie + Prawo pracy');
+
+// plik z danymi: zapis i wczytanie
+await p.goto(BASE + '#ustawienia'); await p.waitForSelector('text=Zapisz dane do pliku');
+await p.click('text=Zapisz dane do pliku'); await p.waitForSelector('dialog.modal');
+const dld = p.waitForEvent('download'); await p.click('dialog.modal >> text=Zapisz plik');
+const dataFile = join(OUT, 'dane.json'); await (await dld).saveAs(dataFile);
+const dj = JSON.parse(readFileSync(dataFile, 'utf8'));
+const nDocs = await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents')));
+ok(dj.format === 'ai-prawo-dane' && dj.documents.length === nDocs && dj.sources.length >= 19 && dj.packs.length >= 2 && !JSON.stringify(dj).includes('githubToken'), 'plik z danymi: dokumenty, źródła, pakiety, bez tokenu');
+await p.evaluate(async () => { const { db } = await import('./js/core/db.js'); await db.clear('documents'); await db.clear('sources'); });
+const fcd = p.waitForEvent('filechooser'); await p.click('text=Wczytaj dane z pliku'); (await fcd).setFiles(dataFile);
+await p.waitForSelector('dialog.modal >> text=Wczytaj'); await p.click('dialog.modal button:text-is("Wczytaj")'); await p.waitForSelector('dialog.modal >> text=/Wczytano\./');
+ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents'))) === nDocs && await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) >= 19, 'wczytanie pliku odtwarza dokumenty i źródła');
+
 console.log('Logi');
 await p.goto(BASE + '#logi'); await p.waitForSelector('.logrow');
 t = await p.textContent('main.content');

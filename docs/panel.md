@@ -31,14 +31,16 @@ Siedem ponumerowanych kafelków-kroków (1 Research, 2 Dokumenty, 3 Formatowanie
   - Wikipedia: liczba artykułów, wybór ile losowych artykułów pobrać, *Pobierz losowe artykuły*;
   - API (JSON): czy działa, liczba pozycji (i wszystkich), pierwsze pozycje, zmiana od poprzedniego sprawdzenia.
 - **Znane źródła do dodania** – wbudowany katalog (ELI DU/MP, UOKiK, UODO, KNF, ZUS, KIS/EUREKA, SAOS, API Sejmu: druki, procesy legislacyjne, interpelacje; ogólne: stenogramy Sejmu, Wikipedia) z przyciskami *Dodaj* i *Dodaj wszystkie*; dodane znikają z katalogu.
-- **Pakiety tematyczne** – gotowe zestawy do dziedziny (pierwszy: Prawo pracy): *Dodaj źródła pakietu*, *Pobierz akty pakietu* (po ELI, ze sprawdzeniem tytułu), *Pobierz hasła Wikipedii* (tekst ogólny); wynik przy każdej pozycji, licznik „Brakuje”, już pobrane pomijane.
+- **Pakiety tematyczne** – gotowe zestawy do dziedziny (pierwszy: Prawo pracy): *Dodaj źródła pakietu*, *Pobierz akty pakietu* (po ELI, ze sprawdzeniem tytułu), *Pobierz hasła Wikipedii* (tekst ogólny), *Dodaj pytania do rozmów wzorcowych* (szkielety do uzupełnienia), *Sprawdź nowe teksty jednolite* (z podmianą w pakiecie i oznaczeniem starej wersji jako „nieaktualny”); wynik przy każdej pozycji, licznik „Brakuje”, już pobrane pomijane. Własne pakiety: *Nowy pakiet*, *Edytuj pakiet* (także wbudowany – kopia; *Przywróć wbudowany*), *Zapisz pakiet do pliku*, *Wczytaj pakiet z pliku*.
+- **SAOS** – przy źródle API z saos.org.pl lista orzeczeń z *Pobierz* i *Pobierz wszystkie nowe orzeczenia* (pełna treść do biblioteki, kategoria *orzeczenie*).
+- **Kategorie źródła** (w *Edytuj*) – dostaje je każdy dokument pobrany z tego źródła.
 - **Domeny z dokumentów** bez źródła – *Dodaj jako źródło*.
 - **Dokumenty z adresem źródła** – *Sprawdź zmiany u źródła*, przy zmienionych *Dodaj nową wersję*.
 
 Pobrany dokument przechodzi zwykłą drogą: Formatowanie → zatwierdzenie → nauka.
 
 ## Dokumenty
-Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie. Pod opisem jest pole **Adres źródła** (skąd pobrano dokument; Research wypełnia je sam). Przy wgraniu dokumentu o treści identycznej z już istniejącym panel pyta, czy dodać go mimo to. Pole **tekst ogólny** oznacza dokument jako ogólny (nie prawniczy) – ma wtedy plakietkę „ogólny” i w nauce idzie tylko do ustalonego udziału.
+Biblioteka. Każdy plik ma ikonkę rodzaju (TXT, HTML, MD, DOCX, ODT, RTF, PDF, IMG, wklejony tekst), nazwę, datę, liczbę znaków, kodowanie lub sposób odczytu oraz edytowalne pole **opisu**. Wgranie odczytuje plik (przy PDF i obrazach z paskiem postępu OCR: strona, etap, procent), od razu go formatuje i pokazuje okno **statystyk formatowania**. Kliknięcie statusu otwiera dokument w zakładce Formatowanie. Pod opisem jest pole **Adres źródła** (skąd pobrano dokument; Research wypełnia je sam). Przy wgraniu dokumentu o treści identycznej z już istniejącym panel pyta, czy dodać go mimo to. Pod opisem są **kategorie** (plakietki, pole „+ kategoria”), a nad listą filtr kategorii z liczbami (kilka zaznaczonych = wszystkie naraz); czerwona *nieaktualny* pojawia się sama przy nowszej wersji aktu. Pole **tekst ogólny** oznacza dokument jako ogólny (nie prawniczy) – ma wtedy plakietkę „ogólny” i w nauce idzie tylko do ustalonego udziału.
 
 ## Formatowanie
 Wynik konwertera. Widoki: do sprawdzenia, zatwierdzone, odrzucone, wszystkie. Każdy dokument ma:

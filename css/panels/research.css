@@ -7,3 +7,7 @@ table.srctable td { font-size: .86rem; vertical-align: top; } table.srctable cod
 .packlog { font-size: .85rem; max-height: 260px; overflow: auto; margin: .3em 0; padding-left: 1.2em; }
 .packlog .pk-dodano, .packlog .pk-zmieniony { color: var(--ok); } .packlog .pk-jest { color: var(--ink-3); }
 .packlog .pk-inny-tytul, .packlog .pk-brak { color: var(--warn); } .packlog .pk-blad { color: var(--bad); }
+.srcpick { max-height: 180px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; padding: .3em .6em; }
+.srcpick .check { display: block; font-size: .88rem; }
+textarea.mono { font: .82rem/1.4 var(--mono); }
+.packs > .row { margin: .4em 0; }

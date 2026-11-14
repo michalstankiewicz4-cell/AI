@@ -5,6 +5,7 @@ import { fieldsForm } from '../ui/form.js';
 import { SCHEMA, settings, saveSettings, defaults } from '../core/settings.js';
 import { getToken, setToken, testAccess } from '../core/github.js';
 import { githubImportModal } from '../ui/modals/github-import.js';
+import { exportDataModal, importDataModal } from '../ui/modals/data-file.js';
 import { db } from '../core/db.js';
 import { VERSIONS } from '../version.js';
 
@@ -31,7 +32,9 @@ export default {
             h('button.ghost', { type: 'button', onclick: () => githubImportModal() }, 'Wczytaj z GitHub'),
             h('button.ghost.danger', { type: 'button', onclick: () => { setToken(''); tokenIn.placeholder = 'github_pat_…'; toast('Usunięto token z tej przeglądarki.', 'ok'); } }, 'Usuń token')),
           ghLog) : null)),
-      h('section.card', h('h2', 'Dane w tej przeglądarce', help('Dokumenty, rozmowy i modele są zapisane w bazie IndexedDB tej przeglądarki na tym komputerze. Wyczyszczenie danych strony w przeglądarce usuwa je. Modele można zabezpieczyć plikiem albo publikacją na GitHub.', 'dane-w-przegladarce')), counts),
+      h('section.card', h('h2', 'Dane w tej przeglądarce', help('Dokumenty, rozmowy i modele są zapisane w bazie IndexedDB tej przeglądarki na tym komputerze. Wyczyszczenie danych strony w przeglądarce usuwa je. Modele można zabezpieczyć plikiem albo publikacją na GitHub.', 'dane-w-przegladarce')), counts,
+        h('div.row.wrap', h('button.ghost', { type: 'button', onclick: () => exportDataModal() }, 'Zapisz dane do pliku'), h('button.ghost', { type: 'button', onclick: () => importDataModal(rerender) }, 'Wczytaj dane z pliku'),
+          help('Przeniesienie pracy bez GitHub: dokumenty, rozmowy, źródła, pakiety i ustawienia w jednym pliku .json – np. do innej przeglądarki albo jako kopia zapasowa.', 'plik-z-danymi'))),
       h('section.card', h('h2', 'Wersje'), h('dl.metrics.inline',
         h('dt', 'Program'), h('dd', VERSIONS.app), h('dt', 'Silnik sieci'), h('dd', VERSIONS.engine), h('dt', 'Reguły formatowania'), h('dd', VERSIONS.cleaner),
         h('dt', 'Format pliku modelu'), h('dd', String(VERSIONS.modelFormat)), h('dt', 'Schemat bazy'), h('dd', String(VERSIONS.db)))),

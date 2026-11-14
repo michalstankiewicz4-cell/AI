@@ -13,6 +13,20 @@ export const TIPS = {
   'Sprawdź wszystkie': 'Sprawdź po kolei wszystkie źródła: czy działają, czy są zmiany i nowe dokumenty.',
   'Sprawdź': 'Sprawdź źródło: czy działa, czy coś się zmieniło, które dokumenty są nowe.',
   'Pobierz': 'Pobierz dokument do biblioteki (z adresem źródła).',
+  'Nowy pakiet': 'Utwórz własny pakiet tematyczny: źródła, akty po ELI, hasła Wikipedii, typowe pytania.',
+  'Wczytaj pakiet z pliku': 'Dodaj pakiet z pliku .json (np. od innej osoby).',
+  'Edytuj pakiet': 'Zmień zawartość pakietu. Zmieniony wbudowany pakiet zapisuje się jako Twoja kopia.',
+  'Zapisz pakiet do pliku': 'Zapisz pakiet jako plik .json – do przekazania albo kopii.',
+  'Usuń pakiet': 'Usuń własny pakiet z listy (dokumenty i źródła zostają).',
+  'Przywróć wbudowany': 'Cofnij swoje zmiany w wbudowanym pakiecie.',
+  'Sprawdź nowe teksty jednolite': 'Poszukaj w Dzienniku Ustaw nowszych tekstów jednolitych aktów z pakietu.',
+  'Pobierz i podmień w pakiecie': 'Pobierz nowy tekst jednolity, podmień go w pakiecie i oznacz starą wersję jako nieaktualną.',
+  'Zapisz pakiet': 'Zapisz zmiany w pakiecie.',
+  'Zapisz dane do pliku': 'Zapisz wybrane dane (dokumenty, rozmowy, źródła, pakiety, ustawienia) do pliku .json.',
+  'Wczytaj dane z pliku': 'Wczytaj dane z pliku .json zapisanego w tym lub innym panelu.',
+  'Zapisz plik': 'Pobierz plik z zaznaczonymi danymi.',
+  'Uzupełnij': 'Dopisz odpowiedź do pytania z pakietu – potem rozmowa trafi do dostrajania.',
+  'Wszystkie kategorie': 'Wyłącz filtr kategorii.',
   'Pobierz logi': 'Zapisz widoczne (przefiltrowane) logi jako plik tekstowy – np. żeby komuś pokazać, co się stało.',
   'Wyczyść logi': 'Usuń wszystkie logi z tej przeglądarki (dane i modele zostają).',
   'Pokaż starsze': 'Pokaż kolejne, starsze wpisy.',
@@ -66,6 +80,8 @@ export const TIPS = {
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Dodaj pytania do rozmów wzorcowych/.test(label)) return 'Dodaj typowe pytania z pakietu jako rozmowy wzorcowe do uzupełnienia odpowiedzi.';
+  if (/^Pobierz wszystkie nowe orzeczenia/.test(label)) return 'Pobierz pełną treść wszystkich nowych orzeczeń z tej listy do biblioteki.';
   if (/^Dodaj źródła pakietu/.test(label)) return 'Dodaj do listy źródła z pakietu, których jeszcze nie masz.';
   if (/^Pobierz akty pakietu/.test(label)) return 'Pobierz brakujące akty z pakietu z API ELI (ze sprawdzeniem tytułu) do biblioteki.';
   if (/^Pobierz hasła Wikipedii/.test(label)) return 'Pobierz brakujące hasła Wikipedii z pakietu jako tekst ogólny.';

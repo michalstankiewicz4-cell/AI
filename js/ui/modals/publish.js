@@ -25,6 +25,8 @@ export async function publishModal(m) {
     box('documents', `Dokumenty (${num(data.documents.length)})`, false, 'data/dokumenty.json: oryginał, opis, status, tekst po formatowaniu', true),
     box('dialogs', `Rozmowy wzorcowe (${num(data.dialogs.length)})`, false, 'data/rozmowy-wzorcowe.json + .txt do czytania', true),
     box('conversations', `Historia rozmów z czatu (${num(data.conversations.length)})`, false, 'data/historia-rozmow.json', true),
+    box('sources', `Źródła Researchu (${num(data.sources.length)})`, false, 'data/zrodla.json: adresy, ustawienia, kategorie, wynik ostatniego sprawdzenia'),
+    box('packs', `Własne pakiety (${num(data.packs.length)})`, false, 'data/pakiety.json'),
   ];
   const log = h('p.status');
   function upd() { pub.hidden = !items.some(x => x.i.dataset.sensitive && x.i.checked); items[1].i.disabled = !items[0].i.checked; }

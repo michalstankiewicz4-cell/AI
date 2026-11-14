@@ -14,6 +14,7 @@ export default {
   render(root) {
     const listBox = h('div'), stats = h('p.note');
     const search = h('input', { type: 'search', placeholder: 'Szukaj w rozmowach…', oninput: () => drawList() });
+    const onlyDrafts = h('input', { type: 'checkbox', onchange: () => drawList() }), draftsBox = h('label.check', { hidden: true }, onlyDrafts, ' tylko do uzupełnienia ', help('Pytania dodane z pakietu tematycznego bez odpowiedzi. Kliknij „Uzupełnij”, dopisz odpowiedź i zapisz – rozmowa trafi do dostrajania. Do tego czasu jest pomijana.', 'pytania-pakietu'));
     root.append(
       h('header.ph', h('h1', 'Rozmowy wzorcowe'),
         h('p', 'Krok 2. Przykłady pytań i poprawnych odpowiedzi. Na nich sieć uczy się odpowiadać (dostrajanie). Nie trzeba opisać wszystkich możliwych pytań: sieć uogólnia na podobne, ale im więcej różnorodnych przykładów z danego tematu, tym lepiej.')),
@@ -24,7 +25,7 @@ export default {
           h('button.ghost', { type: 'button', onclick: exportFile }, 'Pobierz jako plik'),
           help(`Format pliku .txt: każda kwestia w osobnej linii, zaczyna się znacznikiem („${settings().general.userTag}” albo „${settings().general.botTag}”), rozmowy oddzielone pustą linią. Szczegóły w Pomocy.`, 'format-pliku'))),
       h('details.card.settings', h('summary', h('b', 'Ustawienia rozmów wzorcowych')), fieldsForm('cleaner', settings().cleaner, { only: ['maxAnswer'], onChange: () => saveSettings(settings()) })),
-      h('section.card', h('div.row', h('h2', 'Zestaw'), h('span.sp'), search), stats, listBox));
+      h('section.card', h('div.row', h('h2', 'Zestaw'), h('span.sp'), draftsBox, search), stats, listBox));
 
     function addManual() {
       const close = modal('Nowa rozmowa wzorcowa', dialogEditor([], async turns => {
@@ -47,24 +48,25 @@ export default {
     async function exportFile() {
       const all = await listDialogs();
       if (!all.length) return toast('Zestaw jest pusty.', 'error');
-      download('rozmowy-wzorcowe.txt', all.slice().reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n', 'text/plain;charset=utf-8');
+      download('rozmowy-wzorcowe.txt', all.filter(d => !d.draft).reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n', 'text/plain;charset=utf-8');
     }
     async function drawList() {
       const all = await listDialogs(), q = search.value.trim().toLowerCase();
-      const on = all.filter(d => d.enabled).length;
-      stats.textContent = all.length ? `${num(all.length)} ${plural(all.length, 'rozmowa', 'rozmowy', 'rozmów')}, do dostrajania: ${num(on)}.` : 'Zestaw jest pusty.';
-      const shown = q ? all.filter(d => d.turns.some(t => t.text.toLowerCase().includes(q))) : all;
+      const on = all.filter(d => d.enabled && !d.draft).length, drafts = all.filter(d => d.draft).length;
+      stats.textContent = all.length ? `${num(all.length)} ${plural(all.length, 'rozmowa', 'rozmowy', 'rozmów')}, do dostrajania: ${num(on)}.` + (drafts ? ` Do uzupełnienia (pytania z pakietów bez odpowiedzi): ${num(drafts)}.` : '') : 'Zestaw jest pusty.';
+      if (!drafts) onlyDrafts.checked = false; draftsBox.hidden = !drafts;
+      const shown = all.filter(d => (!onlyDrafts.checked || d.draft) && (!q || d.turns.some(t => t.text.toLowerCase().includes(q))));
       clear(listBox);
-      listBox.append(...shown.slice(0, 300).map(d => h('article.dialog' + (d.enabled ? '' : '.off'),
-        h('div.row', h('input', { type: 'checkbox', checked: d.enabled, 'aria-label': 'Używaj w dostrajaniu', onchange: async e => { d.enabled = e.target.checked; await saveDialog(d); drawList(); } }),
-          h('span.badge', d.source), h('span.note', date(d.addedAt)), h('span.sp'),
+      listBox.append(...shown.slice(0, 300).map(d => h('article.dialog' + (d.enabled && !d.draft ? '' : '.off'),
+        h('div.row', h('input', { type: 'checkbox', checked: d.enabled && !d.draft, disabled: !!d.draft, title: d.draft ? 'Najpierw dopisz odpowiedź' : null, 'aria-label': 'Używaj w dostrajaniu', onchange: async e => { d.enabled = e.target.checked; await saveDialog(d); drawList(); } }),
+          h('span.badge', d.source), d.pack ? h('span.tag', d.pack) : null, d.draft ? h('span.badge.st-do-sprawdzenia', 'do uzupełnienia') : null, h('span.note', date(d.addedAt)), h('span.sp'),
           h('button.ghost.small', { type: 'button', onclick: () => {
             const close = modal('Edycja rozmowy', dialogEditor(d.turns, async turns => {
-              try { const n = makeDialog(turns, d.source); Object.assign(d, { turns: n.turns, cleanerVersion: n.cleanerVersion }); await saveDialog(d); close(); drawList(); } catch (e) { toast(e.message, 'error'); }
+              try { const n = makeDialog(turns, d.source); Object.assign(d, { turns: n.turns, cleanerVersion: n.cleanerVersion }); if (d.draft) { delete d.draft; d.enabled = true; } await saveDialog(d); close(); drawList(); } catch (e) { toast(e.message, 'error'); }
             }));
-          } }, 'Edytuj'),
+          } }, d.draft ? 'Uzupełnij' : 'Edytuj'),
           h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć rozmowę?', d.turns[0].text, 'Usuń', true)) { await deleteDialog(d.id); drawList(); } } }, 'Usuń')),
-        d.turns.map(t => h('p.turnline.' + t.role, h('b', t.role === 'user' ? settings().general.userTag : settings().general.botTag), ' ', t.text)))));
+        d.turns.map(t => h('p.turnline.' + t.role, h('b', t.role === 'user' ? settings().general.userTag : settings().general.botTag), ' ', t.text || h('span.note', '(odpowiedź do dopisania)'))))));
       if (shown.length > 300) listBox.append(h('p.note', `Pokazano 300 z ${num(shown.length)}. Zawęź wyszukiwanie.`));
     }
     drawList();

@@ -99,6 +99,9 @@ await p.click('text=Ustaw jako aktywny i otwórz czat'); await p.waitForTimeout(
 await p.fill('.chat-input', 'Ile wynosi termin przedawnienia?'); await p.keyboard.press('Enter');
 await p.waitForSelector('.msg.ai .rate', { timeout: 30000 });
 ok((await p.textContent('.msg.ai')).includes('sześć lat'), 'czat odpowiada zgodnie z rozmowami wzorcowymi');
+const refs = await p.$('.msg.ai .refs');
+ok(refs && (await refs.textContent()).includes('Z biblioteki') && /przedawni/i.test(await refs.textContent()), 'pod odpowiedzią fragmenty z biblioteki (o przedawnieniu)');
+await p.click('.msg.ai .refs summary'); await p.waitForTimeout(200); await shot('07b-czat-biblioteka');
 await p.click('.msg.ai >> nth=0 >> button[title="Dobra odpowiedź"]'); await p.waitForTimeout(200);
 await p.click('.chat-hbtn[title^="Ustawienia rozmowy"]'); await p.waitForTimeout(200); await shot('07-czat');
 await p.click('.chat-fab'); await p.click('a[href="#historia"]'); await p.waitForTimeout(400);

@@ -115,14 +115,14 @@ const nameFromUrl = (u, type) => { const n = decodeURIComponent((u.split('?')[0]
 
 // Pobiera plik spod adresu, odczytuje (PDF/OCR/Word/HTML…) i dodaje do biblioteki z adresem źródła.
 // Zwraca { doc } albo { duplicate } (gdy taki dokument już jest i nie wymuszono pobrania).
-export async function downloadToLibrary(url, { name, description = '', eli = null, sourceChangeDate = null, general = false, force = false, onProgress } = {}) {
+export async function downloadToLibrary(url, { name, description = '', eli = null, sourceChangeDate = null, general = false, tags = [], force = false, onProgress } = {}) {
   if (!force) { const dup = await findDuplicate({ url, eli }); if (dup) return { duplicate: dup }; }
   const r = await probe(url, { as: 'blob', timeout: 60000 });
   if (!r.ok) { const msg = r.error || `Serwis odpowiedział kodem ${r.status}.`; log('error', 'research', 'Nie udało się pobrać dokumentu: ' + msg, url); throw new Error(msg); }
   const file = new File([r.body], name || nameFromUrl(url, r.type), { type: r.type.split(';')[0] });
   const read = await readFile(file, onProgress);
   if (!force) { const dup = await findDuplicate({ raw: read.raw }); if (dup) return { duplicate: dup }; }
-  const doc = await addDoc({ ...read, name: name || read.name, description, sourceUrl: url, eli, sourceChangeDate, general });
+  const doc = await addDoc({ ...read, name: name || read.name, description, sourceUrl: url, eli, sourceChangeDate, general, tags });
   return { doc };
 }
 export const eliTextUrl = (act, kind = act.html ? 'html' : 'pdf') => `${ELI_API}/acts/${act.eli}/text.${kind}`;
@@ -170,7 +170,7 @@ export function catalogMissing(sources, list = CATALOG) {
   const have = new Set(sources.map(key)), names = new Set(sources.map(s => s.name));
   return list.filter(c => !have.has(key(c)) && !names.has(c.name));
 }
-export const addFromCatalog = c => saveSource({ ...newSource(c), general: !!c.general, eli: c.eli ? { ...c.eli } : null });
+export const addFromCatalog = c => saveSource({ ...newSource(c), general: !!c.general, tags: [...(c.tags || [])], eli: c.eli ? { ...c.eli } : null });
 
 // ---------- API (JSON) ----------
 // Czy API odpowiada poprawnym JSON, ile ma pozycji (tablica albo pole items / results / data) i czy coś się zmieniło.
@@ -182,7 +182,7 @@ export async function checkApi(src) {
     last.count = list ? list.length : null;
     last.total = b && b.info && b.info.totalResults != null ? b.info.totalResults : b && b.count != null ? b.count : null;
     const label = it => it.title || it.name || (it.courtCases && it.courtCases[0] && it.courtCases[0].caseNumber) || it.number || it.id;
-    last.sample = list ? list.slice(0, 10).map(it => ({ label: String(label(it) ?? '').slice(0, 160), date: it.judgmentDate || it.documentDate || it.date || it.deliveryDate || it.receiptDate || it.processStartDate || (Array.isArray(it.dates) ? it.dates[0] : '') || '' })) : [];
+    last.sample = list ? list.slice(0, isSaos(src.url) ? 50 : 10).map(it => ({ id: it.id ?? null, label: String(label(it) ?? '').slice(0, 160), date: it.judgmentDate || it.documentDate || it.date || it.deliveryDate || it.receiptDate || it.processStartDate || (Array.isArray(it.dates) ? it.dates[0] : '') || '' })) : [];
     last.hash = await textHash(JSON.stringify(b));
     last.changed = src.last && src.last.hash ? src.last.hash !== last.hash : null;
   }
@@ -240,7 +240,7 @@ export async function downloadWiki(src, n = 10, { minChars = 3000, onStep } = {}
 // ---------- pobieranie po identyfikatorach (pakiety tematyczne, listy) ----------
 // Akt z API ELI po identyfikatorze (np. DU/2026/1245). expect: słowo, które musi być w tytule – zabezpieczenie przed pomyłką w numerze.
 // Wynik: { status: 'dodano' | 'jest' | 'zmieniony' | 'inny-tytul' | 'blad', title, doc?, error? }
-export async function downloadEliAct(eli, { expect = '', general = false, description = '', onProgress } = {}) {
+export async function downloadEliAct(eli, { expect = '', general = false, description = '', tags = [], onProgress } = {}) {
   const info = await probe(`${ELI_API}/acts/${eli}`, { as: 'json' });
   if (!info.ok) { const error = info.error || `API odpowiedziało kodem ${info.status}.`; log('error', 'pakiety', `Akt ${eli}: ${error}`); return { status: 'blad', error }; }
   const it = info.body, title = it.title || eli;
@@ -253,23 +253,62 @@ export async function downloadEliAct(eli, { expect = '', general = false, descri
   if (d && !changed) return { status: 'jest', title, doc: d };
   try {
     const r = await downloadToLibrary(eliTextUrl({ eli, html: !!it.textHTML }), { name: `${eli.replace(/\//g, ' ')} – ${title}`.slice(0, 180),
-      description: description || `ELI ${eli} (${PUBLISHERS[eli.split('/')[0]] || ''})`, eli, sourceChangeDate: it.changeDate || null, general, force: changed, onProgress });
+      description: description || `ELI ${eli} (${PUBLISHERS[eli.split('/')[0]] || ''})`, eli, sourceChangeDate: it.changeDate || null, general, tags, force: changed, onProgress });
     return { status: changed ? 'zmieniony' : 'dodano', title, doc: r.doc };
   } catch (e) { return { status: 'blad', title, error: e.message }; }
 }
 
 // Artykuły Wikipedii po tytułach (przekierowania są rozwijane). Wynik jak wyżej: 'dodano' | 'jest' | 'brak' | 'blad'.
 export const WIKI_API = 'https://pl.wikipedia.org/w/api.php';
-async function addWikiPage(page, extra = '') {
+async function addWikiPage(page, extra = '', tags = []) {
   const raw = page.extract.replace(/^(=+)\s*(.+?)\s*\1$/gm, '$2');
-  return addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true,
+  return addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true, tags,
     description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.${extra ? ' ' + extra : ''}` });
 }
-export async function downloadWikiTitle(title, { api = WIKI_API, description = '' } = {}) {
+export async function downloadWikiTitle(title, { api = WIKI_API, description = '', tags = [] } = {}) {
   const r = await probe(wikiUrl({ url: api }, { action: 'query', titles: title, redirects: 1, prop: 'extracts|info', explaintext: 1, inprop: 'url' }), { as: 'json' });
   if (!r.ok) { const error = r.error || `API odpowiedziało kodem ${r.status}.`; log('error', 'pakiety', `Wikipedia „${title}”: ${error}`); return { status: 'blad', error }; }
   const page = Object.values((r.body.query || {}).pages || {})[0];
   if (!page || page.missing != null || !page.extract) { log('warn', 'pakiety', `Wikipedia: brak artykułu „${title}”`); return { status: 'brak' }; }
   if (await findDuplicate({ url: page.fullurl })) return { status: 'jest', title: page.title };
-  return { status: 'dodano', title: page.title, doc: await addWikiPage(page, description) };
+  return { status: 'dodano', title: page.title, doc: await addWikiPage(page, description, tags) };
+}
+
+// ---------- nowszy tekst jednolity ----------
+// Szuka w wykazach Dziennika Ustaw (ostatnie lata) obwieszczeń „…jednolitego tekstu…” z frazą act.tj (albo act.expect),
+// ogłoszonych po akcie z pakietu. Zwraca najnowszy { eli, title, changeDate } albo null. cache: Map rok → wykaz.
+export async function findNewerConsolidated(act, { cache = new Map(), years = 5 } = {}) {
+  const phrase = (act.tj || act.expect || '').toLowerCase().replace(/[-–—]/g, '–');
+  if (!phrase || phrase === '–') return null;
+  const [pub, y0, p0] = act.eli.split('/'), now = new Date().getFullYear();
+  let best = null;
+  for (let y = Math.max(+y0, now - years + 1); y <= now; y++) {
+    if (!cache.has(y)) { const r = await probe(`${ELI_API}/acts/${pub}/${y}`, { as: 'json' }); if (!r.ok) throw new Error(r.error || `API odpowiedziało kodem ${r.status} (wykaz ${pub} ${y}).`); cache.set(y, Array.isArray(r.body) ? r.body : r.body.items || []); }
+    for (const it of cache.get(y)) {
+      const t = (it.title || '').toLowerCase().replace(/[-–—]/g, '–'), pos = +it.pos || +String(it.ELI || '').split('/')[2] || 0;
+      if (!t.includes('jednolitego tekstu') || !t.includes(phrase)) continue;
+      if (y < +y0 || (y === +y0 && pos <= +p0)) continue;
+      if (!best || y > best.y || (y === best.y && pos > best.pos)) best = { y, pos, eli: it.ELI || `${pub}/${y}/${pos}`, title: it.title, changeDate: it.changeDate || null };
+    }
+  }
+  return best && { eli: best.eli, title: best.title, changeDate: best.changeDate };
+}
+
+// ---------- SAOS: pełne orzeczenia ----------
+// Źródło API z adresem saos.org.pl: pozycje z wyszukiwania można pobrać w całości (treść z /api/judgments/{id}).
+export const isSaos = url => /(^|\.)saos\.org\.pl\//.test(String(url).replace(/^https?:\/\//, ''));
+export const saosUrl = id => `https://www.saos.org.pl/judgments/${id}`;
+const COURT = { COMMON: 'sąd powszechny', SUPREME: 'Sąd Najwyższy', CONSTITUTIONAL_TRIBUNAL: 'Trybunał Konstytucyjny', NATIONAL_APPEAL_CHAMBER: 'Krajowa Izba Odwoławcza', ADMINISTRATIVE: 'sąd administracyjny' };
+export async function downloadSaosJudgment(id, { tags = [], description = '' } = {}) {
+  if (await findDuplicate({ url: saosUrl(id) })) return { status: 'jest' };
+  const r = await probe(`https://www.saos.org.pl/api/judgments/${id}`, { as: 'json', timeout: 60000 });
+  if (!r.ok) { const error = r.error || `API odpowiedziało kodem ${r.status}.`; log('error', 'research', `SAOS ${id}: ${error}`); return { status: 'blad', error }; }
+  const d = r.body.data || r.body, html = d.textContent;
+  if (!html) return { status: 'blad', error: 'Brak treści orzeczenia w odpowiedzi API.' };
+  const sig = (d.courtCases || []).map(c => c.caseNumber).filter(Boolean).join(', ') || `SAOS ${id}`;
+  const court = (d.division && d.division.court && d.division.court.name) || COURT[d.courtType] || d.courtType || '';
+  const read = await readFile(new File([/<[a-z][\s\S]*>/i.test(html) ? html : `<pre>${html}</pre>`], `${sig}.html`, { type: 'text/html' }));
+  const doc = await addDoc({ ...read, name: `Orzeczenie ${sig}${d.judgmentDate ? ' z ' + d.judgmentDate : ''}`.slice(0, 180), sourceUrl: saosUrl(id), tags,
+    description: description || [court, d.judgmentType && d.judgmentType.toLowerCase(), d.judgmentDate, 'źródło: SAOS'].filter(Boolean).join(' · ') });
+  return { status: 'dodano', title: sig, doc };
 }

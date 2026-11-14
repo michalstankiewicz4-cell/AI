@@ -44,6 +44,7 @@ export const SCHEMA = [
     { id: 'temp', label: 'Temperatura', type: 'select', def: .6, opts: [.2, .4, .6, .8, 1].map(v => opt(v, String(v).replace('.', ','))), help: 'Niska = sieć wybiera najpewniejsze słowa (powtarzalnie, bezpieczniej). Wysoka = odważniej, ale więcej pomyłek.' },
     { id: 'maxTokens', label: 'Najdłuższa odpowiedź', type: 'select', def: 160, opts: [60, 120, 160, 250, 400].map(v => opt(v, v + ' tokenów')), help: 'Limit długości jednej odpowiedzi.' },
     { id: 'turns', label: 'Pamięć rozmowy', type: 'select', def: 2, opts: [opt(0, 'tylko bieżące pytanie'), opt(1, '1 poprzednia wymiana'), opt(2, '2 poprzednie wymiany'), opt(4, '4 poprzednie wymiany'), opt(8, '8 poprzednich wymian')], help: 'Ile wcześniejszych pytań i odpowiedzi dołączać do kontekstu. Ograniczenie: okno modelu — co się nie zmieści, sieć i tak odetnie.' },
+    { id: 'refs', label: 'Fragmenty z biblioteki', type: 'select', def: 3, opts: [opt(0, 'nie pokazuj'), opt(1, '1 fragment'), opt(2, '2 fragmenty'), opt(3, '3 fragmenty'), opt(5, '5 fragmentów')], help: 'Pod odpowiedzią modelu czat pokazuje fragmenty zatwierdzonych dokumentów najlepiej pasujące do pytania (dokładny tekst przepisu ze źródłem). Mały model może pomylić liczby i terminy – fragment pokazuje, co mówi dokument.' },
     { id: 'save', label: 'Zapisuj rozmowy', type: 'bool', def: true, help: 'Rozmowy z czatu trafiają do zakładki „Historia rozmów”, gdzie można poprawić odpowiedzi i przenieść je do rozmów wzorcowych.' },
   ] },
   { group: 'github', title: 'GitHub', fields: [

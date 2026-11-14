@@ -38,4 +38,4 @@ td.dneg { color: var(--ok); } td.dpos { color: var(--accent); }
 .diffbox { margin: .4em 0; } .diffline { font: .8rem/1.45 var(--mono); white-space: pre-wrap; word-break: break-word; padding: .1em .4em; border-radius: 3px; margin: 1px 0; }
 .diffline.del { background: var(--bad-soft); } .diffline.add { background: var(--ok-soft); }
 .diffpair { margin: .35em 0; } .diffline mark { background: color-mix(in srgb, var(--gold) 45%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
-input.srcurl { margin-top: .3em; font-size: .82rem; padding: .3em .55em; background: var(--panel-2); border-color: var(--line); color: var(--ink-2); }
+input.srcurl { width: 100%; box-sizing: border-box; margin-top: .3em; font-size: .82rem; padding: .3em .55em; background: var(--panel-2); border-color: var(--line); color: var(--ink-2); }

@@ -41,3 +41,8 @@
 
 .chat-opts { padding: .4em .9em .6em; border-bottom: 1px solid var(--line); background: var(--panel); max-height: 55%; overflow: auto; }
 .chat-opts .fields { grid-template-columns: 1fr 1fr; gap: .5em .8em; margin: .3em 0; }
+.msg .refs { margin-top: .45em; font-size: .82rem; border-top: 1px dashed var(--line); padding-top: .3em; }
+.msg .refs summary { cursor: pointer; color: var(--ink-2); }
+.msg .ref { margin: .35em 0; }
+.msg .ref a { font-weight: 600; margin-right: .3em; }
+.msg .reftext { white-space: pre-wrap; background: var(--panel-2); border-left: 3px solid var(--stage1-line); padding: .3em .5em; margin-top: .2em; max-height: 180px; overflow: auto; }

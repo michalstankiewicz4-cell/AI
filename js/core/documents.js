@@ -12,12 +12,36 @@ import { log } from './log.js';
 //           text, report, chars, cleanerVersion, formattedAt,                                              ← wynik formatowania
 //           status: 'do-sprawdzenia'|'zatwierdzony'|'odrzucony', enabled,                                   ← decyzja
 //           sourceUrl, rawHash, eli?, sourceChangeDate?,                                                     ← pochodzenie (Research)
-//           general }                                                ← tekst ogólny (nie prawniczy): w nauce w ustalonej proporcji
+//           general,                                                 ← tekst ogólny (nie prawniczy): w nauce w ustalonej proporcji
+//           tags: ['akt prawny', 'Prawo pracy', 'nieaktualny', …] }   ← kategorie (plakietki) do filtrowania
 // Wgranie od razu formatuje dokument (konwerter): wynik czeka w zakładce „Formatowanie” na zatwierdzenie.
 export const STATUS = { 'do-sprawdzenia': 'do sprawdzenia', zatwierdzony: 'zatwierdzony', odrzucony: 'odrzucony' };
 
 // dokumenty zapisane przez wersję 0.1–0.2 (bez statusu i opisu) były już zatwierdzone
-const norm = d => { if (d.sourceUrl == null) d.sourceUrl = ''; if (!d.status) d.status = 'zatwierdzony'; if (d.description == null) d.description = ''; if (d.enabled == null) d.enabled = true; if (d.general == null) d.general = false; return d; };
+const norm = d => { if (d.sourceUrl == null) d.sourceUrl = ''; if (!d.status) d.status = 'zatwierdzony'; if (d.description == null) d.description = ''; if (d.enabled == null) d.enabled = true; if (d.general == null) d.general = false; if (!Array.isArray(d.tags)) d.tags = autoTags(d); return d; };
+
+// ---------- kategorie (plakietki) ----------
+// Kategorie nadawane same według pochodzenia; resztę dopisuje się ręcznie w Dokumentach.
+export const OUTDATED = 'nieaktualny';
+export const SUGGESTED_TAGS = ['akt prawny', 'orzeczenie', 'interpretacja', 'decyzja', 'Wikipedia', 'stenogram Sejmu', OUTDATED, 'stary'];
+export function autoTags(d) {
+  const t = [], u = d.sourceUrl || '';
+  if (d.eli) t.push('akt prawny');
+  if (/saos\.org\.pl/.test(u)) t.push('orzeczenie');
+  if (/wikipedia\.org/.test(u)) t.push('Wikipedia');
+  if (/^Stenogram Sejmu/.test(d.name || '')) t.push('stenogram Sejmu');
+  const pk = /Pakiet: ([^.]+)\./.exec(d.description || ''); if (pk) t.push(pk[1]);
+  return t;
+}
+export const normTag = t => String(t || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+export const mergeTags = (...lists) => { const out = []; for (const l of lists) for (const x of l || []) { const t = normTag(x); if (t && !out.some(o => o.toLowerCase() === t.toLowerCase())) out.push(t); } return out; };
+// wszystkie kategorie z liczbą dokumentów, od najczęstszych
+export function tagCounts(docs) { const m = new Map(); for (const d of docs) for (const t of d.tags || []) m.set(t, (m.get(t) || 0) + 1); return [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pl')); }
+export const hasTags = (d, sel) => sel.every(t => (d.tags || []).includes(t));
+// starsze wersje tego samego aktu (ten sam ELI) dostają plakietkę „nieaktualny”
+export async function markOutdated(docs, why) {
+  for (const d of docs) if (!d.tags.includes(OUTDATED)) { d.tags.push(OUTDATED); await db.put('documents', d); log('info', 'dokumenty', `„${d.name}” oznaczony jako nieaktualny${why ? ': ' + why : ''}`); }
+}
 export const listDocs = async () => (await db.all('documents')).map(norm).sort((a, b) => b.addedAt - a.addedAt);
 
 function format(doc) {
@@ -30,9 +54,12 @@ function format(doc) {
 // Skrót SHA-256 oryginalnego tekstu: rozpoznaje ten sam dokument wgrany drugi raz (także pod inną nazwą)
 export async function textHash(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 
-export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false }) {
+export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false, tags = [] }) {
+  const older = eli ? (await listDocs()).filter(d => d.eli === eli) : [];
   const doc = format({ id: uid('d_'), name, type, encoding, size, raw, description, ocr, sourceUrl, eli, sourceChangeDate, general: !!general, rawHash: await textHash(raw), addedAt: Date.now(), status: 'do-sprawdzenia', enabled: true });
+  doc.tags = mergeTags(autoTags(doc), tags);
   await db.put('documents', doc);
+  if (older.length) await markOutdated(older, `jest nowsza wersja (${eli})`);
   log('info', 'dokumenty', `Dodano dokument „${name}” (${type}, ${raw.length} znaków${general ? ', tekst ogólny' : ''}${sourceUrl ? ', ze źródła' : ''})`, sourceUrl || null);
   if (doc.report && doc.report.warnings && doc.report.warnings.length) log('warn', 'formatowanie', `„${name}”: ${doc.report.warnings.length} ostrzeż. formatowania`, doc.report.warnings.join('\n'));
   return doc;

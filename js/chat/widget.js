@@ -3,6 +3,7 @@
 // skąd jednym kliknięciem przenosi się rozmowę do rozmów wzorcowych (uczenie z rozmów).
 
 import { h, clear, toast } from '../ui/dom.js';
+import { searchLibrary } from '../core/search.js';
 import { logDebug } from '../core/log.js';
 import { fieldsForm } from '../ui/form.js';
 import { saveSettings } from '../core/settings.js';
@@ -89,7 +90,11 @@ function botMsg(m, i) {
       h('button', { type: 'button', title: 'Dobra odpowiedź', 'aria-pressed': m.status === 'ok', onclick: () => set('ok') }, '✓'),
       h('button', { type: 'button', title: 'Popraw odpowiedź', 'aria-pressed': m.status === 'corrected', onclick: edit }, '✎'),
       h('button', { type: 'button', title: 'Błędna odpowiedź', 'aria-pressed': m.status === 'wrong', onclick: () => set('wrong') }, '✗'),
-      m.ms != null ? h('span.ms', { title: 'Czas liczenia odpowiedzi' }, `${Math.round(m.ms)} ms`) : null));
+      m.ms != null ? h('span.ms', { title: 'Czas liczenia odpowiedzi' }, `${Math.round(m.ms)} ms`) : null),
+    m.refs && m.refs.length ? h('details.refs', h('summary', `Z biblioteki (${m.refs.length})`),
+      h('p.note', 'Fragmenty dokumentów pasujące do pytania – to tekst dokumentu, nie odpowiedź modelu.'),
+      m.refs.map(r => h('div.ref', h('a', { href: '#formatowanie/' + r.docId, title: 'Pokaż dokument w zakładce „Formatowanie”' }, r.name), r.outdated ? h('span.tag.old', 'nieaktualny') : null, r.general ? h('span.badge.gen', 'ogólny') : null,
+        h('div.reftext', r.text.length > 600 ? r.text.slice(0, 600) + '…' : r.text)))) : null);
 }
 
 async function persist() { if (settings().chat.save && conv.messages.length) await saveConversation(conv); }
@@ -108,7 +113,9 @@ async function send() {
     await ensureLoaded(model.id);
     const history = conv.messages.map(m => ({ role: m.role, text: m.role === 'bot' ? botText(m) : m.text }));
     const r = await request('reply', { id: model.id, history, tags: model.tags || settingsTags(), temp: +c.temp, maxTokens: +c.maxTokens, turns: +c.turns });
-    conv.messages.push({ role: 'bot', text: r.text, ts: Date.now(), ms: r.ms });
+    let refs = [];
+    if (+c.refs > 0) { try { refs = (await searchLibrary(text, +c.refs)).map(x => ({ docId: x.docId, name: x.name, eli: x.eli, text: x.text, outdated: x.tags.includes('nieaktualny'), general: x.general })); } catch (e) { logDebug('czat', 'Wyszukiwanie w bibliotece nieudane: ' + e.message); } }
+    conv.messages.push({ role: 'bot', text: r.text, ts: Date.now(), ms: r.ms, refs });
     logDebug('czat', `Odpowiedź modelu „${model.name}” w ${r.ms} ms (${r.text.length} znaków)`);
   } catch (e) { toast(e.message, 'error'); conv.messages.pop(); ui.input.value = raw; }
   busy = false; await persist(); draw(); ui.input.focus();

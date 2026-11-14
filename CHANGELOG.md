@@ -2,6 +2,17 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.10.0 – 2026-11-14
+
+- **Kategorie dokumentów** (plakietki): nadawane same według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, kategorie źródła) i dopisywane ręcznie; filtr kategorii z liczbami w Dokumentach i Formatowaniu.
+- **„nieaktualny”**: starsza wersja aktu dostaje czerwoną plakietkę sama przy pobraniu nowszej wersji tego samego ELI albo nowszego tekstu jednolitego (można też dodać ręcznie, podobnie „stary”).
+- **Plik z danymi**: Ustawienia → „Zapisz dane do pliku” / „Wczytaj dane z pliku” (ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety) – przeniesienie bez GitHub. Źródła i własne pakiety także w publikacji i „Wczytaj z GitHub” (`data/zrodla.json`, `data/pakiety.json`).
+- **Własne pakiety**: „Nowy pakiet”, „Edytuj pakiet” (także wbudowany – jako kopia, z „Przywróć wbudowany”), „Zapisz pakiet do pliku”, „Wczytaj pakiet z pliku”.
+- **Nowsze teksty jednolite**: „Sprawdź nowe teksty jednolite” w pakiecie szuka obwieszczeń w wykazach Dziennika Ustaw z ostatnich 5 lat; „Pobierz i podmień w pakiecie”.
+- **Typowe pytania w pakiecie** (Prawo pracy: 20) → szkielety rozmów wzorcowych „do uzupełnienia”, pomijane w dostrajaniu do czasu dopisania odpowiedzi („Uzupełnij”, filtr „tylko do uzupełnienia”).
+- **SAOS**: pełne orzeczenia do biblioteki („Pobierz”, „Pobierz wszystkie nowe orzeczenia”).
+- **Wyszukiwanie w bibliotece**: pod odpowiedzią czatu „Z biblioteki” – fragmenty zatwierdzonych dokumentów pasujące do pytania (BM25, odmiany słów), z odnośnikiem do dokumentu; ustawienie „Fragmenty z biblioteki” pod ⚙ (domyślnie 3).
+
 ## 0.9.0 – 2026-11-14
 
 - **Pakiety tematyczne** w Researchu (`js/core/packs.js`): gotowy zestaw do dziedziny – źródła, akty po identyfikatorze ELI i hasła Wikipedii jako tekst ogólny – z przyciskami „Dodaj źródła pakietu”, „Pobierz akty pakietu”, „Pobierz hasła Wikipedii”, wynikiem przy każdej pozycji i licznikiem „Brakuje”. Już pobrane są pomijane.

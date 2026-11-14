@@ -93,6 +93,43 @@ export const SECTIONS = [
       ['niedostępne / CORS', 'serwis nie pozwala pobierać danych z innej strony albo nie ma połączenia', 'pobierz plik ręcznie (w przeglądarce) i wgraj w Dokumentach, wpisując adres źródła'],
     ]],
   ] },
+  { id: 'kategorie', group: 'Dane', title: 'Kategorie dokumentów (plakietki)', topics: ['kategorie'], body: [
+    ['p', 'Każdy dokument może mieć dowolne kategorie – plakietki pod opisem w Dokumentach. Po kategoriach filtrujesz Dokumenty i Formatowanie: kliknij kategorię nad listą; kilka zaznaczonych = dokumenty, które mają je wszystkie.'],
+    ['table', ['Kategoria', 'Skąd'], [
+      ['akt prawny', 'dokument pobrany z API ELI (Dziennik Ustaw, Monitor Polski)'],
+      ['orzeczenie', 'orzeczenie pobrane z SAOS'],
+      ['Wikipedia', 'hasło z Wikipedii'],
+      ['stenogram Sejmu', 'stenogram dnia posiedzenia'],
+      ['nazwa pakietu (np. Prawo pracy)', 'wszystko pobrane z pakietu tematycznego'],
+      ['kategorie źródła', 'wpisane w „Edytuj” przy źródle w Researchu – dostaje je każdy dokument z tego źródła'],
+      ['<b>nieaktualny</b> (czerwona)', 'sama, gdy pobierzesz nowszą wersję tego samego aktu albo nowszy tekst jednolity; możesz ją też dodać ręcznie (podobnie „stary”)'],
+    ]],
+    ['p', 'Dopisanie: pole „+ kategoria” przy dokumencie (Enter), podpowiada już używane. Usunięcie: „×” na plakietce.'],
+    ['tip', 'Dokument „nieaktualny” dalej jest w nauce, jeśli jest zatwierdzony – wyłącz go w Formatowaniu („używaj w nauce”) albo odrzuć. W czacie fragmenty z nieaktualnych dokumentów mają mniejszą wagę i czerwoną plakietkę.'],
+  ] },
+  { id: 'plik-z-danymi', group: 'Ustawienia', title: 'Dane w pliku (przeniesienie, kopia zapasowa)', topics: ['plik-z-danymi'], body: [
+    ['p', 'Ustawienia → „Dane w tej przeglądarce” → <b>Zapisz dane do pliku</b>: wybierasz części (ustawienia, dokumenty, rozmowy wzorcowe, historia rozmów, źródła Researchu, własne pakiety) i dostajesz jeden plik .json. <b>Wczytaj dane z pliku</b> w innej przeglądarce albo na innym komputerze dodaje brakujące rekordy (albo zastępuje istniejące o tym samym id).'],
+    ['p', 'To ta sama zawartość co publikacja danych na GitHub, tylko bez repozytorium – plik zostaje u Ciebie, więc nadaje się też do danych, których nie chcesz publikować. Token GitHub nie trafia do pliku. Modele zapisujesz osobno („Pobierz plik” w zakładce Modele).'],
+  ] },
+  { id: 'pytania-pakietu', group: 'Rozmowa', title: 'Pytania z pakietu (do uzupełnienia)', topics: ['pytania-pakietu'], body: [
+    ['p', 'Pakiet może mieć listę typowych pytań zadawanych potocznie („Ile dni urlopu mi przysługuje?”). Przycisk „Dodaj pytania do rozmów wzorcowych” tworzy z nich <b>szkielety</b>: pytanie bez odpowiedzi, z plakietką „do uzupełnienia”.'],
+    ['steps', [
+      ['Znajdź', 'Rozmowy wzorcowe → zaznacz „tylko do uzupełnienia”.'],
+      ['Uzupełnij', 'Przycisk „Uzupełnij”, dopisz odpowiedź (najlepiej z przepisem, który ją uzasadnia) i zapisz.'],
+      ['Dostrajanie', 'Uzupełniona rozmowa sama włącza się do dostrajania; szkielety bez odpowiedzi są pomijane.'],
+    ]],
+    ['tip', 'Pytanie, które już jest w zestawie (to samo brzmienie), nie zostanie dodane drugi raz.'],
+  ] },
+  { id: 'wyszukiwanie', group: 'Rozmowa', title: 'Wyszukiwanie w bibliotece', topics: ['wyszukiwanie', 'chat.refs'], body: [
+    ['p', 'Mały model pisze stylem przepisów, ale liczby, terminy i numery artykułów może pomylić. Dlatego czat szuka w bibliotece fragmentów pasujących do pytania i pokazuje je pod odpowiedzią – „Z biblioteki”. Wiedza jest wtedy w dokumentach, a nie tylko w wagach sieci, więc liczba dokumentów przestaje ograniczać to, co czat może pokazać.'],
+    ['table', ['', ''], [
+      ['skąd', 'tylko dokumenty zatwierdzone i używane w nauce'],
+      ['jak', 'BM25: liczy, ile rzadkich słów z pytania jest we fragmencie; odmiany słowa (pierwsze 6 liter) liczą się razem'],
+      ['wagi', 'tekst ogólny 70%, dokument „nieaktualny” 30%'],
+      ['fragment', 'akapity łączone do ok. 700 znaków; „Art.” i „§” zaczynają nowy akapit'],
+    ]],
+    ['ex', 'Ile dni urlopu mi przysługuje?', 'Z biblioteki: Kodeks pracy – „Art. 154. § 1. Wymiar urlopu wynosi: 1) 20 dni – jeżeli pracownik jest zatrudniony krócej niż 10 lat; 2) 26 dni…”', 'odpowiedź modelu + dokładny przepis pod spodem'],
+  ] },
   { id: 'pakiety', group: 'Dane', title: 'Pakiety tematyczne', topics: ['pakiety'], body: [
     ['p', 'Pakiet to gotowy zestaw do jednej dziedziny prawa, na dole zakładki Research. Pierwszy pakiet: <b>Prawo pracy</b>. Każdy pakiet ma trzy części, każdą uruchamiasz osobnym przyciskiem:'],
     ['table', ['Przycisk', 'Co robi'], [
@@ -106,7 +143,13 @@ export const SECTIONS = [
       ['Formatowanie', 'Dokumenty są już sformatowane; „Zatwierdź bez ostrzeżeń”, resztę obejrzyj.'],
       ['Nauka', 'Hasła Wikipedii idą jako tekst ogólny – do ustalonego udziału (domyślnie 20%).'],
     ]],
-    ['tip', 'Teksty jednolite się zmieniają: nowy tekst jednolity to nowa pozycja w Dzienniku Ustaw. Wyłapie ją źródło ELI z pakietu („nowe akty”), a numer w pakiecie poprawia się w pliku js/core/packs.js.'],
+    ['p', '<b>Sprawdź nowe teksty jednolite</b> przegląda wykazy Dziennika Ustaw z ostatnich 5 lat i szuka obwieszczeń „…jednolitego tekstu…” dla aktów z pakietu, ogłoszonych po wersji z pakietu. „Pobierz i podmień w pakiecie” pobiera nowy tekst, podmienia numer w pakiecie, a starą wersję w bibliotece oznacza jako <b>nieaktualny</b>.'],
+    ['p', '<b>Typowe pytania</b>: „Dodaj pytania do rozmów wzorcowych” tworzy szkielety rozmów do uzupełnienia (zob. „Pytania z pakietu”).'],
+    ['table', ['Własne pakiety', ''], [
+      ['Nowy pakiet', 'nazwa, opis, źródła wybrane z listy Researchu, akty (jeden w linii: <code>ELI | słowo z tytułu | opis | fraza tekstu jednolitego</code>), hasła Wikipedii, typowe pytania'],
+      ['Edytuj pakiet', 'także wbudowanego – zmieniona kopia zastępuje go; „Przywróć wbudowany” cofa zmiany'],
+      ['Zapisz pakiet do pliku / Wczytaj pakiet z pliku', 'wymiana pakietów między przeglądarkami i osobami (plik .json)'],
+    ]],
   ] },
   { id: 'research-eli', group: 'Dane', title: 'API aktów prawnych Sejmu (ELI)', topics: ['research-eli', 'eli'], body: [
     ['p', 'Kancelaria Sejmu udostępnia publiczne API z aktami prawnymi Dziennika Ustaw i Monitora Polskiego (api.sejm.gov.pl/eli). Każdy akt ma identyfikator ELI (np. <code>DU/2024/1061</code>), tytuł i datę ostatniej zmiany w API; tekst jest dostępny jako PDF, a dla wielu aktów także jako HTML.'],
@@ -297,6 +340,7 @@ export const SECTIONS = [
     ['p', 'Dostrajanie liczy się tak samo jak nauka: w tle, w otwartej karcie. Możesz w tym czasie przechodzić po menu (kropka przy „Dostrajaniu”), ale nie zamykaj karty. Na końcu przycisk „Ustaw jako aktywny i otwórz czat”.'],
   ] },
   { id: 'czat', group: 'Rozmowa', title: 'Czat i jego ustawienia', topics: ['czat', 'oceny', 'chat.temp', 'chat.maxTokens', 'chat.turns', 'chat.save'], body: [
+    ['p', '<b>Z biblioteki.</b> Pod odpowiedzią modelu czat pokazuje fragmenty zatwierdzonych dokumentów najlepiej pasujące do pytania (wyszukiwanie po słowach, odmiany typu „urlop / urlopu / urlopie” są traktowane jak jedno słowo). To dokładny tekst dokumentu – nie odpowiedź modelu – z odnośnikiem do dokumentu. Tekst ogólny i dokumenty „nieaktualne” mają mniejszą wagę i są oznaczone. Ile fragmentów pokazywać, ustawisz pod ⚙ (0 = wyłączone; zob. „Wyszukiwanie w bibliotece”).'],
     ['p', 'Ikona w prawym dolnym rogu. Odpowiada aktywny model. Ustawienia rozmowy (temperatura, długość odpowiedzi, pamięć) są pod ⚙ w nagłówku okna czatu. Pod każdą odpowiedzią: <b>✓</b> dobra, <b>✎</b> popraw (wpisujesz poprawną), <b>✗</b> błędna.'],
     ['table', ['Temperatura', 'Zachowanie'], [['0,2', 'zawsze najpewniejsze słowa: powtarzalnie, czasem w kółko to samo'], ['0,6', 'domyślnie: pewnie, ale z odrobiną swobody'], ['1,0', 'odważnie: ciekawiej, ale więcej pomyłek']]],
     ['p', '<b>Pamięć rozmowy</b>: ile poprzednich wymian dołączać do pytania. Ograniczeniem jest okno modelu – przy oknie 128 tokenów zmieszczą się zwykle 1–2 wymiany.'],
