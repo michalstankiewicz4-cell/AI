@@ -66,6 +66,9 @@ export const TIPS = {
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Dodaj źródła pakietu/.test(label)) return 'Dodaj do listy źródła z pakietu, których jeszcze nie masz.';
+  if (/^Pobierz akty pakietu/.test(label)) return 'Pobierz brakujące akty z pakietu z API ELI (ze sprawdzeniem tytułu) do biblioteki.';
+  if (/^Pobierz hasła Wikipedii/.test(label)) return 'Pobierz brakujące hasła Wikipedii z pakietu jako tekst ogólny.';
   if (/^Dodaj wszystkie \(/.test(label)) return 'Dodaj wszystkie znane źródła z katalogu do listy.';
   if (/^Pobierz wszystkie nowe/.test(label)) return 'Pobierz do biblioteki wszystkie dokumenty, których jeszcze nie masz.';
   if (/^Formatuj wszystkie ponownie/.test(label)) return 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.';

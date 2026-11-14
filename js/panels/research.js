@@ -3,10 +3,12 @@
 
 import { h, help, toast, confirmBox, modal, num, date, clear, plural } from '../ui/dom.js';
 import { listSources, saveSource, deleteSource, newSource, hostOf, sourcesFromDocuments, docsOfSource, checkSource,
-  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog, downloadWiki } from '../core/sources.js';
+  downloadToLibrary, eliTextUrl, checkUrl, checkDocChanged, ELI_API, PUBLISHERS, catalogMissing, addFromCatalog, downloadWiki, downloadEliAct, downloadWikiTitle } from '../core/sources.js';
+import { PACKS } from '../core/packs.js';
 import { listDocs, addDoc } from '../core/documents.js';
 import { go } from '../main.js';
 
+const STATUS_TXT = { dodano: 'dodano', jest: 'już jest', zmieniony: 'nowa wersja', 'inny-tytul': 'pominięto – inny tytuł niż w pakiecie', brak: 'brak takiego artykułu', blad: 'błąd' };
 const KIND = { eli: 'API ELI', api: 'API (JSON)', steno: 'stenogramy Sejmu', wiki: 'Wikipedia', www: 'strona www' };
 
 export default {
@@ -158,9 +160,46 @@ export default {
         } }, 'Pobierz losowe artykuły')), out);
     }
 
+    // Pakiety tematyczne: źródła + akty (ELI) + hasła Wikipedii (tekst ogólny) jednym przyciskiem
+    async function packsView(all) {
+      let docs = await listDocs(), have = new Set(docs.map(d => d.eli).filter(Boolean)), urls = docs.map(d => d.sourceUrl || '');
+      const refresh = async () => { docs = await listDocs(); have = new Set(docs.map(d => d.eli).filter(Boolean)); urls = docs.map(d => d.sourceUrl || ''); };
+      const wikiHave = t => urls.some(u => u.startsWith('https://pl.wikipedia.org/wiki/') && decodeURIComponent(u.slice(30)).replace(/_/g, ' ').toLowerCase() === t.toLowerCase());
+      return h('details.packs', { open: true }, h('summary', h('b', `Pakiety tematyczne (${PACKS.length})`), ' ', help('Pakiet to gotowy zestaw do jednej dziedziny: źródła do listy, akty prawne z Dziennika Ustaw (po identyfikatorze ELI, ze sprawdzeniem tytułu) i hasła Wikipedii pobierane jako tekst ogólny. Już pobrane są pomijane, więc pakiet można uruchamiać wielokrotnie.', 'pakiety')),
+        ...PACKS.map(pk => {
+          const srcMiss = catalogMissing(all, pk.sources), actsMiss = pk.acts.filter(a => !have.has(a.eli)), wikiMiss = pk.wiki.filter(t => !wikiHave(t));
+          const out = h('div.packout'), missLine = h('p.note', `Brakuje: źródeł ${srcMiss.length}, aktów ${actsMiss.length}, haseł Wikipedii ${wikiMiss.length}.`);
+          const run = async (btn, label, items, fn) => {
+            btn.disabled = true; clear(out);
+            const head = h('p.status', `${label}: 0 z ${items.length}…`), ul = h('ul.packlog'); out.append(head, ul);
+            const cnt = {};
+            for (let i = 0; i < items.length; i++) {
+              const it = items[i], li = h('li', fn.label(it) + ' …'); ul.append(li);
+              let r; try { r = await fn.run(it); } catch (e) { r = { status: 'blad', error: e.message }; }
+              cnt[r.status] = (cnt[r.status] || 0) + 1;
+              li.className = 'pk-' + r.status; li.textContent = `${fn.label(it)} – ${STATUS_TXT[r.status] || r.status}${r.title && r.title !== fn.label(it) ? ': ' + r.title.slice(0, 120) : ''}${r.error ? ' (' + r.error + ')' : ''}`;
+              head.textContent = `${label}: ${i + 1} z ${items.length}…`;
+            }
+            head.textContent = `${label}: gotowe – ` + Object.entries(cnt).map(([k, v]) => `${STATUS_TXT[k] || k}: ${v}`).join(', ') + '. Nowe dokumenty są w Formatowaniu.';
+            await refresh(); missLine.textContent = `Brakuje: źródeł ${srcMiss.length}, aktów ${pk.acts.filter(a => !have.has(a.eli)).length}, haseł Wikipedii ${pk.wiki.filter(t => !wikiHave(t)).length}.`;
+            toast(`${pk.name}: ${label.toLowerCase()} – gotowe.`, 'ok'); btn.disabled = false;
+          };
+          return h('section.pack',
+            h('div.row.wrap', h('b', pk.name), h('span.badge', `${pk.sources.length} źródeł`), h('span.badge', `${pk.acts.length} aktów`), h('span.badge.gen', `${pk.wiki.length} haseł Wikipedii (ogólne)`)),
+            h('p.note', pk.description),
+            missLine,
+            h('div.row.wrap',
+              h('button.ghost', { type: 'button', disabled: !srcMiss.length, onclick: async () => { for (const c of srcMiss) await addFromCatalog(c); toast(`Dodano ${srcMiss.length} źródeł z pakietu „${pk.name}”.`, 'ok'); draw(); } }, `Dodaj źródła pakietu (${srcMiss.length})`),
+              h('button', { type: 'button', disabled: !actsMiss.length, onclick: e => run(e.currentTarget, 'Akty prawne', actsMiss, { label: a => `${a.eli} (${a.note})`, run: a => downloadEliAct(a.eli, { expect: a.expect, description: `${a.note}. ELI ${a.eli}. Pakiet: ${pk.name}.` }) }) }, `Pobierz akty pakietu (${actsMiss.length})`),
+              h('button', { type: 'button', disabled: !wikiMiss.length, onclick: e => run(e.currentTarget, 'Hasła Wikipedii', wikiMiss, { label: t => t, run: t => downloadWikiTitle(t, { description: `Pakiet: ${pk.name}.` }) }) }, `Pobierz hasła Wikipedii (${wikiMiss.length})`)),
+            out);
+        }));
+    }
+
     async function draw() {
       const all = await listSources();
       clear(list); clear(extra);
+      extra.append(await packsView(all));
       const miss = catalogMissing(all);
       if (miss.length) extra.append(h('details.catalog', { open: !all.length }, h('summary', h('b', `Znane źródła do dodania (${miss.length})`), ' ', help('Oficjalne źródła dokumentów prawnych: akty (ELI), decyzje i rekomendacje urzędów (UOKiK, UODO, KNF), interpretacje (ZUS, KIS) oraz API (SAOS, Sejm). Oznaczone „ogólny” to tekst ogólny do nauki zwykłej polszczyzny (stenogramy Sejmu, Wikipedia). Po dodaniu możesz zmienić ich ustawienia w „Edytuj”.', 'research-zrodla')),
         h('div.row.end', h('button', { type: 'button', onclick: async () => { for (const c of miss) await addFromCatalog(c); toast(`Dodano ${miss.length} źródeł.`, 'ok'); draw(); } }, `Dodaj wszystkie (${miss.length})`)),

@@ -93,6 +93,21 @@ export const SECTIONS = [
       ['niedostępne / CORS', 'serwis nie pozwala pobierać danych z innej strony albo nie ma połączenia', 'pobierz plik ręcznie (w przeglądarce) i wgraj w Dokumentach, wpisując adres źródła'],
     ]],
   ] },
+  { id: 'pakiety', group: 'Dane', title: 'Pakiety tematyczne', topics: ['pakiety'], body: [
+    ['p', 'Pakiet to gotowy zestaw do jednej dziedziny prawa, na dole zakładki Research. Pierwszy pakiet: <b>Prawo pracy</b>. Każdy pakiet ma trzy części, każdą uruchamiasz osobnym przyciskiem:'],
+    ['table', ['Przycisk', 'Co robi'], [
+      ['Dodaj źródła pakietu', 'dodaje do listy źródła dziedziny, np. nowe akty z Dziennika Ustaw z filtrem tytułów, orzeczenia z SAOS powołujące Kodeks pracy, interpretacje ZUS'],
+      ['Pobierz akty pakietu', 'pobiera do biblioteki akty po identyfikatorze ELI (np. Kodeks pracy – tekst jednolity). Najpierw sprawdza tytuł: jeśli nie zawiera oczekiwanego słowa, akt jest pomijany (ochrona przed pomyłką w numerze)'],
+      ['Pobierz hasła Wikipedii', 'pobiera hasła z dziedziny (np. „Urlop wypoczynkowy”, „Mobbing”) jako <b>tekst ogólny</b>, z licencją CC BY-SA 4.0 w opisie'],
+    ]],
+    ['p', 'Przy każdej pozycji widać wynik: <b>dodano</b>, <b>już jest</b>, <b>nowa wersja</b> (akt zmieniony w API), <b>pominięto – inny tytuł</b>, <b>brak takiego artykułu</b> albo <b>błąd</b>. Już pobrane są pomijane, więc pakiet można uruchamiać wielokrotnie – np. co jakiś czas, żeby dociągnąć nowe wersje. Wszystko trafia też do Logów.'],
+    ['steps', [
+      ['Dodaj źródła i pobierz', 'Trzy przyciski pakietu – wszystko ląduje w Dokumentach.'],
+      ['Formatowanie', 'Dokumenty są już sformatowane; „Zatwierdź bez ostrzeżeń”, resztę obejrzyj.'],
+      ['Nauka', 'Hasła Wikipedii idą jako tekst ogólny – do ustalonego udziału (domyślnie 20%).'],
+    ]],
+    ['tip', 'Teksty jednolite się zmieniają: nowy tekst jednolity to nowa pozycja w Dzienniku Ustaw. Wyłapie ją źródło ELI z pakietu („nowe akty”), a numer w pakiecie poprawia się w pliku js/core/packs.js.'],
+  ] },
   { id: 'research-eli', group: 'Dane', title: 'API aktów prawnych Sejmu (ELI)', topics: ['research-eli', 'eli'], body: [
     ['p', 'Kancelaria Sejmu udostępnia publiczne API z aktami prawnymi Dziennika Ustaw i Monitora Polskiego (api.sejm.gov.pl/eli). Każdy akt ma identyfikator ELI (np. <code>DU/2024/1061</code>), tytuł i datę ostatniej zmiany w API; tekst jest dostępny jako PDF, a dla wielu aktów także jako HTML.'],
     ['steps', [

@@ -164,10 +164,11 @@ export const CATALOG = [
   { name: 'Sejm – stenogramy posiedzeń', kind: 'steno', general: true, url: 'https://api.sejm.gov.pl/sejm/term10/proceedings', description: 'Stenogramy dni posiedzeń Sejmu X kadencji (PDF z API Sejmu): mówiona polszczyzna blisko tematów prawnych. Dokumenty urzędowe – bez ograniczeń prawa autorskiego.' },
   { name: 'Wikipedia (pl) – losowe artykuły', kind: 'wiki', general: true, url: 'https://pl.wikipedia.org/w/api.php', description: 'Współczesna, poprawna polszczyzna z różnych dziedzin. Licencja CC BY-SA 4.0: przy publikacji danych zostaje adres artykułu jako podanie źródła.' },
 ];
-export function catalogMissing(sources) {
-  const key = s => s.kind + '|' + s.url + '|' + (s.eli ? s.eli.publisher : '');
-  const have = new Set(sources.map(key));
-  return CATALOG.filter(c => !have.has(key(c)));
+export function catalogMissing(sources, list = CATALOG) {
+  // to samo źródło: ta sama nazwa albo ten sam rodzaj i adres (dla ELI także wydawnictwo i filtr tytułów)
+  const key = s => s.kind + '|' + s.url + '|' + (s.eli ? s.eli.publisher + '|' + (s.eli.filter || '').toLowerCase().replace(/\s+/g, '') : '');
+  const have = new Set(sources.map(key)), names = new Set(sources.map(s => s.name));
+  return list.filter(c => !have.has(key(c)) && !names.has(c.name));
 }
 export const addFromCatalog = c => saveSource({ ...newSource(c), general: !!c.general, eli: c.eli ? { ...c.eli } : null });
 
@@ -229,11 +230,46 @@ export async function downloadWiki(src, n = 10, { minChars = 3000, onStep } = {}
     const page = Object.values((r.body.query || {}).pages || {})[0];
     if (!page || !page.extract || page.extract.length < minChars || /ujednoznacznienie/i.test(page.title)) continue;
     if (await findDuplicate({ url: page.fullurl })) continue;
-    const raw = page.extract.replace(/^(=+)\s*(.+?)\s*\1$/gm, '$2');
-    added.push(await addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true,
-      description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.` }));
+    added.push(await addWikiPage(page));
     if (onStep) onStep(added.length, n, page.title);
   }
   log('info', 'research', `Wikipedia: pobrano ${added.length} z ${n} artykułów`);
   return added;
+}
+
+// ---------- pobieranie po identyfikatorach (pakiety tematyczne, listy) ----------
+// Akt z API ELI po identyfikatorze (np. DU/2026/1245). expect: słowo, które musi być w tytule – zabezpieczenie przed pomyłką w numerze.
+// Wynik: { status: 'dodano' | 'jest' | 'zmieniony' | 'inny-tytul' | 'blad', title, doc?, error? }
+export async function downloadEliAct(eli, { expect = '', general = false, description = '', onProgress } = {}) {
+  const info = await probe(`${ELI_API}/acts/${eli}`, { as: 'json' });
+  if (!info.ok) { const error = info.error || `API odpowiedziało kodem ${info.status}.`; log('error', 'pakiety', `Akt ${eli}: ${error}`); return { status: 'blad', error }; }
+  const it = info.body, title = it.title || eli;
+  if (expect && !title.toLowerCase().includes(expect.toLowerCase())) {
+    log('warn', 'pakiety', `Akt ${eli}: tytuł nie zawiera „${expect}” – pominięto (sprawdź numer w pakiecie)`, title);
+    return { status: 'inny-tytul', title };
+  }
+  const dup = await findDuplicate({ eli }), d = dup && dup.doc;
+  const changed = !!(d && it.changeDate && d.sourceChangeDate && it.changeDate > d.sourceChangeDate);
+  if (d && !changed) return { status: 'jest', title, doc: d };
+  try {
+    const r = await downloadToLibrary(eliTextUrl({ eli, html: !!it.textHTML }), { name: `${eli.replace(/\//g, ' ')} – ${title}`.slice(0, 180),
+      description: description || `ELI ${eli} (${PUBLISHERS[eli.split('/')[0]] || ''})`, eli, sourceChangeDate: it.changeDate || null, general, force: changed, onProgress });
+    return { status: changed ? 'zmieniony' : 'dodano', title, doc: r.doc };
+  } catch (e) { return { status: 'blad', title, error: e.message }; }
+}
+
+// Artykuły Wikipedii po tytułach (przekierowania są rozwijane). Wynik jak wyżej: 'dodano' | 'jest' | 'brak' | 'blad'.
+export const WIKI_API = 'https://pl.wikipedia.org/w/api.php';
+async function addWikiPage(page, extra = '') {
+  const raw = page.extract.replace(/^(=+)\s*(.+?)\s*\1$/gm, '$2');
+  return addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true,
+    description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.${extra ? ' ' + extra : ''}` });
+}
+export async function downloadWikiTitle(title, { api = WIKI_API, description = '' } = {}) {
+  const r = await probe(wikiUrl({ url: api }, { action: 'query', titles: title, redirects: 1, prop: 'extracts|info', explaintext: 1, inprop: 'url' }), { as: 'json' });
+  if (!r.ok) { const error = r.error || `API odpowiedziało kodem ${r.status}.`; log('error', 'pakiety', `Wikipedia „${title}”: ${error}`); return { status: 'blad', error }; }
+  const page = Object.values((r.body.query || {}).pages || {})[0];
+  if (!page || page.missing != null || !page.extract) { log('warn', 'pakiety', `Wikipedia: brak artykułu „${title}”`); return { status: 'brak' }; }
+  if (await findDuplicate({ url: page.fullurl })) return { status: 'jest', title: page.title };
+  return { status: 'dodano', title: page.title, doc: await addWikiPage(page, description) };
 }

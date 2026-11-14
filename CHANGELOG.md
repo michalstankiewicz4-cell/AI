@@ -2,6 +2,13 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.9.0 – 2026-11-14
+
+- **Pakiety tematyczne** w Researchu (`js/core/packs.js`): gotowy zestaw do dziedziny – źródła, akty po identyfikatorze ELI i hasła Wikipedii jako tekst ogólny – z przyciskami „Dodaj źródła pakietu”, „Pobierz akty pakietu”, „Pobierz hasła Wikipedii”, wynikiem przy każdej pozycji i licznikiem „Brakuje”. Już pobrane są pomijane.
+- Pierwszy pakiet: **Prawo pracy** – Kodeks pracy (t.j. 2026), rozporządzenia (urlopy, dokumentacja pracownicza, świadectwo pracy), ustawy obok KP (zwolnienia grupowe, płaca minimalna, ustawa zasiłkowa, ZFŚS, związki zawodowe, układy zbiorowe, PIP), źródła (nowe akty z Dziennika Ustaw z filtrem, orzeczenia SAOS powołujące KP, interpretacje ZUS) i 32 hasła Wikipedii.
+- Uniwersalne funkcje: pobranie aktu po ELI ze sprawdzeniem tytułu (`downloadEliAct`) i artykułu Wikipedii po tytule (`downloadWikiTitle`).
+- Rozpoznawanie, że źródło już jest na liście: także po nazwie, a dla ELI z uwzględnieniem filtra tytułów.
+
 ## 0.8.1 – 2026-11-13
 
 - Pomoc uzupełniona: nowy dział „Panel: menu, pulpit, kolory, czat, motyw”; Nauka i Dostrajanie – co wolno w trakcie (przechodzenie po menu, kropka, nie zamykać karty, jedno zadanie naraz, karta w tle, Zatrzymaj); Formatowanie – „Zatwierdź bez ostrzeżeń” i „Formatuj wszystkie ponownie”; Modele – tabela przycisków; „Dane w tej przeglądarce” – źródła, logi, token, bez powtórzeń; „Krok po kroku” – odesłanie do Logów.

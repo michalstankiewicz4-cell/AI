@@ -3,3 +3,7 @@
 table.srctable td { font-size: .86rem; vertical-align: top; } table.srctable code { font-size: .8rem; white-space: nowrap; }
 .urlout { margin-top: .4em; }
 .catalog { margin-top: .8em; } .catrow { border-bottom: 1px solid var(--line); padding: .35em 0; } .catrow .note { flex: 1 1 280px; }
+.pack { border: 1px solid var(--line); border-radius: 8px; padding: .6em .8em; margin: .6em 0; background: var(--panel); }
+.packlog { font-size: .85rem; max-height: 260px; overflow: auto; margin: .3em 0; padding-left: 1.2em; }
+.packlog .pk-dodano, .packlog .pk-zmieniony { color: var(--ok); } .packlog .pk-jest { color: var(--ink-3); }
+.packlog .pk-inny-tytul, .packlog .pk-brak { color: var(--warn); } .packlog .pk-blad { color: var(--bad); }

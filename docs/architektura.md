@@ -37,8 +37,9 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `conversations.js` | rozmowy z czatu, oceny, zamiana na rozmowę wzorcową |
 | `github.js` | publikacja jednym commitem (Git Data API), nazwy plików, odczyt opublikowanych plików bez tokenu |
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp) |
+| `packs.js` | pakiety tematyczne (`PACKS`): źródła, akty po ELI, hasła Wikipedii; nowy pakiet = nowy obiekt |
 | `log.js` | logi: `log(ważność, obszar, treść, szczegóły)`, poziomy `LEVELS` (błąd, ostrzeżenie, informacja, szczegóły), zapis w magazynie `logs` (najwyżej `MAX`), słuchacze na żywo, eksport do tekstu |
-| `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
+| `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`, `downloadWikiTitle`), akt po ELI (`downloadEliAct`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
 
 ### `js/reader/` – odczyt plików
 | Plik | Rola |
