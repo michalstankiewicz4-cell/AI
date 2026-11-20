@@ -2,6 +2,14 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.12.0 – 2026-11-20
+
+- **Grupy kategorii**: kategorie dokumentów zebrane w grupy z własnym kolorem (domyślnie: Rodzaj dokumentu, Dziedzina, Źródło, Stan; reszta w „Inne”). Filtr w Dokumentach i Formatowaniu ma wiersz na grupę, plakietki mają kolor grupy. Okno „Grupy kategorii”: nazwa, kolor i kategorie grupy, dodawanie i usuwanie grup, przypisywanie kategorii bez grupy jednym kliknięciem, przywracanie domyślnych. Grupy w pliku z danymi i w publikacji (`data/grupy-kategorii.json`).
+- Nowe dokumenty dostają też kategorię źródła: Dziennik Ustaw, Monitor Polski (ELI), SAOS, KNF, UOKiK.
+- **Pakiet „Prawo bankowe i kredyty”**: Kodeks cywilny (t.j. 2026), Prawo bankowe (t.j. 2026), ustawy o kredycie konsumenckim i hipotecznym, KPC (t.j. 2026), ustawa o reklamacjach i Rzeczniku Finansowym, ustawa o podmiotach obsługujących kredyty; źródła: nowe akty z Dziennika Ustaw i Monitora Polskiego (ELI z filtrem), rekomendacje i Dziennik Urzędowy KNF, orzeczenia SAOS o kredytach CHF, sankcji kredytu darmowego, zwrocie prowizji i umowach kredytu; 30 haseł Wikipedii, 18 typowych pytań.
+- **Przygotowanie dla zewnętrznego AI** (Formatowanie): „Przygotuj dla AI” zapisuje plik .md z instrukcją (prompt systemowy, do edycji, z „Przywróć domyślną instrukcję”) i dokumentami z listy między znacznikami, dzielony na części; „Wczytaj wynik od AI” podmienia tekst do nauki po znacznikach (kategoria „sformatowany przez AI”, status do sprawdzenia); „Usuń wersję od AI”. Domyślna instrukcja: bez zmian brzmienia przepisów, akty w Markdown z hierarchią (# akt, ## rozdział, ### Art., #### §), metadane, orzeczenia jako stan faktyczny → analiza → rozstrzygnięcie.
+- Poprawka: okno, które kończy pracę z opóźnieniem (np. „Wczytaj dane z pliku”), nie przełącza już widoku na swoją zakładkę, jeśli przeszło się gdzie indziej.
+
 ## 0.11.0 – 2026-11-14
 
 - **Profile** na wspólnej bibliotece: wybór na Pulpicie (karta „Profil”, nazwa w górnym pasku), „Wszystkie profile” jako widok całości. Profil ma kategorie dokumentów (opcjonalnie z tekstem ogólnym), szablon sieci jeszcze niewyuczonej (mała / średnia / duża), własne ustawienia nauki i dostrajania oraz własne modele i aktywny model w czacie.

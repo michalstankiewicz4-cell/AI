@@ -79,6 +79,12 @@ Każdy dokument zapamiętuje wersję reguł (`VERSIONS.cleaner`), którą go sfo
 ### Kategorie (plakietki)
 Dokument ma listę kategorii `tags`. Część nadaje się sama według pochodzenia (`autoTags`): *akt prawny* (ELI), *orzeczenie* (SAOS), *Wikipedia*, *stenogram Sejmu*, nazwa pakietu; dochodzą kategorie źródła z Researchu. Pobranie nowszej wersji tego samego aktu (ten sam ELI) albo nowszego tekstu jednolitego oznacza starszy dokument jako **nieaktualny**. Po kategoriach filtruje się Dokumenty i Formatowanie (kilka zaznaczonych = wszystkie naraz).
 
+### Grupy kategorii
+Kategorie są zebrane w grupy (kv `tagGroups`, domyślne w `js/core/taggroups.js`): Rodzaj dokumentu, Dziedzina, Źródło, Stan; reszta w „Inne”. Grupa daje kolor plakietki i wiersz w filtrze; nie zmienia kategorii dokumentów.
+
+### Wersja od zewnętrznego AI
+`aiText` (z `aiAt`): tekst sformatowany przez zewnętrzne AI (przez *Przygotuj dla AI* → *Wczytaj wynik od AI*). Ma pierwszeństwo przed wynikiem reguł także przy formatowaniu ponownym; raport formatowania dalej dotyczy reguł. Dokument dostaje kategorię „sformatowany przez AI”.
+
 ### Profile
 Profil (kv `profiles`) ma kategorie, szablon sieci, ustawienia nauki i dostrajania oraz aktywny model. Dokument należy do profilu, gdy ma jego kategorię (albo jest tekstem ogólnym, jeśli profil to dopuszcza); rozmowa wzorcowa – gdy ma kategorię profilu albo nie ma żadnej (wspólna); model – gdy powstał w profilu (`profileId`). Nauka bierze tylko dokumenty profilu.
 

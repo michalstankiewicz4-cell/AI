@@ -4,9 +4,10 @@ import { h, help, toast, modal } from '../dom.js';
 import { TEMPLATES, saveProfile, applyTemplate } from '../../core/profiles.js';
 import { listDocs, tagCounts, mergeTags } from '../../core/documents.js';
 import { listPacks } from '../../core/packs.js';
+import { tagGroups } from '../../core/taggroups.js';
 
 export async function profileEditor(p, onSaved) {
-  const known = mergeTags(tagCounts(await listDocs()).map(([t]) => t), (await listPacks()).map(x => x.name));
+  const known = mergeTags(tagCounts(await listDocs()).map(([t]) => t), (await listPacks()).map(x => x.name), (tagGroups().find(g => g.id === 'dziedzina') || { tags: [] }).tags);
   const name = h('input', { type: 'text', value: p ? p.name : '', placeholder: 'np. Prawo pracy' });
   const desc = h('input', { type: 'text', value: p ? p.description : '', placeholder: 'czego dotyczy (opcjonalnie)' });
   const sel = new Set(p ? p.tags : []), tagBox = h('div.row.wrap.tagpick');

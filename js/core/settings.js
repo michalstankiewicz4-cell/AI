@@ -6,6 +6,7 @@
 
 import { db } from './db.js';
 import { RULES } from '../cleaner/rules.js';
+import { DEFAULT_PROMPT } from './ai-prompt.js';
 
 const opt = (v, l) => [v, l];
 
@@ -39,6 +40,10 @@ export const SCHEMA = [
     { id: 'mask', label: 'Błąd liczony na', type: 'select', def: 1, opts: [opt(1, 'tylko odpowiedziach AI'), opt(0, 'całej rozmowie')], help: 'Maskowanie: sieć uczy się odpowiadać, a nie mówić za użytkownika. Bez maski uczy się też pisać pytania.' },
     { id: 'valShare', label: 'Rozmowy do sprawdzania', type: 'select', def: .1, opts: [opt(.05, '5%'), opt(.1, '10%'), opt(.2, '20%')], help: 'Część rozmów wzorcowych odkładana na bok: sieć się na nich nie uczy, służą do zmierzenia, jak radzi sobie z rozmowami, których nie widziała.' },
     { id: 'device', label: 'Liczy', type: 'select', def: 'gpu', opts: [opt('gpu', 'karta graficzna (GPU)'), opt('wasm', 'procesor, WASM SIMD'), opt('cpu', 'procesor, zwykły JS')], help: 'Jak przy nauce.' },
+  ] },
+  { group: 'ai', title: 'Przygotowanie dla zewnętrznego AI', fields: [
+    { id: 'prompt', label: 'Instrukcja dla AI (prompt systemowy)', type: 'textarea', rows: 12, def: DEFAULT_PROMPT, help: 'Tekst, który trafia na początek pliku „Przygotuj dla AI”. Mówi zewnętrznemu AI (np. Claude), jak ostatecznie sformatować dokumenty: struktura Markdown aktów, metadane, części orzeczeń, czego nie zmieniać. Możesz go dowolnie zmienić; „Przywróć domyślną” wraca do wersji z panelu.' },
+    { id: 'partChars', label: 'Wielkość części pliku', type: 'select', def: 60000, opts: [20000, 40000, 60000, 100000, 200000].map(v => opt(v, (v / 1000) + ' tys. znaków')), help: 'Długie zestawy dzielą się na kilka plików, żeby zmieściły się w jednej wiadomości do AI. Dokument dłuższy niż część idzie sam.' },
   ] },
   { group: 'chat', title: 'Rozmowa', fields: [
     { id: 'temp', label: 'Temperatura', type: 'select', def: .6, opts: [.2, .4, .6, .8, 1].map(v => opt(v, String(v).replace('.', ','))), help: 'Niska = sieć wybiera najpewniejsze słowa (powtarzalnie, bezpieczniej). Wysoka = odważniej, ale więcej pomyłek.' },

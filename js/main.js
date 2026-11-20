@@ -20,6 +20,7 @@ import research from './panels/research.js';
 import logsPanel from './panels/logs.js';
 import { logInfo, logError } from './core/log.js';
 import { loadProfiles, activeProfile, onProfile } from './core/profiles.js';
+import { loadTagGroups } from './core/taggroups.js';
 
 const PANELS = [dashboard, research, documents, formatting, pretrain, dialogs, finetune, conversations, models, settingsPanel, logsPanel, helpPanel];
 let main, nav, cleanup = null, current = null;
@@ -37,7 +38,9 @@ async function show(route) {
   clear(main);
   const root = h('div.panel-' + p.id); main.append(root);
   document.title = `${p.title} · ${APP_NAME} – panel`;
-  try { const r = await p.render(root, () => show(route), arg); if (typeof r === 'function') cleanup = r; }
+  // odświeżenie zakładki tylko, gdy wciąż jest otwarta (np. okno skończyło pracę po przejściu gdzie indziej)
+  const rerender = () => { if (current === p.id && root.isConnected) show(route); };
+  try { const r = await p.render(root, rerender, arg); if (typeof r === 'function') cleanup = r; }
   catch (e) { console.error(e); root.append(h('p.warnline', 'Błąd zakładki: ' + e.message)); }
   main.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
@@ -70,6 +73,7 @@ function profileChip() {
 async function init() {
   await loadSettings();
   await loadProfiles();
+  await loadTagGroups();
   logInfo('panel', `Uruchomienie panelu, wersja ${VERSIONS.app}`, { wersje: VERSIONS, przegladarka: navigator.userAgent, adres: location.pathname + location.hash });
   // grupy kolorów w menu: 2 = Dokumenty, Formatowanie i Nauka (fioletowy), 3 = Rozmowy wzorcowe i Dostrajanie (zielony)
   const STAGE = { 2: 'Dokumenty, formatowanie i nauka języka', 3: 'Rozmowy wzorcowe i nauka odpowiadania' };

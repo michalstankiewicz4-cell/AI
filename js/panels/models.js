@@ -35,7 +35,7 @@ export default {
         const me = m.metrics || {};
         return h('section.card.model' + (m.id === active ? '.active' : ''),
           h('div.row.wrap',
-            h('h2', m.name), h('span.badge', m.kind === 'base' ? 'bazowy' : 'dostrojony'), m.profileId && profName(m.profileId) ? h('span.tag', 'profil: ' + profName(m.profileId)) : null, m.id === active ? h('span.badge.ok', 'aktywny w czacie') : null,
+            h('h2', m.name), h('span.badge', m.kind === 'base' ? 'bazowy' : 'dostrojony'), m.profileId && profName(m.profileId) ? h('span.tag.c-gold', 'profil: ' + profName(m.profileId)) : null, m.id === active ? h('span.badge.ok', 'aktywny w czacie') : null,
             m.published ? h('span.badge', { title: `Opublikowano ${date(m.published.at)}` }, 'na GitHub') : null, h('span.sp'), h('span.note', date(m.createdAt))),
           h('dl.metrics.inline',
             h('dt', 'Bity na znak', help('Na tekście sprawdzającym (dokumenty albo rozmowy odłożone na bok). Mniej = lepiej. Porównuj modele tego samego rodzaju.', 'bity-na-znak')), h('dd', dec(me.bpc, 2)),

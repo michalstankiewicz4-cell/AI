@@ -24,11 +24,15 @@ const norm = d => { if (d.sourceUrl == null) d.sourceUrl = ''; if (!d.status) d.
 // ---------- kategorie (plakietki) ----------
 // Kategorie nadawane same według pochodzenia; resztę dopisuje się ręcznie w Dokumentach.
 export const OUTDATED = 'nieaktualny';
-export const SUGGESTED_TAGS = ['akt prawny', 'orzeczenie', 'interpretacja', 'decyzja', 'Wikipedia', 'stenogram Sejmu', OUTDATED, 'stary'];
+export const SUGGESTED_TAGS = ['akt prawny', 'orzeczenie', 'interpretacja', 'decyzja', 'Wikipedia', 'stenogram Sejmu', OUTDATED, 'stary'];   // podpowiedzi; pełna lista w grupach (taggroups.js)
 export function autoTags(d) {
   const t = [], u = d.sourceUrl || '';
   if (d.eli) t.push('akt prawny');
-  if (/saos\.org\.pl/.test(u)) t.push('orzeczenie');
+  if (/saos\.org\.pl/.test(u)) t.push('orzeczenie', 'SAOS');
+  if (d.eli && /^DU\//.test(d.eli)) t.push('Dziennik Ustaw');
+  if (d.eli && /^MP\//.test(d.eli)) t.push('Monitor Polski');
+  if (/knf\.gov\.pl/.test(u)) t.push('KNF');
+  if (/uokik\.gov\.pl/.test(u)) t.push('UOKiK');
   if (/wikipedia\.org/.test(u)) t.push('Wikipedia');
   if (/^Stenogram Sejmu/.test(d.name || '')) t.push('stenogram Sejmu');
   const pk = /Pakiet: ([^.]+)\./.exec(d.description || ''); if (pk) t.push(pk[1]);
@@ -49,6 +53,8 @@ function format(doc) {
   const { text, report } = cleanDocument(doc.raw, cleanerOpts());
   const o = ocrSummary(doc.ocr);                       // PDF/obraz: opis odczytu i ostrzeżenia OCR
   if (o) { report.read = o.text; report.warnings.unshift(...o.warnings); }
+  // wersja od zewnętrznego AI ma pierwszeństwo przed formatowaniem regułami (raport dotyczy reguł)
+  if (doc.aiText) return Object.assign(doc, { text: doc.aiText, report, chars: doc.aiText.length, cleanerVersion: VERSIONS.cleaner, formattedAt: Date.now() });
   return Object.assign(doc, { text, report, chars: text.length, cleanerVersion: VERSIONS.cleaner, formattedAt: Date.now() });
 }
 // Wgranie: zapis oryginału + formatowanie; status „do sprawdzenia”

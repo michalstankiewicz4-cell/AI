@@ -263,6 +263,41 @@ const fcd = p.waitForEvent('filechooser'); await p.click('text=Wczytaj dane z pl
 await p.waitForSelector('dialog.modal >> text=Wczytaj'); await p.click('dialog.modal button:text-is("Wczytaj")'); await p.waitForSelector('dialog.modal >> text=/Wczytano\./');
 ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents'))) === nDocs && await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) >= 19, 'wczytanie pliku odtwarza dokumenty i źródła');
 
+console.log('Grupy kategorii, pakiet bankowy, przygotowanie dla AI');
+await p.goto(BASE + '#dokumenty'); await p.waitForSelector('.tagfilter');
+const gnames = await p.$$eval('.taggroup .tgname', els => els.map(e => e.textContent));
+ok(gnames.includes('Rodzaj dokumentu') && gnames.includes('Dziedzina') && gnames.includes('Stan') && gnames.includes('Źródło'), 'filtr pogrupowany: Rodzaj, Dziedzina, Źródło, Stan');
+ok(await p.$('.taggroup:has(.tgname:text("Dziedzina")) .tagbtn.c-violet:has-text("Prawo pracy")') && await p.$('.tagbtn.c-red:has-text("nieaktualny")'), 'kolory grup: Dziedzina fioletowa, Stan czerwony');
+await p.click('text=Grupy kategorii'); await p.waitForSelector('dialog.modal .tgrow');
+const tas2 = await p.$$('dialog.modal .tgrow textarea'); await tas2[1].fill((await tas2[1].inputValue()) + ', przegląd testowy');
+await p.click('dialog.modal button:text-is("Zapisz grupy")'); await p.waitForTimeout(500);
+ok(await p.evaluate(async () => (await import('./js/core/taggroups.js')).groupOf('przegląd testowy').name) === 'Dziedzina', 'okno grup: dopisana kategoria trafia do grupy');
+const g2 = await p.evaluate(async () => (await import('./js/core/taggroups.js')).groupOf('Prawo bankowe i kredyty').name);
+ok(g2 === 'Dziedzina', 'nazwa pakietu bankowego w grupie Dziedzina');
+await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
+const bank = 'section.pack:has-text("Prawo bankowe i kredyty")';
+t = await p.textContent(bank);
+ok(t.includes('8 źródeł') && t.includes('7 aktów') && t.includes('30 haseł') && t.includes('18 pytań'), 'pakiet Prawo bankowe i kredyty: 8 źródeł, 7 aktów, 30 haseł, 18 pytań');
+await p.click(bank + ' >> text=/Dodaj źródła pakietu/'); await p.waitForTimeout(600);
+const bsrc = await p.evaluate(async () => (await (await import('./js/core/sources.js')).listSources()).filter(s => (s.tags || []).includes('Prawo bankowe i kredyty')).map(s => s.name + '|' + s.tags.join(',')));
+ok(bsrc.length >= 6 && bsrc.some(x => x.includes('CHF') && x.includes('kredyty walutowe (CHF)')) && bsrc.some(x => x.includes('Monitor Polski')), 'źródła pakietu bankowego z kategoriami (CHF, Monitor Polski)');
+// przygotowanie dla AI
+await p.goto(BASE + '#formatowanie'); await p.waitForSelector('button:has-text("Przygotuj dla AI")');
+await p.click('label:has-text("Wszystkie") input'); await p.waitForTimeout(300);
+await p.click('.tagfilter >> text=/^Prawo pracy/'); await p.click('.tagfilter >> text=/^akt prawny/'); await p.waitForTimeout(400);
+const dla = p.waitForEvent('download'); await p.click('button:has-text("Przygotuj dla AI")');
+const aiFile = join(OUT, 'dla-ai.md'); await (await dla).saveAs(aiFile);
+const aiTxt = readFileSync(aiFile, 'utf8'), ids = [...aiTxt.matchAll(/=== DOKUMENT (d_\S+) ===/g)].map(m => m[1]);
+ok(aiTxt.startsWith('<instrukcja>') && aiTxt.includes('NIE zmieniaj brzmienia przepisów') && ids.length >= 5 && aiTxt.includes('=== KONIEC ' + ids[0] + ' ==='), `plik dla AI: instrukcja i ${ids.length} dokumentów w znacznikach`);
+const reply = '```\n=== DOKUMENT ' + ids[0] + ' ===\nNazwa: x\n# Kodeks pracy\nAkt: Kodeks pracy\n\n### Art. 1.\nKodeks pracy określa prawa i obowiązki.\n=== KONIEC ' + ids[0] + ' ===\n```';
+await p.click('text=Wczytaj wynik od AI'); await p.waitForSelector('dialog.modal textarea');
+await p.fill('dialog.modal textarea', reply); await p.click('dialog.modal button:text-is("Wczytaj")'); await p.waitForSelector('dialog.modal >> text=/Wczytano 1 dokument/');
+const aid = await p.evaluate(async id => { const d = (await (await import('./js/core/documents.js')).listDocs()).find(x => x.id === id); return { text: d.text, tags: d.tags, status: d.status }; }, ids[0]);
+ok(aid.text.startsWith('# Kodeks pracy') && !aid.text.includes('Nazwa:') && aid.tags.includes('sformatowany przez AI') && aid.status === 'do-sprawdzenia', 'wynik od AI: tekst podmieniony, kategoria „sformatowany przez AI”, do sprawdzenia');
+await p.evaluate(async id => { const m = await import('./js/core/documents.js'); const d = (await m.listDocs()).find(x => x.id === id); await m.recleanDoc(d); }, ids[0]);
+ok((await p.evaluate(async id => (await (await import('./js/core/documents.js')).listDocs()).find(x => x.id === id).text, ids[0])).startsWith('# Kodeks pracy'), 'wersja od AI zostaje po „Formatuj ponownie”');
+await p.screenshot({ path: join(OUT, 'grupy.png') });
+
 console.log('Profile');
 await p.goto(BASE + '#pulpit'); await p.waitForSelector('.profilecard');
 ok((await p.textContent('.profchip')).includes('Wszystkie profile'), 'bez profilu: „Wszystkie profile” w pasku');

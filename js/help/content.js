@@ -127,7 +127,16 @@ export const SECTIONS = [
       ['kategorie źródła', 'wpisane w „Edytuj” przy źródle w Researchu – dostaje je każdy dokument z tego źródła'],
       ['<b>nieaktualny</b> (czerwona)', 'sama, gdy pobierzesz nowszą wersję tego samego aktu albo nowszy tekst jednolity; możesz ją też dodać ręcznie (podobnie „stary”)'],
     ]],
-    ['p', 'Dopisanie: pole „+ kategoria” przy dokumencie (Enter), podpowiada już używane. Usunięcie: „×” na plakietce.'],
+    ['p', 'Dopisanie: pole „+ kategoria” przy dokumencie (Enter), podpowiada kategorie z grup i już używane. Usunięcie: „×” na plakietce.'],
+    ['p', '<b>Grupy kategorii.</b> Kategorie są zebrane w grupy, każda w swoim kolorze – w filtrze każda grupa ma swój wiersz. Domyślnie:'],
+    ['table', ['Grupa (kolor)', 'Kategorie'], [
+      ['Rodzaj dokumentu (niebieski)', 'akt prawny, orzeczenie, wyrok, uchwała, interpretacja, decyzja, rekomendacja, komentarz, umowa, wzór pisma, Wikipedia, stenogram Sejmu'],
+      ['Dziedzina (fioletowy)', 'Prawo pracy, Prawo bankowe i kredyty, Prawo cywilne, kredyty walutowe (CHF), sankcja kredytu darmowego, zwrot prowizji'],
+      ['Źródło (turkusowy)', 'Dziennik Ustaw, Monitor Polski, KNF, SAOS, UOKiK, Rzecznik Finansowy, TSUE, Sąd Najwyższy'],
+      ['Stan (czerwony)', 'nieaktualny, stary, do przejrzenia, sformatowany przez AI'],
+      ['Inne (szary)', 'każda kategoria spoza grup'],
+    ]],
+    ['p', 'Przycisk <b>Grupy kategorii</b> (pod filtrem) otwiera edycję: nazwa i kolor grupy, jej kategorie (po przecinku), „Dodaj grupę”, „Usuń grupę”, a kategorie z dokumentów bez grupy przypiszesz jednym kliknięciem. „Przywróć domyślne” wraca do grup z panelu. Grupy są w pliku z danymi i w publikacji na GitHub.'],
     ['tip', 'Dokument „nieaktualny” dalej jest w nauce, jeśli jest zatwierdzony – wyłącz go w Formatowaniu („używaj w nauce”) albo odrzuć. W czacie fragmenty z nieaktualnych dokumentów mają mniejszą wagę i czerwoną plakietkę.'],
   ] },
   { id: 'plik-z-danymi', group: 'Ustawienia', title: 'Dane w pliku (przeniesienie, kopia zapasowa)', topics: ['plik-z-danymi'], body: [
@@ -153,8 +162,20 @@ export const SECTIONS = [
     ]],
     ['ex', 'Ile dni urlopu mi przysługuje?', 'Z biblioteki: Kodeks pracy – „Art. 154. § 1. Wymiar urlopu wynosi: 1) 20 dni – jeżeli pracownik jest zatrudniony krócej niż 10 lat; 2) 26 dni…”', 'odpowiedź modelu + dokładny przepis pod spodem'],
   ] },
+  { id: 'dla-ai', group: 'Dane', title: 'Ostateczne formatowanie przez zewnętrzne AI', topics: ['dla-ai', 'ai.prompt', 'ai.partChars'], body: [
+    ['p', 'Reguły formatowania czyszczą tekst, ale nie odtworzą struktury aktu ani nie podzielą wyroku na części. To może zrobić duży model AI (np. Claude). Panel przygotowuje dla niego plik i wczytuje wynik – nie łączy się z AI sam.'],
+    ['steps', [
+      ['Wybierz dokumenty', 'Formatowanie → ustaw filtr (status, kategorie, profil) tak, żeby na liście były dokumenty do poprawy.'],
+      ['Przygotuj dla AI', 'Plik .md: instrukcja (prompt systemowy) + dokumenty między znacznikami === DOKUMENT id === … === KONIEC id ===. Długie zestawy dzielą się na części.'],
+      ['Wklej do AI', 'Wklej plik (albo każdą część) do rozmowy z AI i poproś o wykonanie instrukcji.'],
+      ['Wczytaj wynik od AI', 'Wklej odpowiedź albo wczytaj ją z pliku. Panel rozpoznaje dokumenty po znacznikach i podmienia tekst do nauki.'],
+      ['Sprawdź i zatwierdź', 'Dokument wraca do sprawdzenia z kategorią „sformatowany przez AI”. Porównaj z oryginałem („Pokaż przed formatowaniem”) i zatwierdź.'],
+    ]],
+    ['p', '<b>Instrukcja</b> (w „Przygotowanie dla zewnętrznego AI” na górze Formatowania) jest do edycji. Domyślna każe: nie zmieniać brzmienia przepisów i cytatów, zapisać akt w Markdown z hierarchią (# akt, ## rozdział, ### Art., #### § / ust.), dodać metadane (akt, publikator, stan prawny, rodzaj), podzielić orzeczenia na stan faktyczny, analizę prawną i rozstrzygnięcie oraz zwrócić te same znaczniki.'],
+    ['tip', 'Wersja od AI ma pierwszeństwo także po „Formatuj ponownie”. „Usuń wersję od AI” przywraca tekst z reguł formatowania. AI może się pomylić – zawsze porównaj z oryginałem przed zatwierdzeniem.'],
+  ] },
   { id: 'pakiety', group: 'Dane', title: 'Pakiety tematyczne', topics: ['pakiety'], body: [
-    ['p', 'Pakiet to gotowy zestaw do jednej dziedziny prawa, na dole zakładki Research. Pierwszy pakiet: <b>Prawo pracy</b>. Każdy pakiet ma trzy części, każdą uruchamiasz osobnym przyciskiem:'],
+    ['p', 'Pakiet to gotowy zestaw do jednej dziedziny prawa, na dole zakładki Research. Wbudowane: <b>Prawo pracy</b> oraz <b>Prawo bankowe i kredyty</b> (Kodeks cywilny, Prawo bankowe, kredyt konsumencki i hipoteczny, KPC, Rzecznik Finansowy; nowe akty z Dziennika Ustaw i Monitora Polskiego, rekomendacje i Dziennik Urzędowy KNF, orzeczenia z SAOS o kredytach CHF, sankcji kredytu darmowego i zwrocie prowizji). Każdy pakiet ma trzy części, każdą uruchamiasz osobnym przyciskiem:'],
     ['table', ['Przycisk', 'Co robi'], [
       ['Dodaj źródła pakietu', 'dodaje do listy źródła dziedziny, np. nowe akty z Dziennika Ustaw z filtrem tytułów, orzeczenia z SAOS powołujące Kodeks pracy, interpretacje ZUS'],
       ['Pobierz akty pakietu', 'pobiera do biblioteki akty po identyfikatorze ELI (np. Kodeks pracy – tekst jednolity). Najpierw sprawdza tytuł: jeśli nie zawiera oczekiwanego słowa, akt jest pomijany (ochrona przed pomyłką w numerze)'],

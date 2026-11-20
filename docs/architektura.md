@@ -39,6 +39,9 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 | `sync.js` | zbieranie danych do publikacji i przywracanie opublikowanych (dodaj brakujące / zastąp); części: ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety; plik z danymi (`exportData`, `dataFromFile`) |
 | `search.js` | wyszukiwanie w bibliotece (BM25 po fragmentach zatwierdzonych dokumentów) – fragmenty pod odpowiedzią czatu |
 | `profiles.js` | profile: lista i wybrany (kv `profiles`, `activeProfile`), szablony sieci (`TEMPLATES`), `inProfile`, przełączanie z zapamiętaniem ustawień nauki/dostrajania i aktywnego modelu |
+| `taggroups.js` | grupy kategorii (kv `tagGroups`, domyślne `DEFAULT_GROUPS`), kolor i grupa kategorii (`groupOf`), grupowanie liczników |
+| `aiprep.js` | przygotowanie dokumentów dla zewnętrznego AI (`buildExport` – instrukcja + znaczniki, części), wczytanie wyniku (`parseImport`, `applyAiText`, `dropAiText`) |
+| `ai-prompt.js` | domyślna instrukcja dla zewnętrznego AI (bez importów – wartość domyślna ustawienia) |
 | `packs.js` | pakiety tematyczne: wbudowane (`PACKS`) i własne (kv `userPacks`, edycja, plik pakietu); źródła, akty po ELI (z frazą tekstu jednolitego), hasła Wikipedii, typowe pytania |
 | `log.js` | logi: `log(ważność, obszar, treść, szczegóły)`, poziomy `LEVELS` (błąd, ostrzeżenie, informacja, szczegóły), zapis w magazynie `logs` (najwyżej `MAX`), słuchacze na żywo, eksport do tekstu |
 | `sources.js` | Research: źródła (www, API ELI, API JSON), katalog znanych źródeł (`CATALOG`), stenogramy Sejmu (`checkSteno`), Wikipedia (`checkWiki`, `downloadWiki`, `downloadWikiTitle`), akt po ELI (`downloadEliAct`), sprawdzanie (`probe`: działa / kod HTTP / brak CORS), linki do dokumentów, akty z API, pobieranie do biblioteki, „czy już pobrany”, zmiany u źródła |
@@ -78,7 +81,7 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 | `dashboard.js` | Pulpit: karta profilu (wybór, nowy, edycja), kafelki kroków 1–7 ze stanem, aktywny model, komputer |
 | `research.js` | Research: „czy już pobrany”, źródła (www, ELI, API JSON, stenogramy, Wikipedia), katalog znanych źródeł, domeny z dokumentów, zmiany u źródła |
 | `documents.js` | Dokumenty: biblioteka (ikonka, opis, kategorie z filtrem, adres źródła, tekst ogólny), wgrywanie i wklejanie |
-| `formatting.js` | Formatowanie: podgląd przed/po, raport, zatwierdzanie, formatowanie ponowne, ustawienia formatowania |
+| `formatting.js` | Formatowanie: podgląd przed/po, raport, zatwierdzanie, formatowanie ponowne, ustawienia formatowania, przygotowanie dla zewnętrznego AI i wczytanie wyniku |
 | `pretrain.js` | Nauka: dane (z podziałem prawnicze/ogólne), rodzaj nauki, ustawienia, przebieg |
 | `dialogs.js` | Rozmowy wzorcowe: edytor, wczytywanie i zapis pliku |
 | `finetune.js` | Dostrajanie: model startowy, ustawienia, przebieg |
@@ -100,7 +103,7 @@ Każda zakładka to obiekt `{ id, title, stage?, icon, render(root, rerender, ar
 | `ui/netview.js` | podgląd budowy modelu z prawdziwych wag |
 | `ui/fileicon.js` | ikonka rodzaju pliku |
 | `ui/scope.js` | pasek „Profil: …” nad listami z „Pokaż wszystko” |
-| `ui/tags.js` | kategorie dokumentów: plakietki, edycja (z podpowiedziami), filtr z liczbami |
+| `ui/tags.js` | kategorie dokumentów: plakietki w kolorze grupy, edycja (z podpowiedziami), filtr pogrupowany z liczbami, okno „Grupy kategorii” |
 | `ui/dialog-editor.js` | edytor rozmowy wzorcowej (osadzany w zakładkach i oknach) |
 | `ui/modals/publish.js` | okno publikacji na GitHub (checkboxy) |
 | `ui/modals/github-import.js` | okno „Wczytaj z GitHub” (modele i dane) |

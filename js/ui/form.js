@@ -16,7 +16,8 @@ export function fieldsForm(group, values, { only, onChange, disabled } = {}) {
     else if (f.type === 'select') {
       input = h('select', { id, onchange: e => { const o = f.opts[e.target.selectedIndex]; set(o[0]); } },
         f.opts.map(([v, l]) => h('option', { value: String(v), selected: String(v) === String(values[f.id]) }, l)));
-    } else input = h('input', { type: f.type === 'password' ? 'password' : 'text', id, value: values[f.id] ?? '', oninput: e => set(e.target.value) });
+    } else if (f.type === 'textarea') input = h('textarea', { id, rows: f.rows || 8, value: values[f.id] ?? '', oninput: e => set(e.target.value) });
+    else input = h('input', { type: f.type === 'password' ? 'password' : 'text', id, value: values[f.id] ?? '', oninput: e => set(e.target.value) });
     if (disabled && disabled.includes(f.id)) input.disabled = true;
     box.append(h('div.field' + (f.type === 'bool' ? '.check' : ''), f.type === 'bool'
       ? [input, h('label', { htmlFor: id }, f.label), help(f.help, `${group}.${f.id}`)]

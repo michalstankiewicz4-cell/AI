@@ -16,6 +16,7 @@ import { fetchPublished } from './github.js';
 import { listSources } from './sources.js';
 import { userPacks } from './packs.js';
 import { profilesData, loadProfiles } from './profiles.js';
+import { loadTagGroups } from './taggroups.js';
 import { VERSIONS } from '../version.js';
 
 export const PARTS = {
@@ -26,14 +27,15 @@ export const PARTS = {
   sources: { file: 'data/zrodla.json', label: 'Źródła (Research)', store: 'sources' },
   packs: { file: 'data/pakiety.json', label: 'Własne pakiety', kv: 'userPacks' },
   profiles: { file: 'data/profile.json', label: 'Profile', kv: 'profiles' },
+  tagGroups: { file: 'data/grupy-kategorii.json', label: 'Grupy kategorii', kv: 'tagGroups' },
 };
 
 // Wszystko, co może pójść na GitHub (pełne rekordy, żeby dało się je odtworzyć 1:1)
 export async function collect() {
-  const [documents, dialogs, conversations, sources, packs, profiles] = await Promise.all([listDocs(), listDialogs(), listConversations(), listSources(), userPacks(), profilesData()]);
+  const [documents, dialogs, conversations, sources, packs, profiles, tagGroups] = await Promise.all([listDocs(), listDialogs(), listConversations(), listSources(), userPacks(), profilesData(), db.kvGet('tagGroups')]);
   return {
     settings: settings(), versions: { ...VERSIONS },
-    documents, dialogs, conversations, sources, packs, profiles,
+    documents, dialogs, conversations, sources, packs, profiles, tagGroups: tagGroups || [],
     dialogsText: dialogs.filter(d => !d.draft).reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n',
   };
 }
@@ -56,6 +58,12 @@ async function restoreRaw(pub, what, replace, res, from) {
     const d = defaults(), s = pub.settings.settings || {};
     for (const g in d) Object.assign(d[g], s[g] || {});        // nowe pola z tej wersji panelu zostają z domyślnymi wartościami
     await saveSettings(d); res.settings = { replaced: 1 };
+  }
+  if (what.tagGroups && pub.tagGroups && (pub.tagGroups.tagGroups || []).length) {
+    const own = (await db.kvGet('tagGroups')) || [];
+    if (replace || !own.length) { await db.kvSet('tagGroups', pub.tagGroups.tagGroups); res.tagGroups = { added: 0, replaced: pub.tagGroups.tagGroups.length, skipped: 0 }; }
+    else res.tagGroups = { added: 0, replaced: 0, skipped: pub.tagGroups.tagGroups.length };
+    await loadTagGroups();
   }
   if (what.profiles && pub.profiles) {
     const own = await profilesData(), ids = new Set(own.map(p => p.id)), r = { added: 0, replaced: 0, skipped: 0 };

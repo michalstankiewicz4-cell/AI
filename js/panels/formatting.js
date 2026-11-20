@@ -1,7 +1,7 @@
 // Zakładka „Formatowanie”: dokumenty po konwersji na dane do nauki — podgląd przed/po, raport zmian,
 // ostrzeżenia oraz decyzja: zatwierdź do nauki, odrzuć, formatuj ponownie. Do nauki trafiają tylko zatwierdzone.
 
-import { h, help, toast, num, date, clear, plural } from '../ui/dom.js';
+import { h, help, toast, num, date, clear, plural, modal, download, pickFiles } from '../ui/dom.js';
 import { fileIcon } from '../ui/fileicon.js';
 import { summary } from '../cleaner/cleaner.js';
 import { listDocs, saveDoc, recleanDoc, setStatus, STATUS } from '../core/documents.js';
@@ -12,6 +12,7 @@ import { formatStatsModal } from '../ui/modals/format-stats.js';
 import { tagFilter, tagChips } from '../ui/tags.js';
 import { hasTags } from '../core/documents.js';
 import { profileScope } from '../ui/scope.js';
+import { buildExport, parseImport, applyAiText, dropAiText, DEFAULT_PROMPT, AI_TAG } from '../core/aiprep.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
 // wszystkie pola grupy „cleaner” poza długością odpowiedzi wzorcowej (ta jest w „Rozmowach wzorcowych”)
@@ -34,7 +35,36 @@ export default {
       h('details.card.settings', h('summary', h('b', 'Ustawienia formatowania'), ' ', h('span.note', '— reguły, dodatkowe znaki, progi')),
         h('p.note', 'Zmiana dotyczy nowo wgranych dokumentów. Już wgrane sformatujesz od nowa przyciskiem „Formatuj wszystkie ponownie”.'),
         fieldsForm('cleaner', settings().cleaner, { only: CLEANER_HERE, onChange: () => { clearTimeout(saveT); saveT = setTimeout(async () => { await saveSettings(settings()); toast('Zapisano ustawienia formatowania.', 'ok', 1500); }, 400); } })),
+      h('details.card.settings', h('summary', h('b', 'Przygotowanie dla zewnętrznego AI'), ' ', h('span.note', '— instrukcja (prompt systemowy), wielkość części'), ' ', help('Ostateczne formatowanie przez zewnętrzne AI (np. Claude): „Przygotuj dla AI” zapisuje plik z instrukcją i dokumentami z listy poniżej, wynik od AI wczytujesz przyciskiem „Wczytaj wynik od AI”.', 'dla-ai')),
+        aiForm()),
       h('section.card', h('div.row.wrap', seg, h('span.sp'), bulk), scope.el, filterBox, stats, list));
+
+    function aiForm() {
+      const box = h('div');
+      const draw = () => { clear(box); box.append(fieldsForm('ai', settings().ai, { onChange: () => { clearTimeout(saveT); saveT = setTimeout(async () => { await saveSettings(settings()); toast('Zapisano ustawienia dla AI.', 'ok', 1500); }, 400); } }),
+        h('div.row', h('button.ghost.small', { type: 'button', onclick: async () => { settings().ai.prompt = DEFAULT_PROMPT; await saveSettings(settings()); draw(); toast('Przywrócono domyślną instrukcję.', 'ok'); } }, 'Przywróć domyślną instrukcję'))); };
+      draw(); return box;
+    }
+    // plik(i) dla AI z dokumentów widocznych na liście
+    function exportForAi(docs) {
+      const parts = buildExport(docs, settings().ai.prompt, +settings().ai.partChars);
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+      parts.forEach((t, i) => setTimeout(() => download(`dla-ai-${stamp}${parts.length > 1 ? `-czesc-${i + 1}` : ''}.md`, t, 'text/markdown;charset=utf-8'), i * 400));
+      toast(`Zapisano ${parts.length} ${plural(parts.length, 'plik', 'pliki', 'plików')} dla AI (${docs.length} dok.). Wklej plik do AI, a jego odpowiedź wczytaj przyciskiem „Wczytaj wynik od AI”.`, 'ok', 8000);
+    }
+    function importFromAi() {
+      const ta = h('textarea', { rows: 14, placeholder: 'Wklej odpowiedź AI (ze znacznikami === DOKUMENT … === i === KONIEC … ===) albo wczytaj plik.' });
+      const out = h('p.status');
+      const close = modal('Wczytaj wynik od AI', h('p.note', 'Dokumenty są rozpoznawane po znacznikach. Wersja od AI zastępuje tekst do nauki (oryginał zostaje), dokument wraca do sprawdzenia i dostaje kategorię „' + AI_TAG + '”.'), ta,
+        h('div.row.wrap', h('button.ghost', { type: 'button', onclick: async () => { const fs = await pickFiles('.md,.txt,text/plain,text/markdown', true); for (const f of fs) ta.value += (ta.value ? '\n\n' : '') + await f.text(); } }, 'Wczytaj z pliku'), h('span.sp'),
+          h('button', { type: 'button', onclick: async () => {
+            const found = parseImport(ta.value); if (!found.length) { out.textContent = 'Nie znaleziono żadnego dokumentu między znacznikami.'; return; }
+            const docs = await listDocs(), byId = new Map(docs.map(d => [d.id, d])); let ok = 0, miss = 0;
+            for (const f of found) { const d = byId.get(f.id); if (d) { await applyAiText(d, f.text); ok++; } else miss++; }
+            out.textContent = `Wczytano ${ok} ${plural(ok, 'dokument', 'dokumenty', 'dokumentów')}${miss ? `, nieznanych znaczników: ${miss}` : ''}.`;
+            toast(`Wczytano wersję od AI: ${ok}.`, 'ok'); draw(); if (!miss) setTimeout(close, 1500);
+          } }, 'Wczytaj')), out);
+    }
 
     async function draw() {
       const all = scope.filter(await listDocs()), docs = (filter === 'all' ? all : all.filter(d => d.status === filter)).filter(d => hasTags(d, [...selTags]));
@@ -44,6 +74,7 @@ export default {
       const todo = all.filter(d => d.status === 'do-sprawdzenia' && hasTags(d, [...selTags])), clean = todo.filter(d => !d.report.warnings.length);
       const stale = all.filter(d => d.cleanerVersion !== VERSIONS.cleaner);
       clear(bulk);
+      bulk.append(h('button.ghost', { type: 'button', disabled: !docs.length, onclick: () => exportForAi(docs) }, `Przygotuj dla AI (${docs.length})`), h('button.ghost', { type: 'button', onclick: importFromAi }, 'Wczytaj wynik od AI'));
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));
       bulk.append(h('button.ghost', { type: 'button', title: 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.', onclick: async () => {
         const items = []; for (const d of all) { const prev = snapshot(d); await recleanDoc(d); items.push({ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }); }
@@ -76,6 +107,7 @@ export default {
           d.status === 'zatwierdzony' ? h('label.check', h('input', { type: 'checkbox', checked: d.enabled, onchange: async e => { d.enabled = e.target.checked; await saveDoc(d); draw(); } }), ' używaj w nauce', help('Wyłączony dokument zostaje zatwierdzony, ale nie bierze udziału w następnej nauce.', 'do-sprawdzenia')) : null,
           h('span.note', `reguły v${d.cleanerVersion}${d.cleanerVersion !== VERSIONS.cleaner ? ' (starsze)' : ''} · ${date(d.formattedAt || d.addedAt)}`),
           h('span.sp'),
+          d.aiText ? act('Usuń wersję od AI', () => dropAiText(d, recleanDoc)) : null,
           act('Formatuj ponownie', async () => { const prev = snapshot(d); await recleanDoc(d); formatStatsModal(`Formatowanie ponowne: ${d.name}`, [{ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }], { reformat: true }); }),
           h('button.ghost', { type: 'button', onclick: () => formatStatsModal(`Statystyki formatowania: ${d.name}`, [{ name: d.name, report: d.report, text: d.text }]) }, 'Statystyki'),
           d.status !== 'odrzucony' ? act('Odrzuć', () => setStatus(d, 'odrzucony')) : null,

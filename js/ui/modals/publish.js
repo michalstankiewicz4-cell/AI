@@ -28,6 +28,7 @@ export async function publishModal(m) {
     box('sources', `Źródła Researchu (${num(data.sources.length)})`, false, 'data/zrodla.json: adresy, ustawienia, kategorie, wynik ostatniego sprawdzenia'),
     box('packs', `Własne pakiety (${num(data.packs.length)})`, false, 'data/pakiety.json'),
     box('profiles', `Profile (${num(data.profiles.length)})`, false, 'data/profile.json: nazwa, kategorie, szablon, ustawienia nauki'),
+    box('tagGroups', `Grupy kategorii (${num(data.tagGroups.length)})`, false, 'data/grupy-kategorii.json'),
   ];
   const log = h('p.status');
   function upd() { pub.hidden = !items.some(x => x.i.dataset.sensitive && x.i.checked); items[1].i.disabled = !items[0].i.checked; }

@@ -33,6 +33,13 @@ export const TIPS = {
   'Zapisz profil': 'Zapisz profil.',
   'Pokaż wszystko': 'Pokaż także to, co nie należy do wybranego profilu.',
   'Tylko profil': 'Wróć do widoku tylko wybranego profilu.',
+  'Grupy kategorii': 'Edytuj grupy kategorii: nazwy, kolory, przypisane kategorie.',
+  'Zapisz grupy': 'Zapisz grupy kategorii.',
+  'Dodaj grupę': 'Dodaj nową grupę kategorii.',
+  'Usuń grupę': 'Usuń grupę (kategorie trafią do „Inne”).',
+  'Wczytaj wynik od AI': 'Wklej albo wczytaj odpowiedź AI – panel podmieni tekst dokumentów po znacznikach.',
+  'Usuń wersję od AI': 'Przywróć tekst z reguł formatowania zamiast wersji od AI.',
+  'Przywróć domyślną instrukcję': 'Wróć do domyślnej instrukcji dla AI.',
   'Pobierz logi': 'Zapisz widoczne (przefiltrowane) logi jako plik tekstowy – np. żeby komuś pokazać, co się stało.',
   'Wyczyść logi': 'Usuń wszystkie logi z tej przeglądarki (dane i modele zostają).',
   'Pokaż starsze': 'Pokaż kolejne, starsze wpisy.',
@@ -86,6 +93,7 @@ export const TIPS = {
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Przygotuj dla AI/.test(label)) return 'Zapisz plik z instrukcją i dokumentami z listy – do ostatecznego sformatowania przez zewnętrzne AI.';
   if (/^Dodaj pytania do rozmów wzorcowych/.test(label)) return 'Dodaj typowe pytania z pakietu jako rozmowy wzorcowe do uzupełnienia odpowiedzi.';
   if (/^Pobierz wszystkie nowe orzeczenia/.test(label)) return 'Pobierz pełną treść wszystkich nowych orzeczeń z tej listy do biblioteki.';
   if (/^Dodaj źródła pakietu/.test(label)) return 'Dodaj do listy źródła z pakietu, których jeszcze nie masz.';
