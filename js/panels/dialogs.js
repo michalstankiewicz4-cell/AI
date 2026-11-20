@@ -16,7 +16,7 @@ export default {
   render(root) {
     const listBox = h('div'), stats = h('p.note'), scope = profileScope('rozmowy', () => drawList(), d => dialogInProfile(d));
     const search = h('input', { type: 'search', placeholder: 'Szukaj w rozmowach…', oninput: () => drawList() });
-    const onlyDrafts = h('input', { type: 'checkbox', onchange: () => drawList() }), draftsBox = h('label.check', { hidden: true }, onlyDrafts, ' tylko do uzupełnienia ', help('Pytania dodane z pakietu tematycznego bez odpowiedzi. Kliknij „Uzupełnij”, dopisz odpowiedź i zapisz – rozmowa trafi do dostrajania. Do tego czasu jest pomijana.', 'pytania-pakietu'));
+    const onlyDrafts = h('input', { type: 'checkbox', onchange: () => drawList() }), draftsBox = h('label.check', { hidden: true }, onlyDrafts, ' tylko do uzupełnienia ', help('Szkielety do uzupełnienia: pytania z pakietu tematycznego (bez odpowiedzi) i kazusy z orzeczeń (z odpowiedzią do sprawdzenia). Kliknij „Uzupełnij”, popraw lub dopisz odpowiedź i zapisz – rozmowa trafi do dostrajania. Do tego czasu jest pomijana.', 'pytania-pakietu'));
     root.append(
       h('header.ph', h('h1', 'Rozmowy wzorcowe'),
         h('p', 'Krok 2. Przykłady pytań i poprawnych odpowiedzi. Na nich sieć uczy się odpowiadać (dostrajanie). Nie trzeba opisać wszystkich możliwych pytań: sieć uogólnia na podobne, ale im więcej różnorodnych przykładów z danego tematu, tym lepiej.')),
@@ -55,7 +55,7 @@ export default {
     async function drawList() {
       const all = scope.filter(await listDialogs()), q = search.value.trim().toLowerCase();
       const on = all.filter(d => d.enabled && !d.draft).length, drafts = all.filter(d => d.draft).length;
-      stats.textContent = all.length ? `${num(all.length)} ${plural(all.length, 'rozmowa', 'rozmowy', 'rozmów')}, do dostrajania: ${num(on)}.` + (drafts ? ` Do uzupełnienia (pytania z pakietów bez odpowiedzi): ${num(drafts)}.` : '') : 'Zestaw jest pusty.';
+      stats.textContent = all.length ? `${num(all.length)} ${plural(all.length, 'rozmowa', 'rozmowy', 'rozmów')}, do dostrajania: ${num(on)}.` + (drafts ? ` Do uzupełnienia (pytania z pakietów i kazusy): ${num(drafts)}.` : '') : 'Zestaw jest pusty.';
       if (!drafts) onlyDrafts.checked = false; draftsBox.hidden = !drafts;
       const shown = all.filter(d => (!onlyDrafts.checked || d.draft) && (!q || d.turns.some(t => t.text.toLowerCase().includes(q))));
       clear(listBox);

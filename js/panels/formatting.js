@@ -13,6 +13,9 @@ import { tagFilter, tagChips } from '../ui/tags.js';
 import { hasTags } from '../core/documents.js';
 import { profileScope } from '../ui/scope.js';
 import { buildExport, parseImport, applyAiText, dropAiText, DEFAULT_PROMPT, AI_TAG } from '../core/aiprep.js';
+import { isStructured, toJSONL } from '../core/structure.js';
+import { structureView } from '../ui/modals/structure-view.js';
+import { addCaseDrafts } from '../core/dialogs.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
 // wszystkie pola grupy „cleaner” poza długością odpowiedzi wzorcowej (ta jest w „Rozmowach wzorcowych”)
@@ -52,6 +55,13 @@ export default {
       parts.forEach((t, i) => setTimeout(() => download(`dla-ai-${stamp}${parts.length > 1 ? `-czesc-${i + 1}` : ''}.md`, t, 'text/markdown;charset=utf-8'), i * 400));
       toast(`Zapisano ${parts.length} ${plural(parts.length, 'plik', 'pliki', 'plików')} dla AI (${docs.length} dok.). Wklej plik do AI, a jego odpowiedź wczytaj przyciskiem „Wczytaj wynik od AI”.`, 'ok', 8000);
     }
+    // kazusy: orzeczenia (z częściami stan faktyczny / analiza / rozstrzygnięcie) → szkielety rozmów wzorcowych
+    async function makeCases(list) {
+      const r = await addCaseDrafts(list);
+      modal('Kazusy z orzeczeń', h('p', `Dodano ${r.added} ${plural(r.added, 'kazus', 'kazusy', 'kazusów')} do rozmów wzorcowych jako „do uzupełnienia”. Sprawdź je i popraw („Uzupełnij”), zanim trafią do dostrajania.`),
+        r.skipped.length ? h('div', h('p.note', `Pominięto ${r.skipped.length}:`), h('ul', r.skipped.slice(0, 30).map(x => h('li', h('b', x.doc.name), ' – ', x.why)))) : null,
+        r.added ? h('div.row.end', h('button', { type: 'button', onclick: () => go('rozmowy-wzorcowe') }, 'Przejdź do rozmów wzorcowych')) : null);
+    }
     function importFromAi() {
       const ta = h('textarea', { rows: 14, placeholder: 'Wklej odpowiedź AI (ze znacznikami === DOKUMENT … === i === KONIEC … ===) albo wczytaj plik.' });
       const out = h('p.status');
@@ -74,7 +84,10 @@ export default {
       const todo = all.filter(d => d.status === 'do-sprawdzenia' && hasTags(d, [...selTags])), clean = todo.filter(d => !d.report.warnings.length);
       const stale = all.filter(d => d.cleanerVersion !== VERSIONS.cleaner);
       clear(bulk);
-      bulk.append(h('button.ghost', { type: 'button', disabled: !docs.length, onclick: () => exportForAi(docs) }, `Przygotuj dla AI (${docs.length})`), h('button.ghost', { type: 'button', onclick: importFromAi }, 'Wczytaj wynik od AI'));
+      const structured = docs.filter(d => isStructured(d.text)), judgments = docs.filter(isJudgment);
+      bulk.append(h('button.ghost', { type: 'button', disabled: !docs.length, onclick: () => exportForAi(docs) }, `Przygotuj dla AI (${docs.length})`),
+        h('button.ghost', { type: 'button', disabled: !judgments.length, onclick: () => makeCases(judgments) }, `Kazusy z orzeczeń (${judgments.length})`),
+        h('button.ghost', { type: 'button', disabled: !structured.length, title: 'Akty z listy podzielone na przepisy (artykuł, paragraf, ustęp) z metadanymi i odnośnikami – jeden przepis w linii.', onclick: () => download(`przepisy-${new Date().toISOString().slice(0, 10)}.jsonl`, toJSONL(structured), 'application/x-ndjson') }, `Eksport JSONL (${structured.length})`), h('button.ghost', { type: 'button', onclick: importFromAi }, 'Wczytaj wynik od AI'));
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));
       bulk.append(h('button.ghost', { type: 'button', title: 'Sformatuj wszystkie dokumenty od nowa aktualnymi regułami (z oryginałów). Zatwierdzone, których wynik się zmieni, wrócą do sprawdzenia.', onclick: async () => {
         const items = []; for (const d of all) { const prev = snapshot(d); await recleanDoc(d); items.push({ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }); }
@@ -107,6 +120,8 @@ export default {
           d.status === 'zatwierdzony' ? h('label.check', h('input', { type: 'checkbox', checked: d.enabled, onchange: async e => { d.enabled = e.target.checked; await saveDoc(d); draw(); } }), ' używaj w nauce', help('Wyłączony dokument zostaje zatwierdzony, ale nie bierze udziału w następnej nauce.', 'do-sprawdzenia')) : null,
           h('span.note', `reguły v${d.cleanerVersion}${d.cleanerVersion !== VERSIONS.cleaner ? ' (starsze)' : ''} · ${date(d.formattedAt || d.addedAt)}`),
           h('span.sp'),
+          isStructured(d.text) ? h('button.ghost', { type: 'button', onclick: () => structureView(d.id) }, 'Struktura') : null,
+          isJudgment(d) ? h('button.ghost', { type: 'button', onclick: () => makeCases([d]) }, 'Kazus do rozmów wzorcowych') : null,
           d.aiText ? act('Usuń wersję od AI', () => dropAiText(d, recleanDoc)) : null,
           act('Formatuj ponownie', async () => { const prev = snapshot(d); await recleanDoc(d); formatStatsModal(`Formatowanie ponowne: ${d.name}`, [{ name: d.name, report: d.report, text: d.text, status: d.status, ...prev }], { reformat: true }); }),
           h('button.ghost', { type: 'button', onclick: () => formatStatsModal(`Statystyki formatowania: ${d.name}`, [{ name: d.name, report: d.report, text: d.text }]) }, 'Statystyki'),
@@ -116,6 +131,7 @@ export default {
     draw();
   },
 };
+const isJudgment = d => (d.tags || []).some(t => /^(orzeczenie|wyrok|uchwała)$/i.test(t));
 // stan dokumentu przed ponownym formatowaniem (do porównania w statystykach)
 const snapshot = d => ({ prevText: d.text, prevReport: JSON.parse(JSON.stringify(d.report)), prevStatus: d.status, prevVersion: d.cleanerVersion });
 const cut = t => t.slice(0, 6000) + (t.length > 6000 ? `\n… (jeszcze ${t.length - 6000} znaków)` : '');

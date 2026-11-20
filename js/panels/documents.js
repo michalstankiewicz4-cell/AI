@@ -9,7 +9,7 @@ import { listDocs, addDoc, saveDoc, deleteDoc, findDuplicate, STATUS } from '../
 import { go } from '../main.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
 import { tagEditor, tagFilter } from '../ui/tags.js';
-import { tagCounts, hasTags } from '../core/documents.js';
+import { tagCounts, hasTags, RESTRICTED_TAGS, isFreeLicense, FREE_LICENSES } from '../core/documents.js';
 import { profileScope } from '../ui/scope.js';
 
 export default {
@@ -28,6 +28,7 @@ export default {
           h('span.note', 'Word (.docx), OpenDocument (.odt), RTF, PDF, obrazy (OCR), .txt, .md, .html.'),
           help('Każdy dokument ma ikonkę rodzaju, nazwę, datę i opis. Skany w PDF i zdjęcia przechodzą przez OCR, który sam obraca strony leżące bokiem lub do góry nogami i prostuje przekrzywione.', 'dokumenty')),
         prog),
+      h('datalist', { id: 'licdl' }, FREE_LICENSES.map(l => h('option', { value: l }))),
       h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), scope.el, stats, h('div.row', filterBox, help('Kategorie (plakietki) dokumentu: część dostaje sam według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, „nieaktualny” przy nowszej wersji aktu), resztę dopisujesz w polu „+ kategoria”. Kliknięcie kategorii tutaj filtruje bibliotekę; kilka zaznaczonych = dokumenty, które mają je wszystkie.', 'kategorie')), list));
 
     async function addFiles() {
@@ -86,7 +87,11 @@ export default {
             descIn,
             tagEditor(d, all, async x => { await saveDoc(x); clear(filterBox); filterBox.append(tagFilter(await listDocs(), selTags, draw)); }),
             h('input.srcurl', { type: 'url', value: d.sourceUrl, placeholder: 'Adres źródła (skąd pobrano): https://…', 'aria-label': 'Adres źródła',
-              onchange: async e => { d.sourceUrl = e.target.value.trim(); await saveDoc(d); toast('Zapisano adres źródła.', 'ok', 1200); } })),
+              onchange: async e => { d.sourceUrl = e.target.value.trim(); await saveDoc(d); toast('Zapisano adres źródła.', 'ok', 1200); } }),
+            h('div.row.licrow', h('input.srcurl.lic', { type: 'text', list: 'licdl', value: d.license || '', placeholder: 'Licencja treści (np. własne opracowanie, CC BY-SA 4.0)', 'aria-label': 'Licencja',
+              onchange: async e => { d.license = e.target.value.trim(); await saveDoc(d); toast('Zapisano licencję.', 'ok', 1200); draw(); } }),
+              (d.tags || []).some(t => RESTRICTED_TAGS.includes(t.toLowerCase())) && !isFreeLicense(d.license) ? h('span.tag.old', { title: 'Komentarz, doktryna albo artykuł bez wolnej licencji – nie publikuj go w publicznym repozytorium.' }, 'licencja?') : null,
+              help('Licencja treści dokumentu. Akty, orzeczenia i stenogramy to dokumenty urzędowe (bez praw autorskich), Wikipedia – CC BY-SA 4.0; te ustawiają się same. Komentarze i doktryna są zwykle chronione – do publicznego repo tylko własne opracowania albo na wolnej licencji. Przy publikacji panel ostrzega o dokumentach z kategorią „komentarz”, „doktryna” albo „artykuł” bez wolnej licencji.', 'licencje'))),
           h('div.docside',
             d.general ? h('span.badge.gen', { title: 'Tekst ogólny (nie prawniczy): w nauce do ustalonego udziału' }, 'ogólny') : null,
             h('label.gencheck', h('input', { type: 'checkbox', checked: d.general, onchange: async e => { d.general = e.target.checked; await saveDoc(d); draw(); } }), ' tekst ogólny ', help('Tekst ogólny (nie prawniczy), np. Wikipedia albo stenogramy Sejmu. W nauce idzie tylko do ustalonego udziału (Nauka → „Udział tekstu ogólnego”).', 'tekst-ogolny')),

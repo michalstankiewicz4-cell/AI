@@ -51,7 +51,7 @@ Raport ma linię **Odczyt** (np. „12 stron · z warstwy tekstowej: 10 · OCR: 
 | Spacje i puste linie | jedna spacja, najwyżej jedna pusta linia |
 | Powtórzone akapity | usuwa akapit, który już wystąpił w dokumencie |
 
-Dozwolone znaki: litery polskie i łacińskie, cyfry, spacja, koniec linii oraz `. , ; : ! ? ( ) [ ] „ ” ' - – § % / & * + = < > @ # °`. Dodatkowe dopisuje się w *Ustawieniach formatowania*.
+Dozwolone znaki: litery polskie i łacińskie, cyfry, spacja, koniec linii oraz `. , ; : ! ? ( ) [ ] „ ” ' - – § % / & * + = < > @ # °` oraz indeksy górne `⁰¹²³⁴⁵⁶⁷⁸⁹` (art. 385¹). Dodatkowe dopisuje się w *Ustawieniach formatowania*.
 
 ### Raport i statystyki
 
@@ -84,6 +84,15 @@ Kategorie są zebrane w grupy (kv `tagGroups`, domyślne w `js/core/taggroups.js
 
 ### Wersja od zewnętrznego AI
 `aiText` (z `aiAt`): tekst sformatowany przez zewnętrzne AI (przez *Przygotuj dla AI* → *Wczytaj wynik od AI*). Ma pierwszeństwo przed wynikiem reguł także przy formatowaniu ponownym; raport formatowania dalej dotyczy reguł. Dokument dostaje kategorię „sformatowany przez AI”.
+
+### Struktura aktu i odnośniki
+`js/core/structure.js` dzieli tekst aktu na artykuły (`Art. 385¹.`), paragrafy (`§ 1.`) i ustępy (`1.`), z rozdziałem. Odnośniki („art. 69 Prawa bankowego”, „art. 385¹ § 1 k.c.”, „art. 5”) są rozpoznawane w treści i łączone z przepisami biblioteki po skrócie aktu (k.c., k.p.c., k.p., k.k., pr. bank., u.k.k., u.k.h., u.r.f., u.o.k.k., RODO) albo nazwie dokumentu; bez nazwy aktu – ten sam akt. Eksport JSONL: `{akt, eli, przepis, art, par, ust, rozdzial, tekst, odnosniki}` na wiersz. Najlepiej działa na aktach sformatowanych przez AI.
+
+### Kazusy
+Z orzeczenia (kategoria orzeczenie, wyrok albo uchwała) z sekcjami „Stan faktyczny”, „Analiza…”, „Rozstrzygnięcie” powstaje rozmowa wzorcowa „do uzupełnienia” (`source: 'kazus'`, `caseOf`, kategoria „kazus”): pytanie = stan faktyczny, odpowiedź = rozstrzygnięcie z analizą (przycięte).
+
+### Licencja
+`license` dokumentu. Akty i orzeczenia: „dokument urzędowy (art. 4 pr. aut.)” – nie są chronione prawem autorskim; Wikipedia: „CC BY-SA 4.0” (wymaga podania źródła). Dokument z kategorią komentarz, doktryna albo artykuł bez wolnej licencji ma plakietkę „licencja?”; okno publikacji ostrzega o nich, bo repozytorium jest publiczne.
 
 ### Profile
 Profil (kv `profiles`) ma kategorie, szablon sieci, ustawienia nauki i dostrajania oraz aktywny model. Dokument należy do profilu, gdy ma jego kategorię (albo jest tekstem ogólnym, jeśli profil to dopuszcza); rozmowa wzorcowa – gdy ma kategorię profilu albo nie ma żadnej (wspólna); model – gdy powstał w profilu (`profileId`). Nauka bierze tylko dokumenty profilu.

@@ -6,6 +6,7 @@ import { settings } from '../../core/settings.js';
 import { saveModel } from '../../core/models.js';
 import { getToken, publish, modelFileName, repoInfo } from '../../core/github.js';
 import { collect } from '../../core/sync.js';
+import { licenseProblems } from '../../core/documents.js';
 import { db } from '../../core/db.js';
 
 export async function publishModal(m) {
@@ -31,7 +32,9 @@ export async function publishModal(m) {
     box('tagGroups', `Grupy kategorii (${num(data.tagGroups.length)})`, false, 'data/grupy-kategorii.json'),
   ];
   const log = h('p.status');
-  function upd() { pub.hidden = !items.some(x => x.i.dataset.sensitive && x.i.checked); items[1].i.disabled = !items[0].i.checked; }
+  const lic = licenseProblems(data.documents);
+  const licWarn = h('div.warnline', { hidden: true }, `Prawa autorskie: ${lic.length} ${lic.length === 1 ? 'dokument' : 'dokumentów'} z kategorią „komentarz”, „doktryna” albo „artykuł” bez wolnej licencji: `, lic.slice(0, 8).map(d => d.name).join(', '), lic.length > 8 ? ' …' : '', '. Uzupełnij licencję w Dokumentach albo nie wysyłaj dokumentów.');
+  function upd() { pub.hidden = !items.some(x => x.i.dataset.sensitive && x.i.checked); licWarn.hidden = !(lic.length && items.find(x => x.id === 'documents').i.checked); items[1].i.disabled = !items[0].i.checked; }
   const btn = h('button', { type: 'button', onclick: async () => {
     const what = Object.fromEntries(items.map(x => [x.id, x.i.checked && !x.i.disabled]));
     btn.disabled = true;
@@ -44,7 +47,7 @@ export async function publishModal(m) {
   } }, 'Opublikuj');
   modal(`Publikacja na GitHub: ${m.name}`,
     h('p', `Repo ${gh.repo}, gałąź ${gh.branch}. Zaznacz, co wysłać — wszystko trafi jednym commitem.`, help('Plik modelu ma w nazwie wersję programu, w której powstał. Ustawienia i wersje są zawsze zapisane w pliku modelu; zaznaczenie „Ustawienia i wersje” dodaje je też jako osobny plik.', 'publikacja')),
-    items.map(x => x.el), pub, log, h('div.row.end', btn));
+    items.map(x => x.el), pub, licWarn, log, h('div.row.end', btn));
   repoInfo(gh).then(r => { if (r.private) pub.textContent = 'Repozytorium jest prywatne — dane zobaczą tylko osoby z dostępem (uwaga: GitHub Pages dla prywatnego repo wymaga płatnego planu).'; }).catch(() => {});
   upd();
 }

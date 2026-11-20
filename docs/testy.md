@@ -14,6 +14,7 @@ Wymaga Node 18+. Uruchamia wszystkie pliki `tests/*.test.js`:
 | `engine.test.js` | silnik w izolowanym kontekście (jak wątek): nauka, zgodność szybkiego generowania (pamięć KV) z pełnym przejściem sieci, dostrajanie z maskowaniem, odpowiedź po dostrojeniu, błąd dla znacznika ze znakiem spoza słownika |
 | `github.test.js` | publikacja na atrapie GitHub API: tylko zaznaczone pliki w commicie, nazwa pliku z wersją, ustawienia i wersje w pliku modelu, `index.json`, token nie trafia do plików |
 | `search.test.js` | wyszukiwanie w bibliotece: słowa i rdzenie, fragmenty, kolejność wyników, mniejsza waga dokumentów nieaktualnych |
+| `structure.test.js` | podział aktu na artykuły, paragrafy i ustępy (z indeksem górnym), odnośniki z nazwą aktu i bez, graf powiązań między aktami („cytowany przez”), eksport JSONL |
 | `corpus.test.js` | mieszanie korpusu: dokumenty prawnicze w całości, ogólne do ustalonego udziału, 0% bez ogólnych, same ogólne gdy brak prawniczych |
 | `help.test.js` | każda ikona [?] w kodzie i każde pole ustawień ma dział w Pomocy, przykłady reguł pokazują zmianę, odnośniki w Pomocy prowadzą do istniejących działów |
 | `reader.test.js` | Word (.docx), OpenDocument (.odt), RTF (strona kodowa 1250, Unicode), rozpakowywanie ZIP |

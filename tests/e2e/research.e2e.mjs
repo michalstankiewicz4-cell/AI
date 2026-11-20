@@ -204,12 +204,12 @@ ok((await p.$$('article.doc')).length >= 31 && (await p.$$('article.doc')).lengt
 await p.goto(BASE + '#research'); await p.waitForSelector('section.pack');
 await p.click(pack + ' >> text=/Dodaj pytania do rozmów wzorcowych \\(20\\)/'); await p.waitForTimeout(500);
 await p.goto(BASE + '#rozmowy-wzorcowe'); await p.waitForTimeout(500);
-ok((await p.textContent('main.content')).includes('Do uzupełnienia (pytania z pakietów bez odpowiedzi): 20'), 'pytania pakietu: 20 szkieletów do uzupełnienia');
+ok((await p.textContent('main.content')).includes('Do uzupełnienia (pytania z pakietów i kazusy): 20'), 'pytania pakietu: 20 szkieletów do uzupełnienia');
 ok(await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).trainingDialogs()).length) === 0, 'szkielety nie idą do dostrajania');
 await p.click('text=Uzupełnij >> nth=0'); await p.waitForSelector('dialog.modal textarea');
 const tas = await p.$$('dialog.modal textarea'); await tas[tas.length - 1].fill('Zależy od stażu pracy: 20 dni przy stażu krótszym niż 10 lat, 26 dni przy co najmniej 10 latach (art. 154 Kodeksu pracy).');
 await p.click('dialog.modal >> text=Zapisz'); await p.waitForTimeout(400);
-ok(await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).trainingDialogs()).length) === 1 && (await p.textContent('main.content')).includes('pakietów bez odpowiedzi): 19'), 'uzupełniona rozmowa trafia do dostrajania');
+ok(await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).trainingDialogs()).length) === 1 && (await p.textContent('main.content')).includes('pakietów i kazusy): 19'), 'uzupełniona rozmowa trafia do dostrajania');
 
 // nowsze teksty jednolite
 await p.route(/https:\/\/api\.sejm\.gov\.pl\/eli\/acts\/DU\/(19|20)\d\d$/, r => {
@@ -297,6 +297,43 @@ ok(aid.text.startsWith('# Kodeks pracy') && !aid.text.includes('Nazwa:') && aid.
 await p.evaluate(async id => { const m = await import('./js/core/documents.js'); const d = (await m.listDocs()).find(x => x.id === id); await m.recleanDoc(d); }, ids[0]);
 ok((await p.evaluate(async id => (await (await import('./js/core/documents.js')).listDocs()).find(x => x.id === id).text, ids[0])).startsWith('# Kodeks pracy'), 'wersja od AI zostaje po „Formatuj ponownie”');
 await p.screenshot({ path: join(OUT, 'grupy.png') });
+
+console.log('Struktura, powiązania, kazusy, licencje');
+ok((await p.evaluate(async () => (await (await import('./js/core/sources.js')).listSources()).find(s => s.name.startsWith('ZUS')).tags)).includes('Prawo pracy'), 'źródło ZUS dodane wcześniej z katalogu dostało kategorię pakietu Prawo pracy');
+await p.evaluate(async () => {
+  const m = await import('./js/core/documents.js');
+  const kc = await m.addDoc({ name: 'Kodeks cywilny (test)', type: 'text', raw: 'Art. 385.\nUmowa.\n\nArt. 385¹. § 1. Postanowienia niedozwolone, zob. art. 69 Prawa bankowego.\n§ 2. Reszta umowy wiąże.\n\nArt. 405. Bezpodstawne wzbogacenie, zob. art. 385¹ § 1.\n\nArt. 410. Nienależne świadczenie.' });
+  const pb = await m.addDoc({ name: 'Prawo bankowe (test)', type: 'text', raw: 'Art. 1.\nUstawa.\n\nArt. 2.\nBank.\n\nArt. 69. 1. Umowa kredytu, zob. art. 385¹ k.c.\n2. Na piśmie.' });
+  const j = await m.addDoc({ name: 'Wyrok I C 7/26 (test)', type: 'text', tags: ['orzeczenie'], raw: 'x' });
+  const ap = await import('./js/core/aiprep.js'); await ap.applyAiText(j, '## Stan faktyczny\nKonsument zawarł kredyt w CHF w 2007 r., bank ustalał kurs w tabeli.\n## Analiza prawna\nKlauzule przeliczeniowe są niedozwolone (art. 385¹ k.c.).\n## Rozstrzygnięcie\nSąd ustalił nieważność umowy.');
+  await m.addDoc({ name: 'Komentarz do art. 385¹ (test)', type: 'text', tags: ['komentarz'], raw: 'Cudzy komentarz.' });
+});
+await p.goto(BASE + '#pulpit'); await p.goto(BASE + '#formatowanie'); await p.waitForSelector('button:has-text("Przygotuj dla AI")');
+await p.click('label:has-text("Wszystkie") input'); await p.waitForTimeout(400);
+const kcRow = 'article.doc:has-text("Kodeks cywilny (test)")';
+await p.click(kcRow + ' >> button:text-is("Struktura")'); await p.waitForSelector('dialog.modal .sttoc');
+ok((await p.$$eval('dialog.modal .stitem', b => b.map(x => x.textContent))).join(',') === 'Art. 385,Art. 385¹,Art. 405,Art. 410', 'Struktura: spis artykułów z indeksem górnym');
+await p.click('dialog.modal .stitem:text-is("Art. 385¹")');
+t = await p.textContent('dialog.modal .stbody');
+ok(t.includes('Cytowany przez (2)') && t.includes('art. 405 k.c.') && t.includes('art. 69 pr. bank.'), 'Struktura: cytowany przez art. 405 k.c. i art. 69 pr. bank.');
+await p.click('dialog.modal a.stref:has-text("art. 69 Prawa bankowego")'); await p.waitForTimeout(300);
+ok((await p.textContent('dialog.modal .stbody h3')).startsWith('art. 69 pr. bank.') && (await p.textContent('dialog.modal')).includes('Prawo bankowe (test)'), 'kliknięcie odnośnika przenosi do art. 69 Prawa bankowego');
+await p.click('dialog.modal >> text=← Wstecz'); await p.waitForTimeout(300);
+ok((await p.textContent('dialog.modal .stbody h3')).startsWith('art. 385¹ k.c.'), '„← Wstecz” wraca do art. 385¹ k.c.');
+const djl = p.waitForEvent('download'); await p.click('dialog.modal >> text=Pobierz JSONL');
+const jl = readFileSync(await (await djl).path(), 'utf8').trim().split('\n').map(l => JSON.parse(l));
+ok(jl.some(l => l.przepis === 'art. 385¹ § 1 k.c.' && l.odnosniki.length), `JSONL: ${jl.length} przepisów z podpisami i odnośnikami`);
+await p.keyboard.press('Escape');
+await p.click('article.doc:has-text("Wyrok I C 7/26") >> text=Kazus do rozmów wzorcowych'); await p.waitForSelector('dialog.modal >> text=/Dodano 1 kazus/');
+const kaz = await p.evaluate(async () => (await (await import('./js/core/dialogs.js')).listDialogs()).find(d => d.source === 'kazus'));
+ok(kaz && kaz.draft && kaz.turns[0].text.startsWith('Konsument zawarł kredyt') && kaz.turns[1].text.startsWith('Sąd ustalił nieważność') && kaz.tags.includes('kazus'), 'kazus: szkielet rozmowy ze stanu faktycznego i rozstrzygnięcia, do uzupełnienia');
+await p.keyboard.press('Escape');
+await p.goto(BASE + '#dokumenty'); await p.waitForSelector('.tagfilter');
+const kom = 'article.docrow:has-text("Komentarz do art. 385¹")';
+ok(await p.isVisible(kom + ' .tag.old:text("licencja?")'), 'komentarz bez wolnej licencji: plakietka „licencja?”');
+await p.fill(kom + ' input.lic', 'własne opracowanie'); await p.press(kom + ' input.lic', 'Tab'); await p.waitForTimeout(500);
+ok(!(await p.$(kom + ' .tag.old:text("licencja?")')), 'po wpisaniu wolnej licencji plakietka znika');
+ok((await p.evaluate(async () => (await (await import('./js/core/documents.js')).listDocs()).find(d => d.name === 'Kodeks cywilny (test)').license)) === '', 'ręcznie dodany dokument bez licencji (nie zgadujemy)');
 
 console.log('Profile');
 await p.goto(BASE + '#pulpit'); await p.waitForSelector('.profilecard');

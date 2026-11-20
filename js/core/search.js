@@ -3,6 +3,7 @@
 // Indeks liczy się w przeglądarce przy pierwszym pytaniu i odświeża, gdy zmieni się biblioteka.
 
 import { listDocs, OUTDATED } from './documents.js';
+import { parseStructure, actShort, unitLabel } from './structure.js';
 
 const STOP = new Set('i w z na do o a że się nie to jest jak czy co od po za przez dla lub oraz ten ta te tego tej tym jego jej ich być może mnie mi mam ma są był była było by już tak tylko także też gdy kiedy który która które którego której ile jaki jaka jakie gdzie albo ale bo przy pod nad'.split(' '));
 // prosty „rdzeń”: małe litery, pierwsze 6 znaków – wystarczy, by „urlopu”, „urlopie” i „urlop” się spotkały
@@ -21,13 +22,22 @@ export function chunks(text, max = 700) {
   return out;
 }
 
+// akt z rozpoznaną strukturą: fragment = artykuł (długi dzielony), z podpisem „art. 45 u.k.k.”; inne dokumenty – akapity
+export function docChunks(d) {
+  const { articles } = parseStructure(d.text);
+  if (articles.length < 3) return chunks(d.text).map(text => ({ text, art: null, label: null }));
+  const short = actShort(d.name) || actShort(d.description), out = [];
+  for (const a of articles) { const label = unitLabel({ art: a.art }, short); for (const t of chunks(a.text, 900)) out.push({ text: `Art. ${label.slice(5).replace(short ? ' ' + short : '', '')}. ${t}`, art: a.art, label }); }
+  return out;
+}
+
 export function buildIndex(docs) {
   const parts = [], df = new Map();
-  for (const d of docs) for (const text of chunks(d.text)) {
+  for (const d of docs) for (const { text, art, label } of docChunks(d)) {
     const tf = new Map(), ts = terms(text);
     for (const w of ts) tf.set(w, (tf.get(w) || 0) + 1);
     for (const w of tf.keys()) df.set(w, (df.get(w) || 0) + 1);
-    parts.push({ doc: d, text, tf, len: ts.length });
+    parts.push({ doc: d, text, tf, len: ts.length, art, label });
   }
   const avg = parts.reduce((a, p) => a + p.len, 0) / (parts.length || 1);
   return { parts, df, avg, N: parts.length };
@@ -49,7 +59,7 @@ export function searchIndex(ix, query, k = 3) {
   const seen = new Set(), out = [];
   for (const { score, p } of res) {
     if (seen.has(p.text)) continue; seen.add(p.text);
-    out.push({ docId: p.doc.id, name: p.doc.name, eli: p.doc.eli || null, tags: p.doc.tags || [], general: !!p.doc.general, text: p.text, score: +score.toFixed(3) });
+    out.push({ docId: p.doc.id, art: p.art || null, label: p.label || null, name: p.doc.name, eli: p.doc.eli || null, tags: p.doc.tags || [], general: !!p.doc.general, text: p.text, score: +score.toFixed(3) });
     if (out.length >= k) break;
   }
   return out;

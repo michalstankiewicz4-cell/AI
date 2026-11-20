@@ -40,6 +40,11 @@ export const TIPS = {
   'Wczytaj wynik od AI': 'Wklej albo wczytaj odpowiedź AI – panel podmieni tekst dokumentów po znacznikach.',
   'Usuń wersję od AI': 'Przywróć tekst z reguł formatowania zamiast wersji od AI.',
   'Przywróć domyślną instrukcję': 'Wróć do domyślnej instrukcji dla AI.',
+  'Struktura': 'Spis artykułów aktu, treść z klikalnymi odnośnikami i przepisy, które go cytują.',
+  'Kazus do rozmów wzorcowych': 'Zrób z orzeczenia szkielet rozmowy: stan faktyczny → rozstrzygnięcie z uzasadnieniem.',
+  'Pobierz JSONL': 'Zapisz akt jako JSONL: jeden przepis w linii z metadanymi i odnośnikami.',
+  '← Wstecz': 'Wróć do poprzednio oglądanego przepisu.',
+  'Przejdź do rozmów wzorcowych': 'Otwórz zakładkę Rozmowy wzorcowe.',
   'Pobierz logi': 'Zapisz widoczne (przefiltrowane) logi jako plik tekstowy – np. żeby komuś pokazać, co się stało.',
   'Wyczyść logi': 'Usuń wszystkie logi z tej przeglądarki (dane i modele zostają).',
   'Pokaż starsze': 'Pokaż kolejne, starsze wpisy.',
@@ -93,6 +98,8 @@ export const TIPS = {
 
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
+  if (/^Kazusy z orzeczeń/.test(label)) return 'Zrób szkielety rozmów wzorcowych z orzeczeń z listy (stan faktyczny → rozstrzygnięcie).';
+  if (/^Eksport JSONL/.test(label)) return 'Zapisz akty z listy jako JSONL: jeden przepis w linii z metadanymi i odnośnikami.';
   if (/^Przygotuj dla AI/.test(label)) return 'Zapisz plik z instrukcją i dokumentami z listy – do ostatecznego sformatowania przez zewnętrzne AI.';
   if (/^Dodaj pytania do rozmów wzorcowych/.test(label)) return 'Dodaj typowe pytania z pakietu jako rozmowy wzorcowe do uzupełnienia odpowiedzi.';
   if (/^Pobierz wszystkie nowe orzeczenia/.test(label)) return 'Pobierz pełną treść wszystkich nowych orzeczeń z tej listy do biblioteki.';

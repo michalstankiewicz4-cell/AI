@@ -22,7 +22,7 @@ const replaceCount = (s, re, fn) => {
 export const STRUCT_START = /^(Art\.|§|Rozdział|ROZDZIAŁ|Dział|DZIAŁ|Tytuł|TYTUŁ|Księga|KSIĘGA|Oddział|ODDZIAŁ|Załącznik|ZAŁĄCZNIK|\d+[a-z]?\)|\d+[a-z]?\.\s|[a-z]\)|[–•*-]\s)/u;
 
 // Znaki dozwolone zawsze; resztę można dopisać w zakładce Formatowanie → Ustawienia formatowania („Dodatkowe dozwolone znaki”).
-export const BASE_CHARS = 'aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźżAĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ0123456789 \n.,;:!?()[]„”\'-–§%/&*+=<>@#°';
+export const BASE_CHARS = 'aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźżAĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ0123456789 \n.,;:!?()[]„”\'-–§%/&*+=<>@#°⁰¹²³⁴⁵⁶⁷⁸⁹';
 
 const LIGATURES = { 'ﬁ': 'fi', 'ﬂ': 'fl', 'ﬀ': 'ff', 'ﬃ': 'ffi', 'ﬄ': 'ffl', 'ﬅ': 'st', 'ﬆ': 'st' };
 

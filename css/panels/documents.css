@@ -39,3 +39,17 @@ td.dneg { color: var(--ok); } td.dpos { color: var(--accent); }
 .diffline.del { background: var(--bad-soft); } .diffline.add { background: var(--ok-soft); }
 .diffpair { margin: .35em 0; } .diffline mark { background: color-mix(in srgb, var(--gold) 45%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
 input.srcurl { width: 100%; box-sizing: border-box; margin-top: .3em; font-size: .82rem; padding: .3em .55em; background: var(--panel-2); border-color: var(--line); color: var(--ink-2); }
+/* okno „Struktura i powiązania” */
+.stwrap { display: grid; grid-template-columns: 220px 1fr; gap: 1em; min-height: 50vh; max-height: 70vh; }
+.stside { display: flex; flex-direction: column; gap: .4em; min-height: 0; }
+.sttoc { overflow: auto; border: 1px solid var(--line); border-radius: 6px; padding: .3em; }
+.stch { font-size: .75rem; color: var(--ink-3); margin: .5em .2em .2em; font-weight: 600; }
+.stitem { display: block; width: 100%; text-align: left; background: none; border: 0; padding: .15em .5em; font-size: .85rem; color: var(--ink); border-radius: 4px; min-height: 0; }
+.stitem.on { background: var(--accent); color: var(--accent-ink); }
+.stbody { overflow: auto; }
+.sttext { white-space: pre-wrap; line-height: 1.55; }
+.stref { color: var(--accent); text-decoration: underline dotted; } .stref.miss { color: var(--ink-3); text-decoration: none; border-bottom: 1px dashed var(--line-2); }
+.stlinks { margin-top: 1em; font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5em; }
+.stlinks ul { margin: .2em 0 .7em; padding-left: 1.2em; }
+@media (max-width: 760px) { .stwrap { grid-template-columns: 1fr; max-height: none; } }
+.licrow { gap: .4em; align-items: center; } .licrow input.lic { flex: 1 1 auto; }

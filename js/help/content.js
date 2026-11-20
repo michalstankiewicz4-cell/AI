@@ -143,7 +143,29 @@ export const SECTIONS = [
     ['p', 'Ustawienia → „Dane w tej przeglądarce” → <b>Zapisz dane do pliku</b>: wybierasz części (ustawienia, dokumenty, rozmowy wzorcowe, historia rozmów, źródła Researchu, własne pakiety) i dostajesz jeden plik .json. <b>Wczytaj dane z pliku</b> w innej przeglądarce albo na innym komputerze dodaje brakujące rekordy (albo zastępuje istniejące o tym samym id).'],
     ['p', 'To ta sama zawartość co publikacja danych na GitHub, tylko bez repozytorium – plik zostaje u Ciebie, więc nadaje się też do danych, których nie chcesz publikować. Token GitHub nie trafia do pliku. Modele zapisujesz osobno („Pobierz plik” w zakładce Modele).'],
   ] },
-  { id: 'pytania-pakietu', group: 'Rozmowa', title: 'Pytania z pakietu (do uzupełnienia)', topics: ['pytania-pakietu'], body: [
+  { id: 'struktura', group: 'Dane', title: 'Struktura aktów i powiązania przepisów', topics: ['struktura', 'jsonl'], body: [
+    ['p', 'Panel rozpoznaje w tekście aktu artykuły („Art. 5.”, także „### Art. 5.” w Markdown od AI), paragrafy („§ 1.”), ustępy („1.”) i rozdziały. Akt z co najmniej 3 artykułami ma w Formatowaniu przycisk <b>Struktura</b>.'],
+    ['table', ['Element', 'Co daje'], [
+      ['Spis artykułów', 'z rozdziałami i wyszukiwaniem (numer albo słowo)'],
+      ['Treść artykułu', 'odnośniki typu „art. 69 ust. 1 Prawa bankowego”, „art. 385¹ k.c.”, „art. 5 § 2” są klikalne – prowadzą do przepisu w tym samym albo innym akcie z biblioteki; „← Wstecz” wraca'],
+      ['Cytowany przez', 'przepisy z biblioteki, które odsyłają do tego artykułu (prosty graf powiązań)'],
+      ['Pobierz JSONL / Eksport JSONL', 'jeden przepis w linii: akt, skrót, ELI, stan prawny, rozdział, artykuł, paragraf/ustęp, podpis (np. „art. 45 ust. 1 u.k.k.”), tekst, odnośniki, kategorie'],
+    ]],
+    ['p', 'Rozpoznawane skróty: k.c., k.p.c., k.p., k.k., pr. bank., u.k.k. (kredyt konsumencki), u.k.h. (kredyt hipoteczny), u.r.f. (Rzecznik Finansowy), u.o.k.k., RODO. Odnośnik do aktu, którego nie ma w bibliotece, jest szary.'],
+    ['p', 'W czacie fragmenty „Z biblioteki” z aktów mają podpis przepisu (np. „art. 385¹ k.c. – Kodeks cywilny”); kliknięcie otwiera ten artykuł w strukturze.'],
+    ['tip', 'Najlepiej działa na aktach sformatowanych przez zewnętrzne AI (każdy artykuł w osobnej linii). JSONL to format dla innych narzędzi i większych modeli – nasza mała sieć uczy się na zwykłym tekście.'],
+  ] },
+  { id: 'licencje', group: 'Dane', title: 'Licencje treści (komentarze, doktryna)', topics: ['licencje'], body: [
+    ['p', 'Akty prawne, orzeczenia i stenogramy to dokumenty urzędowe – nie podlegają prawu autorskiemu (art. 4 ustawy o prawie autorskim). Wikipedia jest na licencji CC BY-SA 4.0. Te licencje panel wpisuje sam.'],
+    ['p', 'Komentarze, doktryna i artykuły prawnicze są zwykle chronione. Repozytorium jest publiczne, więc publikować można tylko własne opracowania albo teksty na wolnej licencji (CC0, CC BY, CC BY-SA, domena publiczna).'],
+    ['steps', [
+      ['Oznacz', 'Dokumenty → kategoria „komentarz”, „doktryna” albo „artykuł”.'],
+      ['Wpisz licencję', 'pole „Licencja treści” pod adresem źródła (podpowiada wolne licencje). Bez wolnej licencji przy dokumencie jest czerwona plakietka „licencja?”.'],
+      ['Publikacja', 'gdy zaznaczysz „Dokumenty”, okno publikacji wymienia dokumenty bez wolnej licencji. Uczyć się na nich w przeglądarce możesz – nie wysyłaj ich na GitHub.'],
+    ]],
+  ] },
+  { id: 'pytania-pakietu', group: 'Rozmowa', title: 'Pytania z pakietu i kazusy (do uzupełnienia)', topics: ['pytania-pakietu', 'kazusy'], body: [
+    ['p', '<b>Kazusy z orzeczeń.</b> Orzeczenie podzielone na części „Stan faktyczny”, „Analiza prawna” i „Rozstrzygnięcie” (tak formatuje je domyślna instrukcja dla zewnętrznego AI) zamienisz w Formatowaniu na rozmowę wzorcową: „Kazus do rozmów wzorcowych” przy dokumencie albo „Kazusy z orzeczeń” dla całej listy. Pytanie = stan faktyczny, odpowiedź = rozstrzygnięcie z uzasadnieniem (skrócone do „Najdłuższej odpowiedzi wzorcowej”). Uczy to dopasowywania faktów do przepisów (subsumpcji). Kazus jest „do uzupełnienia” – sprawdź go i popraw, zanim trafi do dostrajania.'],
     ['p', 'Pakiet może mieć listę typowych pytań zadawanych potocznie („Ile dni urlopu mi przysługuje?”). Przycisk „Dodaj pytania do rozmów wzorcowych” tworzy z nich <b>szkielety</b>: pytanie bez odpowiedzi, z plakietką „do uzupełnienia”.'],
     ['steps', [
       ['Znajdź', 'Rozmowy wzorcowe → zaznacz „tylko do uzupełnienia”.'],
@@ -262,7 +284,7 @@ export const SECTIONS = [
   ruleSection('dashes', 'okresowe — trzy lata, cywilno‐prawny, 2020−2025, strona - druga'),
   ruleSection('punctuation', 'Czy to możliwe ?? Tak , oczywiście…( z wyjątkami )'),
   ruleSection('legalNotation', 'art.5 ust.2 pkt.3 lit.a §1 Dz.U. z 2024 r.'),
-  ruleSection('charset', 'Opłata 100 € → zob. ✓ art. 5 😀', [['p', 'Lista dozwolonych: litery polskie i łacińskie, cyfry, spacja, koniec linii oraz <code>. , ; : ! ? ( ) [ ] „ ” \' - – § % / & * + = &lt; &gt; @ # °</code>. Dodatkowe znaki dopiszesz w Formatowanie → Ustawienia formatowania.']]),
+  ruleSection('charset', 'Opłata 100 € → zob. ✓ art. 5 😀', [['p', 'Lista dozwolonych: litery polskie i łacińskie, cyfry, spacja, koniec linii oraz <code>. , ; : ! ? ( ) [ ] „ ” \' - – § % / & * + = &lt; &gt; @ # °</code> oraz indeksy górne <code>⁰¹²³⁴⁵⁶⁷⁸⁹</code> (art. 385¹). Dodatkowe znaki dopiszesz w Formatowanie → Ustawienia formatowania.']]),
   ruleSection('spaces', 'Art.  1.   Treść   przepisu.  \n\n\n\nArt. 2.'),
   ruleSection('dedupe', 'Przepis ogólny dotyczący wszystkich umów nazwanych.\nArt. 2.\nPrzepis ogólny dotyczący wszystkich umów nazwanych.'),
   { id: 'dozwolone-znaki', group: 'Formatowanie', title: 'Dodatkowe dozwolone znaki', topics: ['cleaner.extraChars', 'usuniete-znaki'], body: [

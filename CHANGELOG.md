@@ -2,6 +2,14 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.13.0 – 2026-11-20 (cleaner 1.1.0)
+
+- **Podział aktu na artykuły**: przy dokumencie w Formatowaniu „Struktura” – spis artykułów z wyszukiwaniem, treść artykułu z rozdziałem, odnośniki do innych przepisów (klikalne, także do innych aktów z biblioteki: k.c., k.p.c., k.p., pr. bank., u.k.k. …), „Cytowany przez”, „← Wstecz”. „Eksport JSONL” – jeden wiersz na paragraf lub ustęp (akt, przepis, rozdział, tekst, odnośniki). Fragmenty „Z biblioteki” pod odpowiedzią czatu są cięte po artykułach i podpisane („art. 385¹ § 1 k.c.”); kliknięcie otwiera strukturę w tym miejscu.
+- **Kazusy z orzeczeń**: „Kazus do rozmów wzorcowych” przy orzeczeniu i „Kazusy z orzeczeń (n)” nad listą – stan faktyczny staje się pytaniem, rozstrzygnięcie (z analizą) odpowiedzią; rozmowa „do uzupełnienia” z kategorią „kazus”. Najlepiej działa na orzeczeniach sformatowanych przez AI (sekcje Stan faktyczny / Analiza prawna / Rozstrzygnięcie); pominięte orzeczenia są wypisane.
+- **Licencja dokumentu**: pole „Licencja” w Dokumentach (z podpowiedziami); akty i orzeczenia dostają „dokument urzędowy (art. 4 pr. aut.)”, Wikipedia „CC BY-SA 4.0”. Nowe kategorie „komentarz” i „doktryna”: bez wolnej licencji mają plakietkę „licencja?”, a publikacja dokumentów na GitHub ostrzega o nich z listą.
+- „Dodaj źródła pakietu” dopisuje też kategorię pakietu źródłom, które już są na liście (np. dodanym wcześniej z katalogu).
+- Formatowanie: indeksy górne (⁰–⁹, np. „art. 385¹”) są teraz dozwolonymi znakami – wcześniej reguła „Dozwolone znaki” je usuwała.
+
 ## 0.12.0 – 2026-11-20
 
 - **Grupy kategorii**: kategorie dokumentów zebrane w grupy z własnym kolorem (domyślnie: Rodzaj dokumentu, Dziedzina, Źródło, Stan; reszta w „Inne”). Filtr w Dokumentach i Formatowaniu ma wiersz na grupę, plakietki mają kolor grupy. Okno „Grupy kategorii”: nazwa, kolor i kategorie grupy, dodawanie i usuwanie grup, przypisywanie kategorii bez grupy jednym kliknięciem, przywracanie domyślnych. Grupy w pliku z danymi i w publikacji (`data/grupy-kategorii.json`).

@@ -180,6 +180,9 @@ export default {
             catch (e) { toast(`${f.name}: ${e.message}`, 'error', 8000); }
           } }, 'Wczytaj pakiet z pliku')),
         ...packs.map(pk => {
+          // źródła pakietu, które już są na liście (np. z katalogu), a nie mają kategorii pakietu – dostaną ją przy „Dodaj źródła pakietu”
+          const sameSrc = (x, c) => x.name === c.name || (x.kind === c.kind && x.url === c.url && (!c.eli || (x.eli && x.eli.publisher === c.eli.publisher && (x.eli.filter || '') === (c.eli.filter || ''))));
+          const toTag = all.filter(x => !(x.tags || []).includes(pk.name)).map(x => ({ x, c: pk.sources.find(c => sameSrc(x, c)) })).filter(y => y.c);
           const srcMiss = catalogMissing(all, pk.sources), actsMiss = pk.acts.filter(a => !have.has(a.eli)), wikiMiss = pk.wiki.filter(t => !wikiHave(t));
           const qMiss = (pk.questions || []).filter(q => !dlgKeys.has(q.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()));
           const missText = () => `Brakuje: źródeł ${catalogMissing(all, pk.sources).length}, aktów ${pk.acts.filter(a => !have.has(a.eli)).length}, haseł Wikipedii ${pk.wiki.filter(t => !wikiHave(t)).length}.`;
@@ -234,7 +237,7 @@ export default {
             pk.description ? h('p.note', pk.description) : null,
             missLine,
             h('div.row.wrap',
-              h('button.ghost', { type: 'button', disabled: !srcMiss.length, onclick: async () => { for (const c of srcMiss) await addFromCatalog({ ...c, tags: mergeTags(c.tags, [pk.name]) }); toast(`Dodano ${srcMiss.length} źródeł z pakietu „${pk.name}”.`, 'ok'); draw(); } }, `Dodaj źródła pakietu (${srcMiss.length})`),
+              h('button.ghost', { type: 'button', disabled: !srcMiss.length && !toTag.length, onclick: async () => { for (const c of srcMiss) await addFromCatalog({ ...c, tags: mergeTags(c.tags, [pk.name]) }); for (const { x, c } of toTag) { x.tags = mergeTags(x.tags, c.tags, [pk.name]); await saveSource(x); } toast(`Pakiet „${pk.name}”: dodano ${srcMiss.length} źródeł` + (toTag.length ? `, dopisano kategorię do ${toTag.length} istniejących` : '') + '.', 'ok'); draw(); } }, `Dodaj źródła pakietu (${srcMiss.length + toTag.length})`),
               h('button', { type: 'button', disabled: !actsMiss.length, onclick: e => run(e.currentTarget, 'Akty prawne', actsMiss, { label: a => `${a.eli} (${a.note})`, run: a => downloadEliAct(a.eli, { expect: a.expect, tags: [pk.name], description: `${a.note}. ELI ${a.eli}. Pakiet: ${pk.name}.` }) }) }, `Pobierz akty pakietu (${actsMiss.length})`),
               h('button', { type: 'button', disabled: !wikiMiss.length, onclick: e => run(e.currentTarget, 'Hasła Wikipedii', wikiMiss, { label: t => t, run: t => downloadWikiTitle(t, { tags: [pk.name], description: `Pakiet: ${pk.name}.` }) }) }, `Pobierz hasła Wikipedii (${wikiMiss.length})`),
               h('button.ghost', { type: 'button', disabled: !qMiss.length, onclick: async () => { const r = await addQuestionDrafts(qMiss, pk.name); toast(`Dodano ${r.added} ${plural(r.added, 'pytanie', 'pytania', 'pytań')} do rozmów wzorcowych (do uzupełnienia odpowiedzi).`, 'ok', 6000); draw(); } }, `Dodaj pytania do rozmów wzorcowych (${qMiss.length})`),

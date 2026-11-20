@@ -7,7 +7,7 @@ import { log } from './log.js';
 
 export const COLORS = { niebieski: 'blue', zielony: 'green', fioletowy: 'violet', złoty: 'gold', czerwony: 'red', szary: 'gray', turkusowy: 'teal' };
 export const DEFAULT_GROUPS = [
-  { id: 'rodzaj', name: 'Rodzaj dokumentu', color: 'blue', tags: ['akt prawny', 'orzeczenie', 'wyrok', 'uchwała', 'interpretacja', 'decyzja', 'rekomendacja', 'komentarz', 'umowa', 'wzór pisma', 'Wikipedia', 'stenogram Sejmu'] },
+  { id: 'rodzaj', name: 'Rodzaj dokumentu', color: 'blue', tags: ['akt prawny', 'orzeczenie', 'wyrok', 'uchwała', 'interpretacja', 'decyzja', 'rekomendacja', 'komentarz', 'doktryna', 'artykuł', 'kazus', 'umowa', 'wzór pisma', 'Wikipedia', 'stenogram Sejmu'] },
   { id: 'dziedzina', name: 'Dziedzina', color: 'violet', tags: ['Prawo pracy', 'Prawo bankowe i kredyty', 'Prawo cywilne', 'kredyty walutowe (CHF)', 'sankcja kredytu darmowego', 'zwrot prowizji'] },
   { id: 'zrodlo', name: 'Źródło', color: 'teal', tags: ['Dziennik Ustaw', 'Monitor Polski', 'KNF', 'SAOS', 'UOKiK', 'Rzecznik Finansowy', 'TSUE', 'Sąd Najwyższy'] },
   { id: 'stan', name: 'Stan', color: 'red', tags: ['nieaktualny', 'stary', 'do przejrzenia', 'sformatowany przez AI'] },

@@ -14,12 +14,29 @@ import { inProfile, profileTags } from './profiles.js';
 //           status: 'do-sprawdzenia'|'zatwierdzony'|'odrzucony', enabled,                                   ← decyzja
 //           sourceUrl, rawHash, eli?, sourceChangeDate?,                                                     ← pochodzenie (Research)
 //           general,                                                 ← tekst ogólny (nie prawniczy): w nauce w ustalonej proporcji
-//           tags: ['akt prawny', 'Prawo pracy', 'nieaktualny', …] }   ← kategorie (plakietki) do filtrowania
+//           tags: ['akt prawny', 'Prawo pracy', 'nieaktualny', …],   ← kategorie (plakietki) do filtrowania
+//           license }                                              ← licencja treści (ważna przy publikacji w publicznym repo)
 // Wgranie od razu formatuje dokument (konwerter): wynik czeka w zakładce „Formatowanie” na zatwierdzenie.
 export const STATUS = { 'do-sprawdzenia': 'do sprawdzenia', zatwierdzony: 'zatwierdzony', odrzucony: 'odrzucony' };
 
 // dokumenty zapisane przez wersję 0.1–0.2 (bez statusu i opisu) były już zatwierdzone
-const norm = d => { if (d.sourceUrl == null) d.sourceUrl = ''; if (!d.status) d.status = 'zatwierdzony'; if (d.description == null) d.description = ''; if (d.enabled == null) d.enabled = true; if (d.general == null) d.general = false; if (!Array.isArray(d.tags)) d.tags = autoTags(d); return d; };
+const norm = d => { if (d.sourceUrl == null) d.sourceUrl = ''; if (!d.status) d.status = 'zatwierdzony'; if (d.description == null) d.description = ''; if (d.enabled == null) d.enabled = true; if (d.general == null) d.general = false; if (!Array.isArray(d.tags)) d.tags = autoTags(d); if (d.license == null) d.license = autoLicense(d); return d; };
+
+// ---------- licencje ----------
+// Dokumenty urzędowe (akty, orzeczenia, stenogramy) nie podlegają prawu autorskiemu (art. 4 ustawy o prawie autorskim).
+// Komentarze, doktryna, artykuły – zwykle tak: do publicznego repo tylko własne albo na wolnej licencji.
+export const OFFICIAL = 'dokument urzędowy (art. 4 pr. aut.)';
+export const FREE_LICENSES = [OFFICIAL, 'własne opracowanie', 'CC0', 'CC BY 4.0', 'CC BY-SA 4.0', 'domena publiczna'];
+export const RESTRICTED_TAGS = ['komentarz', 'doktryna', 'artykuł'];
+export function autoLicense(d) {
+  const u = d.sourceUrl || '';
+  if (d.eli || /saos\.org\.pl|api\.sejm\.gov\.pl/.test(u) || /^Stenogram Sejmu/.test(d.name || '')) return OFFICIAL;
+  if (/wikipedia\.org/.test(u)) return 'CC BY-SA 4.0';
+  return '';
+}
+export const isFreeLicense = l => FREE_LICENSES.some(f => String(l || '').toLowerCase().startsWith(f.toLowerCase().slice(0, 8)));
+// dokumenty, których publikacja w publicznym repo może naruszać prawa autorskie
+export const licenseProblems = docs => docs.filter(d => (d.tags || []).some(t => RESTRICTED_TAGS.includes(t.toLowerCase())) && !isFreeLicense(d.license));
 
 // ---------- kategorie (plakietki) ----------
 // Kategorie nadawane same według pochodzenia; resztę dopisuje się ręcznie w Dokumentach.
@@ -61,10 +78,11 @@ function format(doc) {
 // Skrót SHA-256 oryginalnego tekstu: rozpoznaje ten sam dokument wgrany drugi raz (także pod inną nazwą)
 export async function textHash(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 
-export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false, tags = [] }) {
+export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false, tags = [], license = null }) {
   const older = eli ? (await listDocs()).filter(d => d.eli === eli) : [];
   const doc = format({ id: uid('d_'), name, type, encoding, size, raw, description, ocr, sourceUrl, eli, sourceChangeDate, general: !!general, rawHash: await textHash(raw), addedAt: Date.now(), status: 'do-sprawdzenia', enabled: true });
-  doc.tags = mergeTags(autoTags(doc), tags, profileTags());   // nowy dokument należy też do wybranego profilu
+  doc.tags = mergeTags(autoTags(doc), tags, profileTags());
+  doc.license = license != null ? license : autoLicense(doc);   // nowy dokument należy też do wybranego profilu
   await db.put('documents', doc);
   if (older.length) await markOutdated(older, `jest nowsza wersja (${eli})`);
   log('info', 'dokumenty', `Dodano dokument „${name}” (${type}, ${raw.length} znaków${general ? ', tekst ogólny' : ''}${sourceUrl ? ', ze źródła' : ''})`, sourceUrl || null);

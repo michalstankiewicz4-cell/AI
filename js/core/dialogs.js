@@ -36,3 +36,38 @@ export async function addQuestionDrafts(questions, pack) {
   if (recs.length) await db.putMany('dialogs', recs);
   return { added: recs.length, skipped };
 }
+
+// ---------- kazusy z orzeczeń ----------
+// Orzeczenie w częściach (np. po formatowaniu przez zewnętrzne AI): „Stan faktyczny”, „Analiza (prawna)”, „Rozstrzygnięcie”.
+// Z nich szkielet rozmowy: pytanie = stan faktyczny, odpowiedź = rozstrzygnięcie z uzasadnieniem (skrócone do limitu odpowiedzi).
+const SECTION = { fakty: /stan faktyczny|ustalenia faktyczne/i, analiza: /analiza|uzasadnienie|ocena prawna|rozważania/i, wynik: /rozstrzygni|sentencja|wyrok sądu|orzeczenie sądu/i };
+export function judgmentSections(text) {
+  const out = {}; let key = null;
+  for (const line of String(text || '').split('\n')) {
+    const h = /^\s*(#{1,6}\s*)?([^\n]{3,60}?)\s*:?\s*$/.exec(line);
+    const isHead = h && (h[1] || line.trim().length < 40) && Object.entries(SECTION).find(([, re]) => re.test(h[2]));
+    if (isHead) { key = isHead[0]; out[key] = out[key] || ''; continue; }
+    if (key) out[key] += line + '\n';
+  }
+  for (const k of Object.keys(out)) out[k] = out[k].trim();
+  return out;
+}
+const cutAt = (t, n) => { t = t.replace(/\s+/g, ' ').trim(); if (t.length <= n) return t; const c = t.slice(0, n), i = Math.max(c.lastIndexOf('. '), c.lastIndexOf('; ')); return (i > n * .5 ? c.slice(0, i + 1) : c.trimEnd()) + ' …'; };
+export function caseFromJudgment(doc, maxAnswer = 600) {
+  const s = judgmentSections(doc.text);
+  if (!s.fakty || !(s.wynik || s.analiza)) return { error: 'brak części „Stan faktyczny” i „Rozstrzygnięcie”/„Analiza” – sformatuj orzeczenie przez zewnętrzne AI' };
+  const question = cutAt(s.fakty, 700) + ' Jak to ocenić prawnie i jak powinien rozstrzygnąć sąd?';
+  const answer = cutAt([s.wynik, s.analiza].filter(Boolean).join(' Uzasadnienie: '), maxAnswer);
+  return { question, answer };
+}
+export async function addCaseDrafts(docs) {
+  const o = cleanerOpts(), have = new Set((await listDialogs()).map(d => d.caseOf).filter(Boolean)), recs = [], skipped = [];
+  for (const d of docs) {
+    if (have.has(d.id)) { skipped.push({ doc: d, why: 'kazus już jest w rozmowach wzorcowych' }); continue; }
+    const c = caseFromJudgment(d, o.maxAnswer); if (c.error) { skipped.push({ doc: d, why: c.error }); continue; }
+    recs.push({ id: uid('r_'), turns: [{ role: 'user', text: cleanLine(c.question, o).text }, { role: 'bot', text: cleanLine(c.answer, o).text }], source: 'kazus', caseOf: d.id,
+      tags: [...new Set(['kazus', ...(d.tags || []).filter(t => t !== 'orzeczenie'), ...profileTags()])], draft: true, enabled: false, addedAt: Date.now() + recs.length, cleanerVersion: VERSIONS.cleaner });
+  }
+  if (recs.length) await db.putMany('dialogs', recs);
+  return { added: recs.length, skipped };
+}

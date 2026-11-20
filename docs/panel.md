@@ -54,6 +54,8 @@ Na górze są przyciski „Zatwierdź bez ostrzeżeń” i „Formatuj wszystkie
 
 Na górze Formatowania karta **Przygotowanie dla zewnętrznego AI**: instrukcja (prompt systemowy) i wielkość części; nad listą *Przygotuj dla AI* (plik .md z instrukcją i dokumentami z bieżącej listy) i *Wczytaj wynik od AI* (wklejenie odpowiedzi albo pliku – podmiana tekstu po znacznikach); przy dokumencie z wersją od AI *Usuń wersję od AI*.
 
+Przy dokumencie **Struktura** (akty z co najmniej 3 artykułami): spis artykułów z wyszukiwaniem, treść, klikalne odnośniki do przepisów (także w innych aktach biblioteki), „Cytowany przez”, „← Wstecz”, „Pobierz JSONL”. Przy orzeczeniu **Kazus do rozmów wzorcowych**. Nad listą także *Kazusy z orzeczeń (n)* i *Eksport JSONL (n)* dla bieżącej listy.
+
 ## Nauka
 Dane (zatwierdzone i włączone dokumenty; przy dokumentach ogólnych podział: prawnicze w całości, ogólne użyte do limitu udziału), dostępność karty graficznej, rodzaj nauki (od zera albo dalsza nauka modelu bazowego), ustawienia z szacunkiem liczby parametrów i rozmiaru pliku. W czasie nauki widać przebieg: pasek postępu, wykres błędu, liczby (błąd, najlepszy moment, bity na znak, czas kroku), próbkę tekstu i pominięte znaki. Po zakończeniu model zapisuje się sam.
 

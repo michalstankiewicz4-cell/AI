@@ -262,7 +262,7 @@ export async function downloadEliAct(eli, { expect = '', general = false, descri
 export const WIKI_API = 'https://pl.wikipedia.org/w/api.php';
 async function addWikiPage(page, extra = '', tags = []) {
   const raw = page.extract.replace(/^(=+)\s*(.+?)\s*\1$/gm, '$2');
-  return addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true, tags,
+  return addDoc({ name: `Wikipedia – ${page.title}`, type: 'text', raw, sourceUrl: page.fullurl, general: true, tags, license: 'CC BY-SA 4.0',
     description: `Wikipedia (pl), artykuł „${page.title}”, licencja CC BY-SA 4.0.${extra ? ' ' + extra : ''}` });
 }
 export async function downloadWikiTitle(title, { api = WIKI_API, description = '', tags = [] } = {}) {
