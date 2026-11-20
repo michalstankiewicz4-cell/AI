@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.15.1 – 2026-11-20
+
+- Pomoc: nowe działy „Co jest w programie, a co w przeglądarce” (co znika przy resecie, jak robić kopię) i „Częste pytania”; „Krok po kroku” z typowym przebiegiem z pakietem; w „Dokumentach” kategorie i licencja, w „Formatowaniu” tabela przycisków (Tabela, Przygotuj dla AI, Kazusy, JSONL, Struktura), w „Rozmowach wzorcowych” pochodzenie rozmów i szkice do uzupełnienia.
+
 ## 0.15.0 – 2026-11-20
 
 - **Resetuj wszystko** (Ustawienia, na dole): usuwa z tej przeglądarki wszystkie dane (dokumenty, źródła, rozmowy wzorcowe, historię, modele, logi, profile, własne pakiety, grupy kategorii) i ustawienia, po potwierdzeniu z liczbą usuwanych rekordów; token GitHub i motyw zostają.

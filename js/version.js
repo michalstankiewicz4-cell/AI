@@ -7,7 +7,7 @@
 // db          — schemat bazy w przeglądarce (IndexedDB). Podbijany przy nowych magazynach lub indeksach.
 
 export const VERSIONS = {
-  app: '0.15.0',
+  app: '0.15.1',
   engine: '1.0.0',
   cleaner: '1.1.0',
   modelFormat: 1,
