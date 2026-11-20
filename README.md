@@ -21,6 +21,8 @@ Własna sieć neuronowa (transformer), która najpierw uczy się języka prawneg
 | | – | Modele | wersje, podgląd budowy, plik, publikacja na GitHub i wczytywanie z GitHub |
 | | – | Logi | co i kiedy się działo, błędy w kolorach według ważności – do szukania, w którym momencie coś się popsuło |
 
+**Profile**: na Pulpicie wybierasz dziedzinę (np. Prawo pracy) – kategorie dokumentów, szablon sieci i własne ustawienia; wszystkie kroki działają wtedy w tym profilu na wspólnej bibliotece („Wszystkie profile” = całość).
+
 Numery kroków są takie jak na kafelkach pulpitu (krok 7 „Rozmowa i poprawki” to czat razem z historią rozmów). W menu i na pulpicie są dwie grupy kolorów: fioletowy – Dokumenty, Formatowanie i Nauka, zielony – Rozmowy wzorcowe i Dostrajanie; Research i pozostałe zakładki są bez koloru.
 
 Szczegóły: [docs/panel.md](docs/panel.md), [docs/dane.md](docs/dane.md), [docs/nauka.md](docs/nauka.md), [docs/modele.md](docs/modele.md). Ograniczenie: przeglądarka pobiera dane z innego serwisu tylko wtedy, gdy ten na to pozwala (CORS) – Research pokazuje to przy każdym źródle.

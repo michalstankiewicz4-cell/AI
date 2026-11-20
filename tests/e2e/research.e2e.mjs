@@ -263,6 +263,33 @@ const fcd = p.waitForEvent('filechooser'); await p.click('text=Wczytaj dane z pl
 await p.waitForSelector('dialog.modal >> text=Wczytaj'); await p.click('dialog.modal button:text-is("Wczytaj")'); await p.waitForSelector('dialog.modal >> text=/Wczytano\./');
 ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents'))) === nDocs && await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('sources'))) >= 19, 'wczytanie pliku odtwarza dokumenty i źródła');
 
+console.log('Profile');
+await p.goto(BASE + '#pulpit'); await p.waitForSelector('.profilecard');
+ok((await p.textContent('.profchip')).includes('Wszystkie profile'), 'bez profilu: „Wszystkie profile” w pasku');
+await p.click('.profilecard >> text=Nowy profil'); await p.waitForSelector('dialog.modal');
+await p.fill('dialog.modal input[type=text] >> nth=0', 'Prawo pracy');
+await p.click('dialog.modal .tagbtn:text-is("Prawo pracy")');
+await p.click('dialog.modal input[value=srednia]');
+await p.click('dialog.modal >> text=Zapisz profil'); await p.waitForTimeout(800);
+ok((await p.textContent('.profchip')).includes('Profil: Prawo pracy'), 'nowy profil wybrany, nazwa w pasku');
+const st = await p.evaluate(async () => (await import('./js/core/settings.js')).settings().pretrain);
+ok(st.layers === 6 && st.dim === 192, 'szablon „Średnia” w ustawieniach nauki profilu');
+const allDocsN = await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents')));
+await p.goto(BASE + '#dokumenty'); await p.waitForSelector('.scope');
+t = await p.textContent('.scope');
+ok(/pokazuję dokumenty profilu: \d+ z /.test(t) && (await p.$$('article.docrow')).length < allDocsN, 'Dokumenty: tylko dokumenty profilu');
+await p.click('.scope >> text=Pokaż wszystko'); await p.waitForTimeout(300);
+ok((await p.$$('article.docrow')).length === allDocsN, '„Pokaż wszystko”: cała biblioteka');
+await p.evaluate(async () => { const m = await import('./js/core/documents.js'); await m.addDoc({ name: 'notatka', type: 'text', raw: 'Pracownik ma prawo do urlopu.' }); });
+ok((await p.evaluate(async () => (await (await import('./js/core/documents.js')).listDocs()).find(d => d.name === 'notatka').tags)).includes('Prawo pracy'), 'nowy dokument dostaje kategorię profilu');
+await p.goto(BASE + '#nauka'); await p.waitForTimeout(600);
+ok((await p.textContent('main.content')).includes('Profil: Prawo pracy'), 'Nauka: informacja o profilu');
+await p.goto(BASE + '#pulpit'); await p.waitForSelector('.profilecard select');
+await p.selectOption('.profilecard select', ''); await p.waitForTimeout(800);
+const st2 = await p.evaluate(async () => (await import('./js/core/settings.js')).settings().pretrain);
+ok((await p.textContent('.profchip')).includes('Wszystkie profile') && st2.layers !== 6, 'powrót do „Wszystkich profili” przywraca poprzednie ustawienia');
+await p.screenshot({ path: join(OUT, 'profile.png') });
+
 console.log('Logi');
 await p.goto(BASE + '#logi'); await p.waitForSelector('.logrow');
 t = await p.textContent('main.content');

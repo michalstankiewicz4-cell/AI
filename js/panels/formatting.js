@@ -11,6 +11,7 @@ import { fieldsForm } from '../ui/form.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
 import { tagFilter, tagChips } from '../ui/tags.js';
 import { hasTags } from '../core/documents.js';
+import { profileScope } from '../ui/scope.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
 // wszystkie pola grupy „cleaner” poza długością odpowiedzi wzorcowej (ta jest w „Rozmowach wzorcowych”)
@@ -25,7 +26,7 @@ export default {
   async render(root, _r, focusId) {
     let filter = 'do-sprawdzenia';
     if (focusId) { const d = (await listDocs()).find(x => x.id === focusId); if (d) filter = d.status; }
-    const list = h('div'), stats = h('p.note'), bulk = h('div.row.wrap'), filterBox = h('div'), selTags = new Set();
+    const list = h('div'), stats = h('p.note'), bulk = h('div.row.wrap'), filterBox = h('div'), selTags = new Set(), scope = profileScope('dokumenty', () => draw());
     const seg = h('div.seg', FILTERS.map(([v, l]) => h('label', h('input', { type: 'radio', name: 'ff', checked: v === filter, onchange: () => { filter = v; draw(); } }), ' ', l)));
     root.append(
       h('header.ph', h('h1', 'Formatowanie'),
@@ -33,10 +34,10 @@ export default {
       h('details.card.settings', h('summary', h('b', 'Ustawienia formatowania'), ' ', h('span.note', '— reguły, dodatkowe znaki, progi')),
         h('p.note', 'Zmiana dotyczy nowo wgranych dokumentów. Już wgrane sformatujesz od nowa przyciskiem „Formatuj wszystkie ponownie”.'),
         fieldsForm('cleaner', settings().cleaner, { only: CLEANER_HERE, onChange: () => { clearTimeout(saveT); saveT = setTimeout(async () => { await saveSettings(settings()); toast('Zapisano ustawienia formatowania.', 'ok', 1500); }, 400); } })),
-      h('section.card', h('div.row.wrap', seg, h('span.sp'), bulk), filterBox, stats, list));
+      h('section.card', h('div.row.wrap', seg, h('span.sp'), bulk), scope.el, filterBox, stats, list));
 
     async function draw() {
-      const all = await listDocs(), docs = (filter === 'all' ? all : all.filter(d => d.status === filter)).filter(d => hasTags(d, [...selTags]));
+      const all = scope.filter(await listDocs()), docs = (filter === 'all' ? all : all.filter(d => d.status === filter)).filter(d => hasTags(d, [...selTags]));
       clear(filterBox); filterBox.append(tagFilter(all, selTags, draw));
       const appr = all.filter(d => d.status === 'zatwierdzony' && d.enabled), chars = appr.reduce((a, d) => a + d.chars, 0);
       stats.textContent = `W nauce: ${num(appr.length)} ${plural(appr.length, 'dokument', 'dokumenty', 'dokumentów')}, ${num(chars)} znaków.` + (chars && chars < 300000 ? ' Mała sieć zaczyna sensownie pisać od ok. 300–500 tys. znaków.' : '');

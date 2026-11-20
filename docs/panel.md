@@ -19,7 +19,7 @@ Panel jest bez logowania i ma postać jednej strony (`index.html`). Zakładki pr
 | czat (okno) | `js/chat/widget.js` | ⚙: temperatura, długość odpowiedzi, pamięć rozmowy, zapisywanie |
 
 ## Pulpit
-Siedem ponumerowanych kafelków-kroków (1 Research, 2 Dokumenty, 3 Formatowanie, 4 Nauka, 5 Rozmowy wzorcowe, 6 Dostrajanie, 7 Rozmowa i poprawki) ze stanem: źródła w Researchu (ile, ile dokumentów do pobrania po ostatnim sprawdzeniu, ile niedostępnych), ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
+Na górze karta **Profil**: wybór profilu albo „Wszystkie profile”, *Nowy profil* / *Edytuj profil* / *Usuń profil* (nazwa, kategorie dokumentów, tekst ogólny, szablon sieci: mała, średnia, duża). Przy wybranym profilu Dokumenty, Formatowanie, Rozmowy wzorcowe i Modele pokazują jego zawartość (pasek „Profil: …” z *Pokaż wszystko*), Nauka i Dostrajanie używają jego danych i ustawień, a nowe dokumenty, rozmowy i modele należą do niego same; nazwa profilu jest w górnym pasku. Niżej siedem ponumerowanych kafelków-kroków (1 Research, 2 Dokumenty, 3 Formatowanie, 4 Nauka, 5 Rozmowy wzorcowe, 6 Dostrajanie, 7 Rozmowa i poprawki) ze stanem: źródła w Researchu (ile, ile dokumentów do pobrania po ostatnim sprawdzeniu, ile niedostępnych), ile dokumentów, ile czeka na sprawdzenie, modele bazowe i dostrojone, rozmowy wzorcowe, odpowiedzi do oceny. Do tego aktywny model i informacje o komputerze (karta graficzna, trwająca nauka).
 
 ## Research
 Źródła dokumentów (przed Dokumentami, bez koloru):

@@ -82,9 +82,10 @@ async function publishRaw(model, { repo, branch }, what, data, onStep) {
   if (what.conversations) await blob('data/historia-rozmow.json', JSON.stringify({ ...meta, conversations: data.conversations }, null, 2) + '\n');
   if (what.sources) await blob('data/zrodla.json', JSON.stringify({ ...meta, sources: data.sources }, null, 2) + '\n');
   if (what.packs) await blob('data/pakiety.json', JSON.stringify({ ...meta, packs: data.packs }, null, 2) + '\n');
+  if (what.profiles) await blob('data/profile.json', JSON.stringify({ ...meta, profiles: data.profiles }, null, 2) + '\n');
   if (!files.length) throw new Error('Nic nie zaznaczono do wysłania.');
   onStep('Tworzę commit…');
-  const parts = [what.model && model ? `model ${model.name}${what.active ? ' (aktualny)' : ''}` : null, what.settings && 'ustawienia', what.documents && 'dokumenty', what.dialogs && 'rozmowy wzorcowe', what.conversations && 'historia rozmów', what.sources && 'źródła', what.packs && 'pakiety'].filter(Boolean);
+  const parts = [what.model && model ? `model ${model.name}${what.active ? ' (aktualny)' : ''}` : null, what.settings && 'ustawienia', what.documents && 'dokumenty', what.dialogs && 'rozmowy wzorcowe', what.conversations && 'historia rozmów', what.sources && 'źródła', what.packs && 'pakiety', what.profiles && 'profile'].filter(Boolean);
   const tree = await gh(`/repos/${repo}/git/trees`, { method: 'POST', body: JSON.stringify({ base_tree: head.tree.sha, tree: files }) });
   const commit = await gh(`/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify({ message: `Publikacja z panelu AI ${data.versions.app}: ${parts.join(', ')}`, tree: tree.sha, parents: [ref.object.sha] }) });
   await gh(`/repos/${repo}/git/refs/heads/${encodeURIComponent(branch)}`, { method: 'PATCH', body: JSON.stringify({ sha: commit.sha }) });

@@ -79,8 +79,11 @@ Każdy dokument zapamiętuje wersję reguł (`VERSIONS.cleaner`), którą go sfo
 ### Kategorie (plakietki)
 Dokument ma listę kategorii `tags`. Część nadaje się sama według pochodzenia (`autoTags`): *akt prawny* (ELI), *orzeczenie* (SAOS), *Wikipedia*, *stenogram Sejmu*, nazwa pakietu; dochodzą kategorie źródła z Researchu. Pobranie nowszej wersji tego samego aktu (ten sam ELI) albo nowszego tekstu jednolitego oznacza starszy dokument jako **nieaktualny**. Po kategoriach filtruje się Dokumenty i Formatowanie (kilka zaznaczonych = wszystkie naraz).
 
+### Profile
+Profil (kv `profiles`) ma kategorie, szablon sieci, ustawienia nauki i dostrajania oraz aktywny model. Dokument należy do profilu, gdy ma jego kategorię (albo jest tekstem ogólnym, jeśli profil to dopuszcza); rozmowa wzorcowa – gdy ma kategorię profilu albo nie ma żadnej (wspólna); model – gdy powstał w profilu (`profileId`). Nauka bierze tylko dokumenty profilu.
+
 ### Plik z danymi
-Ustawienia → *Zapisz dane do pliku* tworzy plik `{ format: 'ai-prawo-dane', version: 1, … }` z wybranymi częściami (ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety). *Wczytaj dane z pliku* używa tego samego przywracania co „Wczytaj z GitHub”. Token nie trafia do pliku.
+Ustawienia → *Zapisz dane do pliku* tworzy plik `{ format: 'ai-prawo-dane', version: 1, … }` z wybranymi częściami (ustawienia, dokumenty, rozmowy wzorcowe, historia, źródła, własne pakiety, profile). *Wczytaj dane z pliku* używa tego samego przywracania co „Wczytaj z GitHub”. Token nie trafia do pliku.
 
 ## Rozmowy wzorcowe
 

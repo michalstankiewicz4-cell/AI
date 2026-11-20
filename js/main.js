@@ -19,6 +19,7 @@ import helpPanel from './panels/help.js';
 import research from './panels/research.js';
 import logsPanel from './panels/logs.js';
 import { logInfo, logError } from './core/log.js';
+import { loadProfiles, activeProfile, onProfile } from './core/profiles.js';
 
 const PANELS = [dashboard, research, documents, formatting, pretrain, dialogs, finetune, conversations, models, settingsPanel, logsPanel, helpPanel];
 let main, nav, cleanup = null, current = null;
@@ -58,15 +59,24 @@ function themeButton() {
 window.addEventListener('error', e => logError('strona', e.message || 'Błąd strony', [e.filename && `${e.filename}:${e.lineno}:${e.colno}`, e.error && e.error.stack].filter(Boolean).join('\n')));
 window.addEventListener('unhandledrejection', e => { const r = e.reason; logError('strona', 'Nieobsłużony błąd: ' + (r && r.message ? r.message : String(r)), r && r.stack); });
 
+// wybrany profil w górnym pasku (kliknięcie → Pulpit, gdzie się go zmienia)
+function profileChip() {
+  const a = h('a.profchip', { href: '#pulpit', title: 'Wybrany profil – zmienisz go na Pulpicie' });
+  const set = p => { a.textContent = p ? 'Profil: ' + p.name : 'Wszystkie profile'; a.classList.toggle('on', !!p); };
+  set(activeProfile()); onProfile(set);
+  return a;
+}
+
 async function init() {
   await loadSettings();
+  await loadProfiles();
   logInfo('panel', `Uruchomienie panelu, wersja ${VERSIONS.app}`, { wersje: VERSIONS, przegladarka: navigator.userAgent, adres: location.pathname + location.hash });
   // grupy kolorów w menu: 2 = Dokumenty, Formatowanie i Nauka (fioletowy), 3 = Rozmowy wzorcowe i Dostrajanie (zielony)
   const STAGE = { 2: 'Dokumenty, formatowanie i nauka języka', 3: 'Rozmowy wzorcowe i nauka odpowiadania' };
   nav = h('nav.side', { 'aria-label': 'Zakładki' }, PANELS.map(p => h('a' + (p.stage ? '.stage' + p.stage : ''), { href: '#' + p.id, dataset: { id: p.id }, title: p.stage ? STAGE[p.stage] : null }, h('span.i', p.icon), h('span', p.title), p.id === 'nauka' || p.id === 'dostrajanie' ? h('span.jobdot', { hidden: true }) : null)));
   main = h('main.content', { tabIndex: -1 });
   document.body.append(
-    h('header.top', h('a.brand', { href: '#pulpit' }, h('span.logo', '§'), h('b', APP_NAME), h('span.ver', 'v' + VERSIONS.app)), h('span.sub', 'panel administracyjny'), h('span.sp'), themeButton()),
+    h('header.top', h('a.brand', { href: '#pulpit' }, h('span.logo', '§'), h('b', APP_NAME), h('span.ver', 'v' + VERSIONS.app)), h('span.sub', 'panel administracyjny'), profileChip(), h('span.sp'), themeButton()),
     h('div.layout', nav, main));
   // kropka przy zakładce, w której trwa nauka
   onTraining(() => {

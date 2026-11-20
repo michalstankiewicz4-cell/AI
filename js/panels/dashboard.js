@@ -11,22 +11,45 @@ import { state } from '../core/training.js';
 import { openChat } from '../chat/widget.js';
 import { go } from '../main.js';
 import { listSources } from '../core/sources.js';
+import { listProfiles, activeProfile, setActiveProfile, deleteProfile, inProfile, TEMPLATES } from '../core/profiles.js';
+import { setActive } from '../core/models.js';
+import { profileEditor } from '../ui/modals/profile-editor.js';
+import { tagChips } from '../ui/tags.js';
+import { confirmBox, toast } from '../ui/dom.js';
+
+// karta profilu: wybór (albo „Wszystkie profile”), opis, kategorie, szablon sieci
+function profileCard(counts) {
+  const p = activeProfile(), list = listProfiles();
+  const switchTo = async id => { await setActiveProfile(id || null, { setActiveModel: setActive }); window.dispatchEvent(new Event('datachange')); };
+  const sel = h('select', { 'aria-label': 'Profil', onchange: () => switchTo(sel.value) }, h('option', { value: '', selected: !p }, 'Wszystkie profile'), ...list.map(x => h('option', { value: x.id, selected: p && p.id === x.id }, x.name)));
+  return h('section.card.profilecard' + (p ? '.on' : ''),
+    h('div.row.wrap', h('h2', 'Profil', help('Profil to osobny przebieg pracy dla jednej dziedziny na wspólnej bibliotece: dokumenty i rozmowy z jego kategorii, własne ustawienia nauki i dostrajania (z szablonu sieci), własne modele i aktywny model w czacie. „Wszystkie profile” = cała biblioteka i wszystkie modele.', 'profile')), sel, h('span.sp'),
+      h('button.ghost.small', { type: 'button', onclick: () => profileEditor(null, async (np) => { await switchTo(np.id); }) }, 'Nowy profil'),
+      p ? h('button.ghost.small', { type: 'button', onclick: () => profileEditor(p, () => window.dispatchEvent(new Event('datachange'))) }, 'Edytuj profil') : null,
+      p ? h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć profil?', `Profil „${p.name}” zniknie. Dokumenty, rozmowy i modele zostają w bibliotece.`, 'Usuń', true)) { await deleteProfile(p.id); window.dispatchEvent(new Event('datachange')); } } }, 'Usuń profil') : null),
+    p ? h('div', p.description ? h('p.note', p.description) : null,
+      h('div.row.wrap', h('span.note', 'Kategorie:'), ...tagChips(p.tags), p.general !== false ? h('span.badge.gen', '+ tekst ogólny') : null),
+      h('p.note', `Szablon sieci: ${TEMPLATES[p.template].label} (${TEMPLATES[p.template].note}). Dokumentów profilu: ${num(counts.docs)} z ${num(counts.allDocs)}, modeli profilu: ${num(counts.models)}. Wszystkie zakładki działają teraz w tym profilu.`))
+      : h('p.note', list.length ? 'Pokazuję całą bibliotekę i wszystkie modele. Wybierz profil, żeby pracować nad jedną dziedziną.' : 'Utwórz profil dla dziedziny (np. „Prawo pracy”): wybierasz kategorie dokumentów i szablon sieci, a zakładki pokazują tylko to, co do niego należy.'));
+}
 
 export default {
   id: 'pulpit', title: 'Pulpit', icon: '🏠',
   async render(root) {
     root.append(h('header.ph', h('h1', 'Pulpit'), h('p', 'AI uczone w przeglądarce: najpierw czyta dokumenty prawne, potem uczy się odpowiadać na rozmowach wzorcowych, a z każdej rozmowy w czacie możesz je dalej uczyć. ', h('a', { href: '#pomoc/krok-po-kroku' }, 'Krok po kroku w Pomocy →'))));
-    const [c, ds, models, active, convs, g, docs] = await Promise.all([corpusText(), trainingDialogs(), listMeta(), getActive(), listConversations(), gpuInfo(), listDocs()]);
+    const [c, ds, allModels, active, convs, g, allDocs] = await Promise.all([corpusText(), trainingDialogs(), listMeta(), getActive(), listConversations(), gpuInfo(), listDocs()]);
+    const prof = activeProfile(), docs = allDocs.filter(d => inProfile(d)), models = prof ? allModels.filter(m => m.profileId === prof.id) : allModels;
     const srcs = await listSources(), checked = srcs.filter(s => s.last);
     // nowe dokumenty znalezione przy ostatnim sprawdzeniu źródeł (linki na stronach + akty z API, nowe i zmienione)
     const found = checked.reduce((a, s) => a + (s.last.links ? s.last.links.filter(l => !l.have).length : 0) + (s.last.acts ? s.last.acts.filter(x => !x.have || x.changed).length : 0), 0);
     const broken = checked.filter(s => !s.last.ok).length;
     const toCheck = docs.filter(d => d.status === 'do-sprawdzenia').length;
-    const am = models.find(m => m.id === active), todo = convs.reduce((a, x) => a + unreviewed(x), 0);
+    const am = allModels.find(m => m.id === active), todo = convs.reduce((a, x) => a + unreviewed(x), 0);
     const ready = convs.filter(x => !x.dialogId && x.messages.some(m => m.role === 'bot' && (m.status === 'ok' || m.status === 'corrected'))).length;
     const step = (n, title, text, done, btn, target, stage) => h('article.step' + (done ? '.done' : '') + (stage ? '.stage' + stage : ''), { title: { 2: 'Dokumenty, formatowanie i nauka języka', 3: 'Rozmowy wzorcowe i nauka odpowiadania' }[stage] || null },
       h('span.num', done ? '✓' : n), h('div', h('h3', title), h('p', text)), h('button' + (done ? '.ghost' : ''), { type: 'button', onclick: () => target === 'chat' ? openChat() : go(target) }, btn));
     root.append(
+      profileCard({ docs: docs.length, allDocs: allDocs.length, models: models.length }),
       h('div.stagelegend', h('span', 'Źródła'), h('span.stage2', 'Dokumenty, formatowanie i nauka'), h('span.stage3', 'Rozmowy i dostrajanie'), h('span', 'Rozmowa i douczanie')),
       h('section.steps',
         step(1, 'Research', srcs.length ? `${num(srcs.length)} ${plural(srcs.length, 'źródło', 'źródła', 'źródeł')}` + (checked.length ? `; do pobrania: ${num(found)}` + (broken ? `, niedostępne: ${num(broken)}` : '') : '; jeszcze nie sprawdzane') : 'Źródła dokumentów: strony www, API aktów prawnych.', srcs.length > 0 && checked.length > 0 && !found, 'Research', 'research'),

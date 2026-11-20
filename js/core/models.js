@@ -1,4 +1,5 @@
 // Modele: zapis w bazie, aktywny model czatu, eksport/import pliku i format publikacji.
+import { activeProfile } from './profiles.js';
 import { log } from './log.js';
 //
 // Rekord w bazie (magazyn „models”):
@@ -16,7 +17,7 @@ const changed = () => listeners.forEach(f => f());
 export async function listModels() { return (await db.all('models')).sort((a, b) => b.createdAt - a.createdAt); }
 // Lista bez wag (lżejsza do wyświetlania)
 export async function listMeta() { return (await listModels()).map(({ record, ...m }) => ({ ...m, params: record.params })); }
-export async function saveModel(m) { await db.put('models', m); changed(); }
+export async function saveModel(m) { if (m.profileId === undefined) m.profileId = (activeProfile() || {}).id || null; await db.put('models', m); changed(); }
 export async function deleteModel(id) { const m = await db.get('models', id); log('info', 'modele', `Usunięto model „${m ? m.name : id}”`); await db.del('models', id); if (await getActive() === id) await setActive(null); changed(); }
 export async function renameModel(id, name) { const m = await db.get('models', id); m.name = name; await db.put('models', m); changed(); }
 export const getActive = () => db.kvGet('activeModel');

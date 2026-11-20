@@ -6,6 +6,7 @@ import { saveModel, nextName, bitsPerChar } from './models.js';
 import { VERSIONS } from '../version.js';
 import { uid } from './db.js';
 import { log } from './log.js';
+import { activeProfile } from './profiles.js';
 
 const NAME = { base: 'nauka', chat: 'dostrajanie' }, area = () => NAME[state.lastKind] || 'nauka';
 
@@ -30,7 +31,7 @@ on('done', async m => {
   state.sample = m.sample; state.last = m;
   const cpt = m.cpt || (state.data && state.data.cpt) || 1;
   const model = {
-    id: j.newId, name: await nextName(j.kind), kind: j.kind, parent: j.from || null, createdAt: Date.now(),
+    id: j.newId, name: await nextName(j.kind), kind: j.kind, parent: j.from || null, createdAt: Date.now(), profileId: (activeProfile() || {}).id || null,
     versions: { app: VERSIONS.app, engine: VERSIONS.engine, cleaner: VERSIONS.cleaner },
     hp: m.record.hp,
     metrics: { val: m.val, train: m.train, bpc: bitsPerChar(m.val, cpt), cpt, steps: m.step, bestStep: m.bestStep, restored: m.restored, stopped: m.stopped, device: m.device, ms: m.ms, seconds: Math.round(m.elapsed / 1000), ownVal: m.ownVal },

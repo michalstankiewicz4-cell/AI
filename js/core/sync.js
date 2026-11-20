@@ -15,6 +15,7 @@ import { dialogToText } from '../cleaner/dialogs.js';
 import { fetchPublished } from './github.js';
 import { listSources } from './sources.js';
 import { userPacks } from './packs.js';
+import { profilesData, loadProfiles } from './profiles.js';
 import { VERSIONS } from '../version.js';
 
 export const PARTS = {
@@ -24,14 +25,15 @@ export const PARTS = {
   conversations: { file: 'data/historia-rozmow.json', label: 'Historia rozmów', store: 'conversations' },
   sources: { file: 'data/zrodla.json', label: 'Źródła (Research)', store: 'sources' },
   packs: { file: 'data/pakiety.json', label: 'Własne pakiety', kv: 'userPacks' },
+  profiles: { file: 'data/profile.json', label: 'Profile', kv: 'profiles' },
 };
 
 // Wszystko, co może pójść na GitHub (pełne rekordy, żeby dało się je odtworzyć 1:1)
 export async function collect() {
-  const [documents, dialogs, conversations, sources, packs] = await Promise.all([listDocs(), listDialogs(), listConversations(), listSources(), userPacks()]);
+  const [documents, dialogs, conversations, sources, packs, profiles] = await Promise.all([listDocs(), listDialogs(), listConversations(), listSources(), userPacks(), profilesData()]);
   return {
     settings: settings(), versions: { ...VERSIONS },
-    documents, dialogs, conversations, sources, packs,
+    documents, dialogs, conversations, sources, packs, profiles,
     dialogsText: dialogs.filter(d => !d.draft).reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n',
   };
 }
@@ -54,6 +56,11 @@ async function restoreRaw(pub, what, replace, res, from) {
     const d = defaults(), s = pub.settings.settings || {};
     for (const g in d) Object.assign(d[g], s[g] || {});        // nowe pola z tej wersji panelu zostają z domyślnymi wartościami
     await saveSettings(d); res.settings = { replaced: 1 };
+  }
+  if (what.profiles && pub.profiles) {
+    const own = await profilesData(), ids = new Set(own.map(p => p.id)), r = { added: 0, replaced: 0, skipped: 0 };
+    for (const p of pub.profiles.profiles || []) { if (!p || !p.id) continue; if (ids.has(p.id)) { if (replace) { own.splice(own.findIndex(x => x.id === p.id), 1, p); r.replaced++; } else r.skipped++; } else { own.push(p); r.added++; } }
+    await db.kvSet('profiles', own); await loadProfiles(); res.profiles = r;
   }
   if (what.packs && pub.packs) {
     const own = await userPacks(), ids = new Set(own.map(p => p.id)), r = { added: 0, replaced: 0, skipped: 0 };

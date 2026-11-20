@@ -10,11 +10,12 @@ import { go } from '../main.js';
 import { formatStatsModal } from '../ui/modals/format-stats.js';
 import { tagEditor, tagFilter } from '../ui/tags.js';
 import { tagCounts, hasTags } from '../core/documents.js';
+import { profileScope } from '../ui/scope.js';
 
 export default {
   id: 'dokumenty', title: 'Dokumenty', stage: 2, icon: '📄',
   render(root) {
-    const list = h('div'), stats = h('p.note'), filterBox = h('div'), selTags = new Set();
+    const list = h('div'), stats = h('p.note'), filterBox = h('div'), selTags = new Set(), scope = profileScope('dokumenty', () => draw());
     const prog = h('div.readprog', { hidden: true }, h('p.status'), h('div.progress', h('div.fill')));
     const search = h('input', { type: 'search', placeholder: 'Szukaj po nazwie i opisie…', oninput: () => draw() });
     root.append(
@@ -27,7 +28,7 @@ export default {
           h('span.note', 'Word (.docx), OpenDocument (.odt), RTF, PDF, obrazy (OCR), .txt, .md, .html.'),
           help('Każdy dokument ma ikonkę rodzaju, nazwę, datę i opis. Skany w PDF i zdjęcia przechodzą przez OCR, który sam obraca strony leżące bokiem lub do góry nogami i prostuje przekrzywione.', 'dokumenty')),
         prog),
-      h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), stats, h('div.row', filterBox, help('Kategorie (plakietki) dokumentu: część dostaje sam według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, „nieaktualny” przy nowszej wersji aktu), resztę dopisujesz w polu „+ kategoria”. Kliknięcie kategorii tutaj filtruje bibliotekę; kilka zaznaczonych = dokumenty, które mają je wszystkie.', 'kategorie')), list));
+      h('section.card', h('div.row', h('h2', 'Biblioteka'), h('span.sp'), search), scope.el, stats, h('div.row', filterBox, help('Kategorie (plakietki) dokumentu: część dostaje sam według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, „nieaktualny” przy nowszej wersji aktu), resztę dopisujesz w polu „+ kategoria”. Kliknięcie kategorii tutaj filtruje bibliotekę; kilka zaznaczonych = dokumenty, które mają je wszystkie.', 'kategorie')), list));
 
     async function addFiles() {
       const files = await pickFiles(ACCEPT, true); let n = 0; const done = [];
@@ -65,7 +66,7 @@ export default {
     }
 
     async function draw() {
-      const docs = await listDocs(), q = search.value.trim().toLowerCase();
+      const docs = scope.filter(await listDocs()), q = search.value.trim().toLowerCase();
       const by = s => docs.filter(d => d.status === s).length;
       stats.textContent = docs.length
         ? `${num(docs.length)} ${plural(docs.length, 'dokument', 'dokumenty', 'dokumentów')}: zatwierdzone ${num(by('zatwierdzony'))}, do sprawdzenia ${num(by('do-sprawdzenia'))}, odrzucone ${num(by('odrzucony'))}.`

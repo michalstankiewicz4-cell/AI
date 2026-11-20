@@ -3,7 +3,9 @@
 
 import { h, help, toast, confirmBox, modal, pickFiles, num, date, clear, download, plural } from '../ui/dom.js';
 import { parseDialogs, dialogToText } from '../cleaner/dialogs.js';
-import { listDialogs, makeDialog, saveDialog, deleteDialog } from '../core/dialogs.js';
+import { listDialogs, makeDialog, saveDialog, deleteDialog, dialogInProfile } from '../core/dialogs.js';
+import { profileScope } from '../ui/scope.js';
+import { tagChips } from '../ui/tags.js';
 import { settings, saveSettings, cleanerOpts, tags } from '../core/settings.js';
 import { fieldsForm } from '../ui/form.js';
 import { dialogEditor } from '../ui/dialog-editor.js';
@@ -12,7 +14,7 @@ import { db } from '../core/db.js';
 export default {
   id: 'rozmowy-wzorcowe', title: 'Rozmowy wzorcowe', stage: 3, icon: '💬',
   render(root) {
-    const listBox = h('div'), stats = h('p.note');
+    const listBox = h('div'), stats = h('p.note'), scope = profileScope('rozmowy', () => drawList(), d => dialogInProfile(d));
     const search = h('input', { type: 'search', placeholder: 'Szukaj w rozmowach…', oninput: () => drawList() });
     const onlyDrafts = h('input', { type: 'checkbox', onchange: () => drawList() }), draftsBox = h('label.check', { hidden: true }, onlyDrafts, ' tylko do uzupełnienia ', help('Pytania dodane z pakietu tematycznego bez odpowiedzi. Kliknij „Uzupełnij”, dopisz odpowiedź i zapisz – rozmowa trafi do dostrajania. Do tego czasu jest pomijana.', 'pytania-pakietu'));
     root.append(
@@ -25,7 +27,7 @@ export default {
           h('button.ghost', { type: 'button', onclick: exportFile }, 'Pobierz jako plik'),
           help(`Format pliku .txt: każda kwestia w osobnej linii, zaczyna się znacznikiem („${settings().general.userTag}” albo „${settings().general.botTag}”), rozmowy oddzielone pustą linią. Szczegóły w Pomocy.`, 'format-pliku'))),
       h('details.card.settings', h('summary', h('b', 'Ustawienia rozmów wzorcowych')), fieldsForm('cleaner', settings().cleaner, { only: ['maxAnswer'], onChange: () => saveSettings(settings()) })),
-      h('section.card', h('div.row', h('h2', 'Zestaw'), h('span.sp'), draftsBox, search), stats, listBox));
+      h('section.card', h('div.row', h('h2', 'Zestaw'), h('span.sp'), draftsBox, search), scope.el, stats, listBox));
 
     function addManual() {
       const close = modal('Nowa rozmowa wzorcowa', dialogEditor([], async turns => {
@@ -51,7 +53,7 @@ export default {
       download('rozmowy-wzorcowe.txt', all.filter(d => !d.draft).reverse().map(d => dialogToText(d.turns, tags())).join('\n\n') + '\n', 'text/plain;charset=utf-8');
     }
     async function drawList() {
-      const all = await listDialogs(), q = search.value.trim().toLowerCase();
+      const all = scope.filter(await listDialogs()), q = search.value.trim().toLowerCase();
       const on = all.filter(d => d.enabled && !d.draft).length, drafts = all.filter(d => d.draft).length;
       stats.textContent = all.length ? `${num(all.length)} ${plural(all.length, 'rozmowa', 'rozmowy', 'rozmów')}, do dostrajania: ${num(on)}.` + (drafts ? ` Do uzupełnienia (pytania z pakietów bez odpowiedzi): ${num(drafts)}.` : '') : 'Zestaw jest pusty.';
       if (!drafts) onlyDrafts.checked = false; draftsBox.hidden = !drafts;
@@ -59,7 +61,7 @@ export default {
       clear(listBox);
       listBox.append(...shown.slice(0, 300).map(d => h('article.dialog' + (d.enabled && !d.draft ? '' : '.off'),
         h('div.row', h('input', { type: 'checkbox', checked: d.enabled && !d.draft, disabled: !!d.draft, title: d.draft ? 'Najpierw dopisz odpowiedź' : null, 'aria-label': 'Używaj w dostrajaniu', onchange: async e => { d.enabled = e.target.checked; await saveDialog(d); drawList(); } }),
-          h('span.badge', d.source), d.pack ? h('span.tag', d.pack) : null, d.draft ? h('span.badge.st-do-sprawdzenia', 'do uzupełnienia') : null, h('span.note', date(d.addedAt)), h('span.sp'),
+          h('span.badge', d.source), ...tagChips(d.tags), d.draft ? h('span.badge.st-do-sprawdzenia', 'do uzupełnienia') : null, h('span.note', date(d.addedAt)), h('span.sp'),
           h('button.ghost.small', { type: 'button', onclick: () => {
             const close = modal('Edycja rozmowy', dialogEditor(d.turns, async turns => {
               try { const n = makeDialog(turns, d.source); Object.assign(d, { turns: n.turns, cleanerVersion: n.cleanerVersion }); if (d.draft) { delete d.draft; d.enabled = true; } await saveDialog(d); close(); drawList(); } catch (e) { toast(e.message, 'error'); }

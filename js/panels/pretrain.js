@@ -2,6 +2,7 @@
 // Od zera (nowy słownik i budowa sieci) albo dalsza nauka istniejącego modelu na nowym/powiększonym zbiorze.
 
 import { h, help, toast, num, clear, plural } from '../ui/dom.js';
+import { activeProfile } from '../core/profiles.js';
 import { fieldsForm } from '../ui/form.js';
 import { trainView } from '../ui/trainview.js';
 import { settings, saveSettings, tags } from '../core/settings.js';
@@ -26,7 +27,7 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Nauka na dokumentach'),
         h('p', 'Krok 1. Sieć czyta zatwierdzone dokumenty i uczy się przewidywać kolejny kawałek tekstu. Tak poznaje słownictwo, składnię i strukturę przepisów. Nie umie jeszcze rozmawiać — tego uczy dostrajanie (krok 2).')),
-      h('section.card', h('h2', 'Dane', help('Włączone dokumenty z zakładki „Dokumenty”. 90% tekstu służy do nauki, 10% do sprawdzania postępów.', 'nauka-dane')), corpusInfo, gpuLine),
+      h('section.card', h('h2', 'Dane', help('Włączone dokumenty z zakładki „Dokumenty”. 90% tekstu służy do nauki, 10% do sprawdzania postępów.', 'nauka-dane')), (() => { const p = activeProfile(); return p ? h('div.scope', h('b', 'Profil: ' + p.name), h('span', `uczy się tylko na dokumentach z kategorii: ${p.tags.join(', ')}${p.general !== false ? ' (+ tekst ogólny)' : ''}; ustawienia poniżej i szablon sieci należą do profilu, a model zapisze się w profilu.`)) : null; })(), corpusInfo, gpuLine),
       h('section.card',
         h('h2', 'Rodzaj nauki'),
         h('div.seg', { role: 'radiogroup' },

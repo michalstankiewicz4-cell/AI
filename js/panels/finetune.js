@@ -2,6 +2,7 @@
 // Można dostrajać model bazowy albo już dostrojony (kolejne rundy po dodaniu nowych rozmów).
 
 import { h, help, toast, num, clear, plural } from '../ui/dom.js';
+import { activeProfile } from '../core/profiles.js';
 import { fieldsForm } from '../ui/form.js';
 import { trainView } from '../ui/trainview.js';
 import { settings, saveSettings, tags } from '../core/settings.js';
@@ -28,7 +29,7 @@ export default {
     root.append(
       h('header.ph', h('h1', 'Dostrajanie do rozmowy'),
         h('p', 'Krok 2. Model uczy się odpowiadać na rozmowach wzorcowych. Można powtarzać: po dodaniu nowych rozmów (np. poprawionych z historii czatu) dostrój ponownie — od modelu bazowego albo od ostatniego dostrojonego. Najlepiej na całym zestawie, nie tylko na nowych rozmowach, żeby sieć nie zapomniała wcześniejszych odpowiedzi.')),
-      h('section.card', h('h2', 'Dane', help('Włączone rozmowy wzorcowe. Przed dostrajaniem są tasowane, a część (ustawienie „Rozmowy do sprawdzania”) odkładana do pomiaru.', 'finetune-dane')), info),
+      h('section.card', h('h2', 'Dane', help('Włączone rozmowy wzorcowe. Przed dostrajaniem są tasowane, a część (ustawienie „Rozmowy do sprawdzania”) odkładana do pomiaru.', 'finetune-dane')), (() => { const p = activeProfile(); return p ? h('div.scope', h('b', 'Profil: ' + p.name), h('span', `rozmowy z kategorii: ${p.tags.join(', ')} oraz rozmowy bez kategorii (wspólne); ustawienia dostrajania należą do profilu, a model zapisze się w profilu.`)) : null; })(), info),
       h('section.card', h('h2', 'Od którego modelu', help('Model bazowy (po nauce na dokumentach) albo już dostrojony. Budowa sieci i słownik zostają takie jak w wybranym modelu.', 'od-ktorego-modelu')), fromBox,
         fieldsForm('finetune', hp, { onChange: () => saveSettings(s) }),
         h('div.row', startBtn)),

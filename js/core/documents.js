@@ -6,6 +6,7 @@ import { cleanerOpts, settings } from './settings.js';
 import { VERSIONS } from '../version.js';
 import { ocrSummary } from '../reader/index.js';
 import { log } from './log.js';
+import { inProfile, profileTags } from './profiles.js';
 
 // rekord: { id, name, type: 'text'|'html'|'markdown'|'docx'|'odt'|'rtf'|'pdf'|'obraz'|'wklejony', encoding, size, addedAt, description, raw,
 //           ocr?: { pages: [{ page, method: 'tekst'|'OCR', rotation, skew, confidence }] },                      ← wgrany plik
@@ -57,7 +58,7 @@ export async function textHash(t) { const b = await crypto.subtle.digest('SHA-25
 export async function addDoc({ name, type = 'text', encoding = 'UTF-8', raw, size = null, description = '', ocr = null, sourceUrl = '', eli = null, sourceChangeDate = null, general = false, tags = [] }) {
   const older = eli ? (await listDocs()).filter(d => d.eli === eli) : [];
   const doc = format({ id: uid('d_'), name, type, encoding, size, raw, description, ocr, sourceUrl, eli, sourceChangeDate, general: !!general, rawHash: await textHash(raw), addedAt: Date.now(), status: 'do-sprawdzenia', enabled: true });
-  doc.tags = mergeTags(autoTags(doc), tags);
+  doc.tags = mergeTags(autoTags(doc), tags, profileTags());   // nowy dokument należy też do wybranego profilu
   await db.put('documents', doc);
   if (older.length) await markOutdated(older, `jest nowsza wersja (${eli})`);
   log('info', 'dokumenty', `Dodano dokument „${name}” (${type}, ${raw.length} znaków${general ? ', tekst ogólny' : ''}${sourceUrl ? ', ze źródła' : ''})`, sourceUrl || null);
@@ -94,7 +95,7 @@ export function mixCorpus(docs, share = 20) {
 }
 // Tekst do nauki: zatwierdzone i włączone dokumenty, od najstarszego, rozdzielone pustą linią
 export async function corpusText(share = (settings() && settings().pretrain.generalShare) ?? 20) {
-  const docs = (await listDocs()).filter(d => d.status === 'zatwierdzony' && d.enabled).reverse();
+  const docs = (await listDocs()).filter(d => d.status === 'zatwierdzony' && d.enabled && inProfile(d)).reverse();   // tylko dokumenty wybranego profilu
   return mixCorpus(docs, share);
 }
 

@@ -2,6 +2,12 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.11.0 – 2026-11-14
+
+- **Profile** na wspólnej bibliotece: wybór na Pulpicie (karta „Profil”, nazwa w górnym pasku), „Wszystkie profile” jako widok całości. Profil ma kategorie dokumentów (opcjonalnie z tekstem ogólnym), szablon sieci jeszcze niewyuczonej (mała / średnia / duża), własne ustawienia nauki i dostrajania oraz własne modele i aktywny model w czacie.
+- Przy wybranym profilu: Dokumenty, Formatowanie, Rozmowy wzorcowe i Modele pokazują jego zawartość (pasek „Profil: …” z „Pokaż wszystko”); Nauka uczy się tylko na dokumentach profilu, Dostrajanie na jego rozmowach (i wspólnych bez kategorii); nowe dokumenty, rozmowy i modele należą do profilu same. Pulpit liczy dokumenty i modele profilu.
+- Profile w pliku z danymi i w publikacji na GitHub (`data/profile.json`).
+
 ## 0.10.0 – 2026-11-14
 
 - **Kategorie dokumentów** (plakietki): nadawane same według pochodzenia (akt prawny, orzeczenie, Wikipedia, stenogram Sejmu, nazwa pakietu, kategorie źródła) i dopisywane ręcznie; filtr kategorii z liczbami w Dokumentach i Formatowaniu.

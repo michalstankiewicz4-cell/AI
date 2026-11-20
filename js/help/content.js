@@ -37,6 +37,29 @@ export const SECTIONS = [
     ]],
     ['tip', 'Kroki 1–4 robisz rzadko (gdy przybywa dokumentów). Kroki 5–8 powtarzasz często: to codzienne douczanie. Kolory w menu: fioletowy – dokumenty, formatowanie i nauka; zielony – rozmowy wzorcowe i dostrajanie. Gdy coś nie działa, zajrzyj do Logów: tam widać, kiedy i przy czym pojawił się błąd.'],
   ] },
+  { id: 'profile', group: 'Start', title: 'Profile: jedna dziedzina, osobny przebieg', topics: ['profile'], body: [
+    ['p', '<b>Profil</b> to osobny przebieg pracy dla jednej dziedziny (np. „Prawo pracy”) na <b>wspólnej bibliotece</b>. Wybierasz go na Pulpicie; nazwa wybranego profilu jest w górnym pasku. „Wszystkie profile” = cała biblioteka, wszystkie rozmowy i modele.'],
+    ['table', ['Profil ma', 'Co to znaczy'], [
+      ['kategorie dokumentów', 'do profilu należą dokumenty z choć jedną z tych kategorii (i tekst ogólny, jeśli zaznaczysz); nowe dokumenty dodane przy wybranym profilu dostają jego kategorie same'],
+      ['szablon sieci', 'gotowa budowa jeszcze niewyuczonej sieci: mała (ok. 1 mln parametrów), średnia (3–4 mln), duża (7–8 mln) – z liczbą kroków nauki'],
+      ['własne ustawienia nauki i dostrajania', 'przełączenie profilu zapamiętuje je i wczytuje ustawienia wybranego'],
+      ['własne modele i aktywny model', 'model zapisuje się w profilu, w którym powstał; czat odpowiada aktywnym modelem profilu'],
+    ]],
+    ['table', ['Zakładka przy wybranym profilu', ''], [
+      ['Dokumenty, Formatowanie', 'tylko dokumenty profilu (pasek „Profil: …” z przyciskiem „Pokaż wszystko”)'],
+      ['Nauka', 'uczy się tylko na zatwierdzonych dokumentach profilu, z ustawieniami profilu'],
+      ['Rozmowy wzorcowe, Dostrajanie', 'rozmowy z kategoriami profilu i rozmowy bez kategorii (wspólne); nowe rozmowy dostają kategorie profilu'],
+      ['Modele', 'modele profilu („Pokaż wszystko” – wszystkie)'],
+      ['Research', 'bez zmian; pobrane dokumenty dostają kategorie profilu'],
+    ]],
+    ['steps', [
+      ['Nowy profil', 'Pulpit → „Nowy profil”: nazwa, kategorie (np. „Prawo pracy” z pakietu), szablon sieci.'],
+      ['Dane', 'Research → pakiet, Dokumenty, Formatowanie – wszystko w profilu.'],
+      ['Nauka i dostrajanie', 'jak zwykle; model trafia do profilu i staje się jego aktywnym modelem po „Ustaw jako aktywny”.'],
+      ['Inny profil', 'wybór na Pulpicie przełącza ustawienia, listy i model w czacie.'],
+    ]],
+    ['tip', 'Ten sam dokument może należeć do kilku profili (wystarczy, że ma kategorie obu) – nie trzeba go kopiować. Usunięcie profilu nie usuwa dokumentów, rozmów ani modeli.'],
+  ] },
   { id: 'panel', group: 'Start', title: 'Panel: menu, pulpit, kolory, czat, motyw', topics: ['panel', 'menu', 'motyw', 'kolory'], body: [
     ['table', ['Element', 'Co to'], [
       ['Pulpit', 'kafelki kroków 1–7 ze stanem (ile źródeł, dokumentów, modeli, rozmów do oceny) i przyciskiem do danego kroku'],

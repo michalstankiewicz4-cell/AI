@@ -9,11 +9,13 @@ import { githubImportModal, addModelConfirm } from '../ui/modals/github-import.j
 import { db } from '../core/db.js';
 import { go } from '../main.js';
 import { netView } from '../ui/netview.js';
+import { profileScope } from '../ui/scope.js';
+import { activeProfile, listProfiles } from '../core/profiles.js';
 
 export default {
   id: 'modele', title: 'Modele', icon: '📦',
   render(root) {
-    const listBox = h('div');
+    const listBox = h('div'), scope = profileScope('modele', () => draw(), m => m.profileId === (activeProfile() || {}).id), scopeBox = h('section.card', scope.el);
     root.append(
       h('header.ph', h('h1', 'Modele'),
         h('p', 'Każda nauka i każde dostrajanie zapisuje nową wersję modelu. Aktywny model odpowiada w czacie. Model można pobrać jako plik albo opublikować na GitHub (repo z ustawień), skąd będzie dostępny pod adresem GitHub Pages — np. dla przyszłej integracji z PiK.')),
@@ -21,17 +23,19 @@ export default {
         h('button.ghost', { type: 'button', onclick: importFile }, 'Wczytaj z pliku'),
         h('button.ghost', { type: 'button', onclick: () => githubImportModal() }, 'Wczytaj z GitHub'),
         help('Pobiera opublikowane modele i dane (ustawienia, dokumenty, rozmowy) bez tokenu. Przenosi pracę na inny komputer.', 'wczytaj-z-github'))),
-      listBox);
+      scopeBox, listBox);
 
     async function draw() {
-      const all = await listModels(), active = await getActive(), names = Object.fromEntries(all.map(m => [m.id, m.name]));
+      const everything = await listModels(), all = scope.filter(everything); scopeBox.hidden = !activeProfile();
+      const profName = id => (listProfiles().find(p => p.id === id) || {}).name;
+      const active = await getActive(), names = Object.fromEntries(everything.map(m => [m.id, m.name]));
       clear(listBox);
       if (!all.length) { listBox.append(h('section.card', h('p', 'Nie ma jeszcze modeli. '), h('button', { type: 'button', onclick: () => go('nauka') }, 'Przejdź do nauki'))); return; }
       listBox.append(...all.map(m => {
         const me = m.metrics || {};
         return h('section.card.model' + (m.id === active ? '.active' : ''),
           h('div.row.wrap',
-            h('h2', m.name), h('span.badge', m.kind === 'base' ? 'bazowy' : 'dostrojony'), m.id === active ? h('span.badge.ok', 'aktywny w czacie') : null,
+            h('h2', m.name), h('span.badge', m.kind === 'base' ? 'bazowy' : 'dostrojony'), m.profileId && profName(m.profileId) ? h('span.tag', 'profil: ' + profName(m.profileId)) : null, m.id === active ? h('span.badge.ok', 'aktywny w czacie') : null,
             m.published ? h('span.badge', { title: `Opublikowano ${date(m.published.at)}` }, 'na GitHub') : null, h('span.sp'), h('span.note', date(m.createdAt))),
           h('dl.metrics.inline',
             h('dt', 'Bity na znak', help('Na tekście sprawdzającym (dokumenty albo rozmowy odłożone na bok). Mniej = lepiej. Porównuj modele tego samego rodzaju.', 'bity-na-znak')), h('dd', dec(me.bpc, 2)),
