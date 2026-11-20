@@ -49,6 +49,8 @@ export const db = {
   count: store => tx(store, 'readonly', s => s.count()),
   kvGet: key => tx('kv', 'readonly', s => s.get(key)),
   kvSet: (key, val) => tx('kv', 'readwrite', s => s.put(val, key)),
+  // reset: czyści wszystkie magazyny i ustawienia (kv); localStorage – token GitHub i motyw – zostaje
+  clearAll: async () => { for (const s of [...STORES, 'kv']) await tx(s, 'readwrite', st => st.clear()); },
 };
 
 export const uid = (p = '') => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);

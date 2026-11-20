@@ -136,6 +136,19 @@ ok(bad === 0, 'wszystkie dymki [?] mieszczą się na ekranie');
 await p.click('.themebtn'); await p.reload(); await p.waitForTimeout(400);
 ok(await p.evaluate(() => document.documentElement.dataset.theme) === 'dark', 'motyw noc zapamiętany po odświeżeniu'); await shot('11-noc');
 
+console.log('Resetuj wszystko');
+await p.evaluate(() => localStorage.setItem('ai-prawo.githubToken', 'github_pat_TEST'));
+await p.goto(BASE + '#ustawienia'); await p.waitForSelector('button:text-is("Resetuj wszystko")');
+await p.click('button:text-is("Resetuj wszystko")'); await p.waitForSelector('dialog.modal >> text=Zresetować wszystko?');
+ok((await p.textContent('dialog.modal')).includes('dokumentów') && (await p.textContent('dialog.modal')).includes('Token GitHub i motyw zostają'), 'potwierdzenie resetu z liczbą dokumentów');
+await p.click('dialog.modal button:text-is("Anuluj")'); await p.waitForTimeout(200);
+ok(await p.evaluate(async () => (await (await import('./js/core/db.js')).db.count('documents')) > 0), '„Anuluj” niczego nie usuwa');
+await p.click('button:text-is("Resetuj wszystko")'); await p.click('dialog.modal button:text-is("Resetuj wszystko")');
+await p.waitForURL(/#pulpit/); await p.waitForTimeout(800);
+const after = await p.evaluate(async () => { const { db } = await import('./js/core/db.js'); const c = {}; for (const s of ['documents', 'dialogs', 'conversations', 'models', 'sources']) c[s] = await db.count(s); return { c, kv: await db.kvGet('profiles'), token: localStorage.getItem('ai-prawo.githubToken'), theme: document.documentElement.dataset.theme }; });
+ok(Object.values(after.c).every(n => n === 0) && !after.kv, 'po resecie baza pusta (dane, profile)');
+ok(after.token === 'github_pat_TEST' && after.theme === 'dark', 'token GitHub i motyw zostały');
+
 ok(!errors.length, 'brak błędów w konsoli' + (errors.length ? ': ' + errors.join(' | ') : ''));
 await browser.close(); server.close();
 console.log(fails ? `\n${fails} błędów` : '\nwszystko w porządku');

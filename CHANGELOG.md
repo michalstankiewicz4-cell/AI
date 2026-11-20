@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.15.0 – 2026-11-20
+
+- **Resetuj wszystko** (Ustawienia, na dole): usuwa z tej przeglądarki wszystkie dane (dokumenty, źródła, rozmowy wzorcowe, historię, modele, logi, profile, własne pakiety, grupy kategorii) i ustawienia, po potwierdzeniu z liczbą usuwanych rekordów; token GitHub i motyw zostają.
+
 ## 0.14.0 – 2026-11-20
 
 - **Tabela** (Formatowanie, nad listą): przepisy z aktów z bieżącej listy (paragraf albo ustęp w wierszu) albo rozmowy wzorcowe profilu (pytanie, odpowiedź, kwestie, źródło, stan). Sortowanie po kolumnie (numery artykułów jak liczby), szukanie, filtr problemu. Podświetlone problemy: pusty tekst, duplikat (z listą, gdzie jeszcze), brak licencji, zły odnośnik (artykuł, którego nie ma w akcie z biblioteki). Kliknięcie wiersza otwiera przepis w „Strukturze” albo rozmowę do edycji.

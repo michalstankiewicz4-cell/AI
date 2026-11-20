@@ -27,7 +27,7 @@ panels/ + chat/ + ui/  ──►  core/  ──►  engine/worker.js (wątek w t
 ### `js/core/` – logika bez interfejsu
 | Plik | Rola |
 |---|---|
-| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `sources`, `logs`, `kv` |
+| `db.js` | IndexedDB: `documents`, `dialogs`, `conversations`, `models`, `sources`, `logs`, `kv`; `clearAll` (reset bez ruszania localStorage) |
 | `settings.js` | `SCHEMA` (pola, opisy, wartości domyślne), zapis, opcje formatowania, znaczniki |
 | `ai.js` | klient wątku silnika: zapytania, zadania nauki, wczytywanie modeli do wątku |
 | `training.js` | stan nauki niezależny od zakładek; po zakończeniu zapisuje model |

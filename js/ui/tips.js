@@ -86,6 +86,7 @@ export const TIPS = {
   'Zapisz token': 'Zapisz token GitHub w tej przeglądarce (localStorage).',
   'Sprawdź dostęp': 'Sprawdź, czy token może zapisywać do repo i czy gałąź istnieje. Niczego nie zmienia.',
   'Usuń token': 'Usuń token GitHub z tej przeglądarki.',
+  'Resetuj wszystko': 'Usuń wszystkie dane i ustawienia z tej przeglądarki (z potwierdzeniem). Token GitHub i motyw zostają.',
   'Przywróć domyślne': 'Ustaw wszystkie ustawienia na wartości początkowe.',
   'Zapisz poprawkę': 'Zapisz poprawną odpowiedź. Trafi do rozmowy wzorcowej zamiast odpowiedzi sieci.',
   'Anuluj': 'Zamknij bez zmian.',

@@ -72,7 +72,7 @@ Rozmowy z czatu z ocenami. Filtry: wszystkie, do oceny, gotowe do zestawu. W okn
 Lista wersji z metrykami, budową, danymi i wersjami programu. Przyciski: ustaw jako aktywny, podgląd budowy (warstwy jako kolumny neuronów połączone prawdziwymi wagami), pobierz plik, opublikuj na GitHub (okno z checkboxami), zmień nazwę, usuń. Na górze „Wczytaj z pliku” i „Wczytaj z GitHub” (modele i dane).
 
 ## Ustawienia
-Ustawienia ogólne (nazwa asystenta, znaczniki rozmowy), GitHub (repo, gałąź, token, sprawdzenie dostępu, wczytaj z GitHub), dane w tej przeglądarce (liczby rekordów, zajęte miejsce), wersje, przywracanie ustawień domyślnych.
+Ustawienia ogólne (nazwa asystenta, znaczniki rozmowy), GitHub (repo, gałąź, token, sprawdzenie dostępu, wczytaj z GitHub), dane w tej przeglądarce (liczby rekordów, zajęte miejsce), wersje, przywracanie ustawień domyślnych, *Resetuj wszystko* (usuwa wszystkie dane i ustawienia z tej przeglądarki, z potwierdzeniem; token GitHub i motyw zostają).
 
 ## Logi
 Zdarzenia i błędy z czasem (do sekundy), ważnością, obszarem i wersją panelu, najnowsze na górze. Kolor według ważności: czerwony – błąd, złoty – ostrzeżenie, niebieski – informacja, szary – szczegóły (domyślnie ukryte). Filtry ważności z licznikami, wybór obszaru (np. nauka, research, github, zakładka …), wyszukiwanie, rozwijane szczegóły, *Pobierz logi* (.txt z widocznymi wpisami), *Wyczyść logi*. Nowe wpisy dochodzą na żywo. Logi są tylko w tej przeglądarce (najwyżej 5000).

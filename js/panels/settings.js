@@ -39,7 +39,13 @@ export default {
         h('dt', 'Program'), h('dd', VERSIONS.app), h('dt', 'Silnik sieci'), h('dd', VERSIONS.engine), h('dt', 'Reguły formatowania'), h('dd', VERSIONS.cleaner),
         h('dt', 'Format pliku modelu'), h('dd', String(VERSIONS.modelFormat)), h('dt', 'Schemat bazy'), h('dd', String(VERSIONS.db)))),
       h('section.card', h('div.row', h('span.note', 'Przywraca wartości domyślne wszystkich ustawień (token GitHub zostaje).'), h('span.sp'),
-        h('button.ghost.danger', { type: 'button', onclick: async () => { if (await confirmBox('Przywrócić ustawienia domyślne?', 'Wszystkie ustawienia wrócą do wartości początkowych.', 'Przywróć', true)) { await saveSettings(defaults()); rerender(); } } }, 'Przywróć domyślne'))));
+        h('button.ghost.danger', { type: 'button', onclick: async () => { if (await confirmBox('Przywrócić ustawienia domyślne?', 'Wszystkie ustawienia wrócą do wartości początkowych.', 'Przywróć', true)) { await saveSettings(defaults()); rerender(); } } }, 'Przywróć domyślne')),
+        h('div.row', h('span.note', 'Usuwa wszystkie dane z tej przeglądarki i przywraca stan początkowy programu. Token GitHub i motyw zostają.', help('Reset usuwa dokumenty, źródła, rozmowy wzorcowe, historię rozmów, modele, logi, profile, własne pakiety, grupy kategorii i ustawienia. Zostają token GitHub i motyw dzień/noc. Nie da się tego cofnąć – najpierw możesz zapisać dane do pliku albo opublikować je na GitHub. Reset nie przywraca rzeczy usuniętych wcześniej; wróci tylko to, co masz w pliku z danymi albo na GitHub.', 'dane-w-przegladarce')), h('span.sp'),
+          h('button.ghost.danger', { type: 'button', onclick: async () => {
+            const n = []; for (const [k, l] of [['documents', 'dokumentów'], ['dialogs', 'rozmów wzorcowych'], ['conversations', 'rozmów z czatu'], ['models', 'modeli'], ['sources', 'źródeł']]) { const c = await db.count(k); if (c) n.push(`${num(c)} ${l}`); }
+            if (!(await confirmBox('Zresetować wszystko?', `Zostanie usunięte z tej przeglądarki: ${n.length ? n.join(', ') : 'brak dokumentów, rozmów, modeli i źródeł'}, a także logi, profile, własne pakiety, grupy kategorii i ustawienia. Token GitHub i motyw zostają. Tego nie da się cofnąć – jeśli chcesz, najpierw „Zapisz dane do pliku”.`, 'Resetuj wszystko', true))) return;
+            await db.clearAll(); location.hash = '#pulpit'; location.reload();
+          } }, 'Resetuj wszystko'))));
 
     (async () => {
       for (const [k, l] of [['documents', 'Dokumenty'], ['dialogs', 'Rozmowy wzorcowe'], ['conversations', 'Rozmowy z czatu'], ['models', 'Modele'], ['sources', 'Źródła (Research)'], ['logs', 'Logi']]) counts.append(h('dt', l), h('dd', num(await db.count(k))));
