@@ -8,7 +8,7 @@ import { profileScope } from '../ui/scope.js';
 import { tagChips } from '../ui/tags.js';
 import { settings, saveSettings, cleanerOpts, tags } from '../core/settings.js';
 import { fieldsForm } from '../ui/form.js';
-import { dialogEditor } from '../ui/dialog-editor.js';
+import { dialogEditor, editDialogModal } from '../ui/dialog-editor.js';
 import { db } from '../core/db.js';
 
 export default {
@@ -62,11 +62,7 @@ export default {
       listBox.append(...shown.slice(0, 300).map(d => h('article.dialog' + (d.enabled && !d.draft ? '' : '.off'),
         h('div.row', h('input', { type: 'checkbox', checked: d.enabled && !d.draft, disabled: !!d.draft, title: d.draft ? 'Najpierw dopisz odpowiedź' : null, 'aria-label': 'Używaj w dostrajaniu', onchange: async e => { d.enabled = e.target.checked; await saveDialog(d); drawList(); } }),
           h('span.badge', d.source), ...tagChips(d.tags), d.draft ? h('span.badge.st-do-sprawdzenia', 'do uzupełnienia') : null, h('span.note', date(d.addedAt)), h('span.sp'),
-          h('button.ghost.small', { type: 'button', onclick: () => {
-            const close = modal('Edycja rozmowy', dialogEditor(d.turns, async turns => {
-              try { const n = makeDialog(turns, d.source); Object.assign(d, { turns: n.turns, cleanerVersion: n.cleanerVersion }); if (d.draft) { delete d.draft; d.enabled = true; } await saveDialog(d); close(); drawList(); } catch (e) { toast(e.message, 'error'); }
-            }));
-          } }, d.draft ? 'Uzupełnij' : 'Edytuj'),
+          h('button.ghost.small', { type: 'button', onclick: () => editDialogModal(d, () => drawList()) }, d.draft ? 'Uzupełnij' : 'Edytuj'),
           h('button.ghost.small.danger', { type: 'button', onclick: async () => { if (await confirmBox('Usunąć rozmowę?', d.turns[0].text, 'Usuń', true)) { await deleteDialog(d.id); drawList(); } } }, 'Usuń')),
         d.turns.map(t => h('p.turnline.' + t.role, h('b', t.role === 'user' ? settings().general.userTag : settings().general.botTag), ' ', t.text || h('span.note', '(odpowiedź do dopisania)'))))));
       if (shown.length > 300) listBox.append(h('p.note', `Pokazano 300 z ${num(shown.length)}. Zawęź wyszukiwanie.`));

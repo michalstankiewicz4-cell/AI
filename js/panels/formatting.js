@@ -15,6 +15,7 @@ import { profileScope } from '../ui/scope.js';
 import { buildExport, parseImport, applyAiText, dropAiText, DEFAULT_PROMPT, AI_TAG } from '../core/aiprep.js';
 import { isStructured, toJSONL } from '../core/structure.js';
 import { structureView } from '../ui/modals/structure-view.js';
+import { tableView } from '../ui/modals/table-view.js';
 import { addCaseDrafts } from '../core/dialogs.js';
 import { settings, saveSettings, SCHEMA } from '../core/settings.js';
 
@@ -85,7 +86,7 @@ export default {
       const stale = all.filter(d => d.cleanerVersion !== VERSIONS.cleaner);
       clear(bulk);
       const structured = docs.filter(d => isStructured(d.text)), judgments = docs.filter(isJudgment);
-      bulk.append(h('button.ghost', { type: 'button', disabled: !docs.length, onclick: () => exportForAi(docs) }, `Przygotuj dla AI (${docs.length})`),
+      bulk.append(h('button.ghost', { type: 'button', onclick: () => tableView(docs, structured.length ? 'przepisy' : 'rozmowy') }, 'Tabela'), h('button.ghost', { type: 'button', disabled: !docs.length, onclick: () => exportForAi(docs) }, `Przygotuj dla AI (${docs.length})`),
         h('button.ghost', { type: 'button', disabled: !judgments.length, onclick: () => makeCases(judgments) }, `Kazusy z orzeczeń (${judgments.length})`),
         h('button.ghost', { type: 'button', disabled: !structured.length, title: 'Akty z listy podzielone na przepisy (artykuł, paragraf, ustęp) z metadanymi i odnośnikami – jeden przepis w linii.', onclick: () => download(`przepisy-${new Date().toISOString().slice(0, 10)}.jsonl`, toJSONL(structured), 'application/x-ndjson') }, `Eksport JSONL (${structured.length})`), h('button.ghost', { type: 'button', onclick: importFromAi }, 'Wczytaj wynik od AI'));
       if (clean.length) bulk.append(h('button.ghost', { type: 'button', onclick: async () => { for (const d of clean) await setStatus(d, 'zatwierdzony'); toast(`Zatwierdzono ${clean.length}.`, 'ok'); draw(); } }, `Zatwierdź bez ostrzeżeń (${clean.length})`));

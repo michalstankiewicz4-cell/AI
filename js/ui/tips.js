@@ -99,6 +99,7 @@ export const TIPS = {
 export function tipFor(label) {
   if (TIPS[label]) return TIPS[label];
   if (/^Kazusy z orzeczeń/.test(label)) return 'Zrób szkielety rozmów wzorcowych z orzeczeń z listy (stan faktyczny → rozstrzygnięcie).';
+  if (label === 'Tabela') return 'Przepisy z aktów z listy albo rozmowy wzorcowe w tabeli: sortowanie, filtr i podświetlone problemy.';
   if (/^Eksport JSONL/.test(label)) return 'Zapisz akty z listy jako JSONL: jeden przepis w linii z metadanymi i odnośnikami.';
   if (/^Przygotuj dla AI/.test(label)) return 'Zapisz plik z instrukcją i dokumentami z listy – do ostatecznego sformatowania przez zewnętrzne AI.';
   if (/^Dodaj pytania do rozmów wzorcowych/.test(label)) return 'Dodaj typowe pytania z pakietu jako rozmowy wzorcowe do uzupełnienia odpowiedzi.';

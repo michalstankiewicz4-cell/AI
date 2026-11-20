@@ -20,3 +20,17 @@ export function dialogEditor(turns, onSave) {
       help('Kilka wymian w jednej rozmowie uczy sieć korzystać z kontekstu (nawiązywać do wcześniejszych pytań).', 'wymiany'), h('span.sp'),
       h('button', { type: 'button', onclick: () => onSave(list.map(x => ({ role: x.role, text: x.text.trim() }))) }, 'Zapisz')));
 }
+
+// Okno edycji zapisanej rozmowy wzorcowej („Edytuj” / „Uzupełnij”). Szkic po zapisie trafia do dostrajania.
+export async function editDialogModal(d, onDone) {
+  const { modal, toast } = await import('./dom.js');
+  const { makeDialog, saveDialog } = await import('../core/dialogs.js');
+  const close = modal(d.draft ? 'Uzupełnij rozmowę' : 'Edycja rozmowy', dialogEditor(d.turns, async turns => {
+    try {
+      const n = makeDialog(turns, d.source); Object.assign(d, { turns: n.turns, cleanerVersion: n.cleanerVersion });
+      if (d.draft) { delete d.draft; d.enabled = true; }
+      await saveDialog(d); close(); if (onDone) onDone(d);
+    } catch (e) { toast(e.message, 'error'); }
+  }));
+  return close;
+}

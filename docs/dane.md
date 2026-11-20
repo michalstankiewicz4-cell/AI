@@ -88,6 +88,9 @@ Kategorie są zebrane w grupy (kv `tagGroups`, domyślne w `js/core/taggroups.js
 ### Struktura aktu i odnośniki
 `js/core/structure.js` dzieli tekst aktu na artykuły (`Art. 385¹.`), paragrafy (`§ 1.`) i ustępy (`1.`), z rozdziałem. Odnośniki („art. 69 Prawa bankowego”, „art. 385¹ § 1 k.c.”, „art. 5”) są rozpoznawane w treści i łączone z przepisami biblioteki po skrócie aktu (k.c., k.p.c., k.p., k.k., pr. bank., u.k.k., u.k.h., u.r.f., u.o.k.k., RODO) albo nazwie dokumentu; bez nazwy aktu – ten sam akt. Eksport JSONL: `{akt, eli, przepis, art, par, ust, rozdzial, tekst, odnosniki}` na wiersz. Najlepiej działa na aktach sformatowanych przez AI.
 
+### Tabela i problemy
+`js/core/datatable.js` robi z przepisów (`provisionRows`) i rozmów (`dialogRows`) wiersze z listą problemów: *pusty tekst*, *duplikat* (ten sam tekst bez wielkości liter i spacji; przepisy od 20 znaków, pytania od 10), *brak licencji* (pusta licencja dokumentu), *zły odnośnik* (`buildGraph().actOf` znajduje akt w bibliotece, ale nie ma w nim artykułu). Niczego nie zmienia w danych.
+
 ### Kazusy
 Z orzeczenia (kategoria orzeczenie, wyrok albo uchwała) z sekcjami „Stan faktyczny”, „Analiza…”, „Rozstrzygnięcie” powstaje rozmowa wzorcowa „do uzupełnienia” (`source: 'kazus'`, `caseOf`, kategoria „kazus”): pytanie = stan faktyczny, odpowiedź = rozstrzygnięcie z analizą (przycięte).
 

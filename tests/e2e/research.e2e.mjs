@@ -334,6 +334,25 @@ ok(await p.isVisible(kom + ' .tag.old:text("licencja?")'), 'komentarz bez wolnej
 await p.fill(kom + ' input.lic', 'własne opracowanie'); await p.press(kom + ' input.lic', 'Tab'); await p.waitForTimeout(500);
 ok(!(await p.$(kom + ' .tag.old:text("licencja?")')), 'po wpisaniu wolnej licencji plakietka znika');
 ok((await p.evaluate(async () => (await (await import('./js/core/documents.js')).listDocs()).find(d => d.name === 'Kodeks cywilny (test)').license)) === '', 'ręcznie dodany dokument bez licencji (nie zgadujemy)');
+await p.goto(BASE + '#pulpit'); await p.goto(BASE + '#formatowanie'); await p.waitForSelector('button:text-is("Tabela")');
+await p.click('label:has-text("Wszystkie") input'); await p.waitForTimeout(400);
+await p.click('button:text-is("Tabela")'); await p.waitForSelector('dialog.modal table.dt');
+const labels = await p.$$eval('dialog.modal table.dt tbody tr td:first-child', x => x.map(e => e.textContent));
+ok(labels.includes('art. 385¹ § 1 k.c.') && labels.includes('art. 69 ust. 1 pr. bank.'), `Tabela: przepisy w wierszach (${labels.length})`);
+await p.selectOption('dialog.modal select', 'license'); await p.waitForTimeout(200);
+ok((await p.$$('dialog.modal tr.dtprob')).length > 0 && (await p.$$eval('dialog.modal table.dt tbody tr', x => x.every(e => e.textContent.includes('brak licencji')))), 'Tabela: filtr „brak licencji”, wiersze podświetlone');
+await p.selectOption('dialog.modal select', ''); await p.fill('dialog.modal input[type=search]', 'nienależne'); await p.waitForTimeout(200);
+ok((await p.$$('dialog.modal table.dt tbody tr')).length >= 1, 'Tabela: szukanie w treści');
+await p.fill('dialog.modal input[type=search]', ''); await p.click('dialog.modal .dtsort:has-text("Przepis")'); await p.click('dialog.modal .dtsort:has-text("Przepis")');
+ok((await p.textContent('dialog.modal .dtsort:has-text("Przepis")')).includes('▼'), 'Tabela: sortowanie malejąco po drugim kliknięciu');
+await p.click('dialog.modal table.dt tbody tr:has(td:text-is("art. 385¹ § 1 k.c."))'); await p.waitForSelector('dialog.modal .stbody');
+ok((await p.textContent('dialog.modal .stbody h3')).startsWith('art. 385¹ k.c.'), 'kliknięcie wiersza otwiera przepis w Strukturze');
+await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+await p.click('dialog.modal button:text-is("Rozmowy wzorcowe")'); await p.waitForTimeout(300);
+ok(await p.isVisible('dialog.modal table.dt tbody tr:has-text("Konsument zawarł kredyt"):has-text("do uzupełnienia")'), 'Tabela: rozmowy wzorcowe z kazusem do uzupełnienia');
+await p.click('dialog.modal table.dt tbody tr:has-text("Konsument zawarł kredyt")'); await p.waitForSelector('dialog.modal h3:text-is("Uzupełnij rozmowę")');
+ok(true, 'kliknięcie rozmowy otwiera edycję');
+await p.keyboard.press('Escape'); await p.keyboard.press('Escape');
 
 console.log('Profile');
 await p.goto(BASE + '#pulpit'); await p.waitForSelector('.profilecard');

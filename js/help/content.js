@@ -143,6 +143,16 @@ export const SECTIONS = [
     ['p', 'Ustawienia → „Dane w tej przeglądarce” → <b>Zapisz dane do pliku</b>: wybierasz części (ustawienia, dokumenty, rozmowy wzorcowe, historia rozmów, źródła Researchu, własne pakiety) i dostajesz jeden plik .json. <b>Wczytaj dane z pliku</b> w innej przeglądarce albo na innym komputerze dodaje brakujące rekordy (albo zastępuje istniejące o tym samym id).'],
     ['p', 'To ta sama zawartość co publikacja danych na GitHub, tylko bez repozytorium – plik zostaje u Ciebie, więc nadaje się też do danych, których nie chcesz publikować. Token GitHub nie trafia do pliku. Modele zapisujesz osobno („Pobierz plik” w zakładce Modele).'],
   ] },
+  { id: 'tabela', group: 'Dane', title: 'Tabela: przepisy i rozmowy w wierszach', topics: ['tabela'], body: [
+    ['p', 'Formatowanie → „Tabela” pokazuje dane do nauki w wierszach, żeby łatwo było je przejrzeć i sprawdzić. Dwa widoki: <b>Przepisy</b> – każdy paragraf albo ustęp z aktów z bieżącej listy (akty z co najmniej 3 artykułami), oraz <b>Rozmowy wzorcowe</b> – pierwsze pytanie i odpowiedź każdej rozmowy z bieżącego profilu.'],
+    ['steps', ['Kliknij nagłówek kolumny, aby posortować (drugi raz – odwrotnie). Numery artykułów są porównywane jak liczby.', 'Wpisz słowo w „Szukaj w tabeli…” albo wybierz problem z listy, np. „Z problemami”.', 'Kliknij wiersz: przepis otwiera się w „Strukturze”, rozmowa – w oknie edycji.']],
+    ['table', ['Problem', 'Kiedy'], [
+      ['pusty tekst', 'przepis bez treści po numerze albo rozmowa z pustym pytaniem lub odpowiedzią'],
+      ['duplikat', 'ten sam tekst (bez wielkości liter i spacji) w innym wierszu – w podpowiedzi lista, gdzie jeszcze'],
+      ['brak licencji', 'dokument nie ma wpisanej licencji (Dokumenty → Licencja); dotyczy przepisów'],
+      ['zły odnośnik', 'odnośnik do artykułu, którego nie ma w akcie z biblioteki; odnośniki do aktów spoza biblioteki nie są błędem']]],
+    ['tip', 'Wiersze z problemem mają żółte tło, pusta komórka albo brak licencji – czerwone. Tabela niczego nie zmienia sama: poprawki robisz w dokumencie (Dokumenty, Formatowanie, wersja od AI) albo w rozmowie.'],
+  ] },
   { id: 'struktura', group: 'Dane', title: 'Struktura aktów i powiązania przepisów', topics: ['struktura', 'jsonl'], body: [
     ['p', 'Panel rozpoznaje w tekście aktu artykuły („Art. 5.”, także „### Art. 5.” w Markdown od AI), paragrafy („§ 1.”), ustępy („1.”) i rozdziały. Akt z co najmniej 3 artykułami ma w Formatowaniu przycisk <b>Struktura</b>.'],
     ['table', ['Element', 'Co daje'], [

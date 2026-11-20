@@ -53,3 +53,17 @@ input.srcurl { width: 100%; box-sizing: border-box; margin-top: .3em; font-size:
 .stlinks ul { margin: .2em 0 .7em; padding-left: 1.2em; }
 @media (max-width: 760px) { .stwrap { grid-template-columns: 1fr; max-height: none; } }
 .licrow { gap: .4em; align-items: center; } .licrow input.lic { flex: 1 1 auto; }
+
+/* Formatowanie → Tabela */
+.dtwrap { max-height: 65vh; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+table.dt { width: 100%; border-collapse: collapse; font-size: .85rem; }
+table.dt th { position: sticky; top: 0; background: var(--panel, var(--bg)); text-align: left; border-bottom: 1px solid var(--line); padding: 0; }
+.dtsort { background: none; border: 0; color: var(--ink); font-weight: 600; padding: .4em .5em; min-height: 0; width: 100%; text-align: left; }
+table.dt td { padding: .3em .5em; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.dt td.dttext { min-width: 18em; }
+table.dt tbody tr { cursor: pointer; }
+table.dt tbody tr:hover, table.dt tbody tr:focus { background: color-mix(in srgb, var(--accent) 8%, transparent); outline: none; }
+table.dt tr.dtprob { background: var(--warn-soft); }
+table.dt td.dtbad { background: var(--bad-soft); }
+.dtbar input[type=search] { flex: 1 1 16em; width: auto; }
+.dtbar select { flex: 0 1 auto; width: auto; }

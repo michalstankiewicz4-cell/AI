@@ -2,6 +2,10 @@
 
 Format: wersja programu (`app`), data, zmiany. Wersje składowe w nawiasie, gdy się zmieniły. Zasady w [docs/wersjonowanie.md](docs/wersjonowanie.md).
 
+## 0.14.0 – 2026-11-20
+
+- **Tabela** (Formatowanie, nad listą): przepisy z aktów z bieżącej listy (paragraf albo ustęp w wierszu) albo rozmowy wzorcowe profilu (pytanie, odpowiedź, kwestie, źródło, stan). Sortowanie po kolumnie (numery artykułów jak liczby), szukanie, filtr problemu. Podświetlone problemy: pusty tekst, duplikat (z listą, gdzie jeszcze), brak licencji, zły odnośnik (artykuł, którego nie ma w akcie z biblioteki). Kliknięcie wiersza otwiera przepis w „Strukturze” albo rozmowę do edycji.
+
 ## 0.13.0 – 2026-11-20 (cleaner 1.1.0)
 
 - **Podział aktu na artykuły**: przy dokumencie w Formatowaniu „Struktura” – spis artykułów z wyszukiwaniem, treść artykułu z rozdziałem, odnośniki do innych przepisów (klikalne, także do innych aktów z biblioteki: k.c., k.p.c., k.p., pr. bank., u.k.k. …), „Cytowany przez”, „← Wstecz”. „Eksport JSONL” – jeden wiersz na paragraf lub ustęp (akt, przepis, rozdział, tekst, odnośniki). Fragmenty „Z biblioteki” pod odpowiedzią czatu są cięte po artykułach i podpisane („art. 385¹ § 1 k.c.”); kliknięcie otwiera strukturę w tym miejscu.

@@ -75,18 +75,20 @@ export function buildGraph(docs) {
   const items = docs.map(d => ({ doc: d, short: actShort(d.name) || actShort(d.description), articles: parseStructure(d.text).articles })).filter(x => x.articles.length >= 3);
   const byShort = new Map(items.filter(x => x.short).map(x => [x.short, x]));
   const has = (it, art) => it.articles.some(a => a.art === art);
-  const resolve = (ref, from) => {
+  // akt, do którego prowadzi odnośnik (jeśli jest w bibliotece)
+  const actOf = (ref, from) => {
     let it = ref.short ? byShort.get(ref.short) : null;
     if (!it && ref.act) it = items.find(x => x.doc.name.toLowerCase().includes(ref.act.toLowerCase().replace(/^(ustawy|kodeksu|prawa|rozporządzenia)\s+/i, '').slice(0, 30)));
     if (!it && !ref.act) it = items.find(x => x.doc.id === (from && from.id));
-    return it && has(it, ref.art) ? { doc: it.doc, art: ref.art } : null;
+    return it || null;
   };
+  const resolve = (ref, from) => { const it = actOf(ref, from); return it && has(it, ref.art) ? { doc: it.doc, art: ref.art } : null; };
   const incoming = (doc, art) => {
     const out = [];
     for (const it of items) for (const a of it.articles) for (const r of findRefs(a.text)) { const t = resolve(r, it.doc); if (t && t.doc.id === doc.id && t.art === art && !(it.doc.id === doc.id && a.art === art)) out.push({ doc: it.doc, art: a.art, short: it.short }); }
     return out;
   };
-  return { items, resolve, incoming, find: id => items.find(x => x.doc.id === id) };
+  return { items, resolve, actOf, incoming, find: id => items.find(x => x.doc.id === id) };
 }
 
 // ---------- eksport JSONL: jeden przepis (artykuł / paragraf / ustęp) w linii ----------
